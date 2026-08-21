@@ -1,8 +1,8 @@
 ---
 name: Ednocte
-version: 0.1.0
+version: 0.2.0
 type: design-direction
-status: draft-v1
+status: draft-v2
 author: Naji
 summary: >-
   A night-native design philosophy for education technology. Learning as a
@@ -65,35 +65,101 @@ tokens:
 
 **Ednocte** = *Ed* (education) + *nocte* (Latin: by night).
 
-Mainstream edtech looks like a classroom: white background, primary blue,
-red and green checkmarks, cartoon mascots, confetti. Ednocte rejects that.
-Learning does not happen at a desk between 9 and 3. It happens on the bus
-home, at 2 AM in a diner booth, on a park bench with dim lamplight, in the
- fifteen minutes before sleep. It is mixed with emotion, loneliness,
-ambition, and city air. It is personal before it is institutional. It is
-*rogue*: self-directed, out of books, asking no one's permission.
+A design philosophy for the ones who learn at night, outside, alone, lit by
+the city — for whom education is not a place you go but a fire you keep.
 
-Ednocte is the interface for that learner. The city is the campus. The
-night is the schedule. The screen is the only light that's yours.
+### The eight beliefs
 
-**Ednocte is not cyberpunk.** Cyberpunk screams — full neon saturation,
-chrome, noise. Ednocte *whispers*. It is vast, calm dark with rare, precise
-points of light. The neon exists the way real city neon exists: as distant
-beacons, not wallpaper. 90% night, 10% light.
+**1. Learning was never supposed to live in a classroom.**
 
-### The five principles
+Somewhere along the way, education got a dress code: white walls, white
+backgrounds, primary blues and reds and greens, bells. We were taught to
+recognize learning by its furniture. But think of every time an idea
+actually found you — almost never at a desk between nine and three. It
+found you on the walk home. In the shower. At 2 AM, cold coffee, screen
+too bright for the dark. Ednocte starts from that honesty: real learning
+happens when the institution isn't looking. So we don't design classrooms.
+We design for the moments after them.
 
-1. **The city is the campus.** No classroom metaphors, no blackboards, no
-   desks. Space, paths, windows, routes, beacons.
-2. **Light is meaning.** In darkness, light = attention. Anything that
-   glows matters. Anything that matters can glow. Nothing glows for
+**2. The night belongs to the curious.**
+
+Daytime is borrowed time — school, work, obligations, other people's
+schedules. When the night settles in and the city exhales, the hours
+finally become yours. There is a specific clarity that only exists after
+dark: fewer demands, softer sounds, thoughts finally loud enough to hear.
+Ednocte is built for those hours. Not because we romanticize exhaustion,
+but because that's when curiosity stops performing and starts being true.
+
+**3. Anonymity is freedom.**
+
+On a night street you are nobody, and it's the best thing about you there.
+No name called, no hand raised, no grade waiting. The strangers passing
+are moving toward their own destinies — every lit window a different life
+— and none of them is paying you attention. Their indifference is a gift.
+For once there is no audience, so you can want something without
+explaining why. Ednocte keeps that privacy sacred. Learning here is not a
+performance measured by a dashboard. It's between you and what you're
+becoming.
+
+**4. Feeling is part of the curriculum.**
+
+Mainstream edtech treats emotion like interference to be designed away. We
+treat it as the medium itself. Ambition at midnight hits differently.
+Loneliness makes a question sharper. Hunger turns pages faster than any
+deadline ever did. The person reading a doc on a bench in a dimly lit park
+isn't a "user" completing tasks — they're someone chasing something, alone,
+feeling everything. Ednocte acknowledges mood, hour, and solitude. Warm
+when you're low-lit. Quiet when you need quiet. Never confetti. The product
+should feel less like software and more like the one awake friend.
+
+**5. The library dissolved into the air.**
+
+Books used to hold knowledge; now it's ambient — in docs, feeds, videos,
+models, late-night rabbit holes. Checking a document on a phone under a
+park lamp is the new reading room; the diner booth near closing time is
+the new library carrel. This is not the death of learning — it's its
+escape. Out of books, off the shelves, into hands. Ednocte embraces it in
+all directions: formal, self-taught, accidental, obsessive. If it changes
+you, it counts.
+
+**6. Ideas come from looking at lights.**
+
+There's a reason thinkers have always walked at night. City lights are
+proof of other minds — every lit window someone else's project, every neon
+sign meaning made electric. Looking up at them, the mind wanders, and
+wandering is where imagination does its real work. Ednocte borrows that
+physics: vast calm dark, rare points of glow, each one meaning something.
+Our interfaces don't decorate with light. They *mean* with it.
+
+**7. Rogue means asking no one's permission.**
+
+No enrollment. No gatekeeper. No committee deciding what you're allowed
+to wonder about tonight. Learning chosen freely at midnight, against no
+requirement, is the purest kind — it's desire, not compliance. Ednocte is
+on the side of the autodidact, the switcher, the obsessed, the one going
+off-map. Rogue, not chaotic: self-direction with craft. Rebellion with
+taste.
+
+**8. Personal before scalable.**
+
+This direction is not for everyone, and that is the point. It speaks to
+one person, at one table, at one hour. Mass-market edtech must average
+everyone into beige; Ednocte refuses the average. We would rather be
+unmistakable to the few who *feel* this — who know exactly what a phone
+glow on a face in a dark park means — than tolerable to everyone.
+
+### Compressed: the five working principles
+
+For walls, reviews, and quick decisions — the eight beliefs folded small:
+
+1. **The city is the campus.** Space, paths, windows, routes, beacons —
+   never classrooms.
+2. **Light is meaning.** Anything that glows matters; nothing glows for
    decoration alone.
-3. **Intimacy over scale.** The UI speaks to *one* person, at *one* table,
-   at *one* hour — never to "users", never to a classroom.
+3. **Intimacy over scale.** One person, one table, one hour — never "users".
 4. **Rogue, not chaotic.** Self-directed energy with crafted precision.
-   Controlled rebellion: one tilted element, never a broken grid.
-5. **Emotion is a feature.** The interface acknowledges hour, mood, and
-   solitude. It never spams, never shouts, never fakes enthusiasm.
+5. **Emotion is a feature.** Hour, mood, solitude are acknowledged —
+   never spammed, never shouted, never faked.
 
 ### Product vocabulary (use these names in the product)
 
@@ -478,4 +544,4 @@ Dark + neon fails accessibly *by default*. These rules are hard gates:
 
 ---
 
-*Ednocte v0.1 — the night is the campus. Drafted by Naji & ox-alpha.*
+*Ednocte v0.2 — the night is the campus. Drafted by Naji & ox-alpha.*
