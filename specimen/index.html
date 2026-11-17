@@ -11,8 +11,13 @@
     var q = new URLSearchParams(location.search), t = q.get('theme');
     if (t) document.documentElement.dataset.theme = t;
     if (q.get('transparency') === 'reduced') document.documentElement.dataset.reducedTransparency = 'true';
+    // ?density=comfortable|compact|touch sets the density; with none, a coarse pointer gets touch.
+    if (q.get('density')) document.documentElement.dataset.density = q.get('density');
+    // ?dir=rtl mirrors the layout.
+    if (q.get('dir')) document.documentElement.dir = q.get('dir');
   })();
 </script>
+<link rel="stylesheet" href="../fonts/realis-aero.fonts.css">
 <link rel="stylesheet" href="../tokens/realis-aero.tokens.css">
 <link rel="stylesheet" href="specimen.css">
 </head>
@@ -43,6 +48,9 @@
     <a href="#quality">Data quality</a>
     <a href="#editing">Editing</a>
     <a href="#selection">Selection</a>
+    <a href="#type">Type</a>
+    <a href="#table">Table</a>
+    <a href="#layers-section">Layers</a>
     <a href="#chart">Chart</a>
     <a href="#ladder">Layers</a>
   </nav>
@@ -51,14 +59,14 @@
     <div class="topbar">
       <div>
         <h1>Realis Aero specimen</h1>
-        <p class="secondary small">Every surface and state of v0.4, on live tokens.</p>
+        <p class="secondary small">Every surface and state of v0.5, on live tokens.</p>
       </div>
       <div class="topbar__status">
         <span class="state-label" id="feed" data-state="live" role="status"><svg class="mark" aria-hidden="true"><use href="#m-live"/></svg><span id="feed-text">Live · 14:02:31</span></span>
         <button class="btn btn--secondary" id="pause" type="button" aria-pressed="false">Pause updates</button>
       </div>
       <nav class="themes" aria-label="Theme">
-        <a href="?">System</a><a href="?theme=light">Light</a><a href="?theme=dark">Dark</a><a href="?theme=outdoor">Outdoor</a><a href="?transparency=reduced">Reduced transparency</a>
+        <a href="?">System</a><a href="?theme=light">Light</a><a href="?theme=dark">Dark</a><a href="?theme=outdoor">Outdoor</a><a href="?transparency=reduced">Reduced transparency</a><a href="?density=compact">Compact</a><a href="?density=touch">Touch</a><a href="?dir=rtl">Right to left</a>
       </nav>
     </div>
 
@@ -245,6 +253,162 @@
       </div>
     </section>
 
+    <section class="section" id="type" aria-labelledby="h-type">
+      <header><h2 id="h-type">Type</h2><p class="muted small">Bundled faces, so every device draws the same letters: Source Sans 3, Source Code Pro, and Noto Sans Arabic for Arabic.</p></header>
+      <div class="card"><div class="card__body type">
+        <div class="type__row"><span class="caption muted">Reading text</span><p id="t-sans">The reservoir is 71.2 % full. Inflow is 12 % above forecast because cloud cover cleared earlier than expected.</p></div>
+        <div class="type__row"><span class="caption muted">Tabular figures</span><div class="type__figures"><span id="t-ones">1,111.11</span><span id="t-zeros">9,000.00</span><span>4,827.35</span></div></div>
+        <div class="type__row"><span class="caption muted">Codes and IDs</span><p><span class="mono" id="t-mono">INV-2-0417 · 0O 1lI 5S 8B</span> <span class="muted small">mono, so confusable characters differ</span></p></div>
+        <div class="type__row"><span class="caption muted">Weights</span><p><span style="font-weight:400">Regular 400</span> · <span style="font-weight:520" id="t-520">Heading 520</span> · <span style="font-weight:560" id="t-560">Label 560</span> · <em>Italic for placeholders</em></p></div>
+        <div class="type__row"><span class="caption muted">French</span><p lang="fr">Le débit est supérieur à la prévision : vérifiez d’abord le réservoir n° 2.</p></div>
+        <div class="type__row"><span class="caption muted">Arabic</span><p class="type__ar" lang="ar" dir="rtl" id="t-ar">الخزان 2 · المستوى 71.2 % · آخر تحديث 14:02</p></div>
+      </div></div>
+    </section>
+
+    <section class="section" id="table" aria-labelledby="h-table">
+      <header><h2 id="h-table">Table</h2><p class="muted small">One tab stop. <span class="kbd">Arrows</span> move, <span class="kbd">Enter</span> edits or sorts, <span class="kbd">Esc</span> cancels, <span class="kbd">Space</span> selects the row. Rows keep one height in every density.</p></header>
+      <div class="card">
+        <div class="table-wrap" tabindex="-1">
+          <table class="table" id="assets" role="grid" aria-labelledby="h-table" aria-describedby="grid-status">
+            <thead>
+              <tr role="row">
+                <th class="key" scope="col"></th><th scope="col"></th>
+                <th class="group" scope="colgroup" colspan="2">Output</th>
+                <th class="group" scope="colgroup" colspan="2">Health</th>
+                <th class="group" scope="colgroup">Control</th>
+              </tr>
+              <tr role="row">
+                <th role="columnheader" class="key" scope="col" aria-sort="ascending">Asset</th>
+                <th role="columnheader" scope="col" aria-sort="none">Site</th>
+                <th role="columnheader" class="num group" scope="col" aria-sort="none" data-group="Output">Now kW</th>
+                <th role="columnheader" class="num" scope="col" aria-sort="none" data-group="Output">Today kWh</th>
+                <th role="columnheader" class="group" scope="col" data-group="Health">State</th>
+                <th role="columnheader" scope="col" data-group="Health">Last service</th>
+                <th role="columnheader" class="num group" scope="col" data-group="Control">Limit kW</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr role="row" aria-selected="false">
+                <td role="gridcell" class="key" data-state="live"><span class="key__inner"><span class="slot"></span><span>Roof array A</span></span></td>
+                <td role="gridcell">Casablanca DC</td>
+                <td role="gridcell" class="num group" data-value="42.6"><bdi>42.6</bdi></td>
+                <td role="gridcell" class="num" data-value="212.4"><bdi>212.4</bdi></td>
+                <td role="gridcell" class="group" data-state="live"><span class="state-label">Live</span></td>
+                <td role="gridcell" class="muted"><bdi>12 Sep 2026</bdi></td>
+                <td role="gridcell" class="num group" data-editable data-value="50.0"><span class="cell-edit"><svg class="mark" aria-hidden="true" hidden><use href="#m-dirty"/></svg><span class="cell-value"><bdi>50.0</bdi></span></span></td>
+              </tr>
+              <tr role="row" aria-selected="false">
+                <td role="gridcell" class="key" data-state="live"><span class="key__inner"><span class="slot"></span><span>Roof array B</span></span></td>
+                <td role="gridcell">Casablanca DC</td>
+                <td role="gridcell" class="num group" data-value="38.1"><bdi>38.1</bdi></td>
+                <td role="gridcell" class="num" data-value="190.2"><bdi>190.2</bdi></td>
+                <td role="gridcell" class="group" data-state="live"><span class="state-label">Live</span></td>
+                <td role="gridcell" class="muted"><bdi>12 Sep 2026</bdi></td>
+                <td role="gridcell" class="num group" data-editable data-value="50.0"><span class="cell-edit"><svg class="mark" aria-hidden="true" hidden><use href="#m-dirty"/></svg><span class="cell-value"><bdi>50.0</bdi></span></span></td>
+              </tr>
+              <tr role="row" aria-selected="false">
+                <td role="gridcell" class="key" data-state="degraded"><span class="key__inner"><span class="slot"><svg class="mark" aria-hidden="true"><use href="#m-degraded"/></svg></span><span>Heat pump 2</span></span></td>
+                <td role="gridcell">Rabat lab</td>
+                <td role="gridcell" class="num group" data-value="5.1"><bdi>5.1</bdi></td>
+                <td role="gridcell" class="num" data-value="61.0"><bdi>61.0</bdi></td>
+                <td role="gridcell" class="group" data-state="degraded"><span class="state-label">Degraded</span></td>
+                <td role="gridcell" class="muted"><bdi>03 Jun 2026</bdi></td>
+                <td role="gridcell" class="num group" data-editable data-value="8.0"><span class="cell-edit"><svg class="mark" aria-hidden="true" hidden><use href="#m-dirty"/></svg><span class="cell-value"><bdi>8.0</bdi></span></span></td>
+              </tr>
+              <tr role="row" aria-selected="true">
+                <td role="gridcell" class="key" data-state="maintenance"><span class="key__inner"><span class="slot"><svg class="mark" aria-hidden="true"><use href="#m-maintenance"/></svg></span><span>Inverter 2</span></span></td>
+                <td role="gridcell">Casablanca DC</td>
+                <td role="gridcell" class="num group" data-value="0.0"><bdi>0.0</bdi></td>
+                <td role="gridcell" class="num" data-value="104.7"><bdi>104.7</bdi></td>
+                <td role="gridcell" class="group" data-state="maintenance"><span class="state-label">Maintenance</span></td>
+                <td role="gridcell" class="muted"><bdi>today 16:00</bdi></td>
+                <td role="gridcell" class="num group" data-editable data-value="25.0"><span class="cell-edit"><svg class="mark" aria-hidden="true" hidden><use href="#m-dirty"/></svg><span class="cell-value"><bdi>25.0</bdi></span></span></td>
+              </tr>
+              <tr role="row" aria-selected="false">
+                <td role="gridcell" class="key" data-state="live"><span class="key__inner"><span class="slot"></span><span>Battery rack 1</span></span></td>
+                <td role="gridcell">Casablanca DC</td>
+                <td role="gridcell" class="num group" data-value="-12.4"><bdi>−12.4</bdi></td>
+                <td role="gridcell" class="num" data-value="-58.3"><bdi>−58.3</bdi></td>
+                <td role="gridcell" class="group" data-state="live"><span class="state-label">Live</span></td>
+                <td role="gridcell" class="muted"><bdi>21 Aug 2026</bdi></td>
+                <td role="gridcell" class="num group" data-editable data-value="30.0"><span class="cell-edit"><svg class="mark" aria-hidden="true" hidden><use href="#m-dirty"/></svg><span class="cell-value"><bdi>30.0</bdi></span></span></td>
+              </tr>
+              <tr role="row" aria-selected="false">
+                <td role="gridcell" class="key" data-state="bad"><span class="key__inner"><span class="slot"><svg class="mark" aria-hidden="true"><use href="#m-offline"/></svg></span><span>Flow meter 3</span></span></td>
+                <td role="gridcell">Tangier plant</td>
+                <td role="gridcell" class="num group" data-value="-1e9"><bdi>—</bdi></td>
+                <td role="gridcell" class="num" data-value="-1e9"><bdi>—</bdi></td>
+                <td role="gridcell" class="group" data-state="bad"><span class="state-label">Comm lost 00:42</span></td>
+                <td role="gridcell" class="muted"><bdi>14 Feb 2026</bdi></td>
+                <td role="gridcell" class="num group" data-editable data-value="40.0"><span class="cell-edit"><svg class="mark" aria-hidden="true" hidden><use href="#m-dirty"/></svg><span class="cell-value"><bdi>40.0</bdi></span></span></td>
+              </tr>
+              <tr role="row" aria-selected="false">
+                <td role="gridcell" class="key" data-state="stale"><span class="key__inner"><span class="slot"><svg class="mark" aria-hidden="true"><use href="#m-stale"/></svg></span><span>Weather mast</span></span></td>
+                <td role="gridcell">Tangier plant</td>
+                <td role="gridcell" class="num group" data-value="0.2"><bdi>0.2</bdi></td>
+                <td role="gridcell" class="num" data-value="1.9"><bdi>1.9</bdi></td>
+                <td role="gridcell" class="group" data-state="stale"><span class="state-label">Stale · 12 min</span></td>
+                <td role="gridcell" class="muted"><bdi>30 Jul 2026</bdi></td>
+                <td role="gridcell" class="num group" data-editable data-value="1.0"><span class="cell-edit"><svg class="mark" aria-hidden="true" hidden><use href="#m-dirty"/></svg><span class="cell-value"><bdi>1.0</bdi></span></span></td>
+              </tr>
+              <tr role="row" aria-selected="false">
+                <td role="gridcell" class="key" data-state="success"><span class="key__inner"><span class="slot"></span><span>Recovery pump</span></span></td>
+                <td role="gridcell">Rabat lab</td>
+                <td role="gridcell" class="num group" data-value="3.4"><bdi>3.4</bdi></td>
+                <td role="gridcell" class="num" data-value="27.5"><bdi>27.5</bdi></td>
+                <td role="gridcell" class="group" data-state="success"><span class="state-label">Verified</span></td>
+                <td role="gridcell" class="muted"><bdi>02 Oct 2026</bdi></td>
+                <td role="gridcell" class="num group" data-editable data-value="6.0"><span class="cell-edit"><svg class="mark" aria-hidden="true" hidden><use href="#m-dirty"/></svg><span class="cell-value"><bdi>6.0</bdi></span></span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-foot"><span id="grid-counts" role="status"></span><span id="grid-status" class="mono"></span></div>
+      </div>
+    </section>
+
+    <section class="section" id="layers-section" aria-labelledby="h-layers">
+      <header><h2 id="h-layers">Layers: draft, queued, saved</h2><p class="muted small">Nothing takes effect on change. Edit a value, then Apply, Reset, Revert or Undo. Go offline and applied changes queue; a queued night setback conflicts with an edit made elsewhere.</p></header>
+      <div class="card" id="layers">
+        <div class="card__body">
+          <div class="actions">
+            <span class="state-label" id="layers-net" data-state="live" role="status"><svg class="mark" aria-hidden="true"><use href="#m-live"/></svg><span>Online</span></span>
+            <button class="btn btn--secondary" id="net" type="button" aria-pressed="false">Go offline</button>
+          </div>
+          <div class="fields">
+          <div class="field" data-state="rest">
+            <label class="field__label" for="l-setpoint">Setpoint <svg class="mark" aria-hidden="true" hidden><use href="#m-dirty"/></svg></label>
+            <div class="field__control"><input id="l-setpoint" value="21.5" aria-describedby="l-setpoint-m"><span class="field__unit">°C</span></div>
+            <span class="field__message" id="l-setpoint-m"><svg class="mark" aria-hidden="true" hidden><use href="#m-queued"/></svg><span>Saved</span></span>
+          </div>
+          <div class="field" data-state="rest">
+            <label class="field__label" for="l-setback">Night setback <svg class="mark" aria-hidden="true" hidden><use href="#m-dirty"/></svg></label>
+            <div class="field__control"><input id="l-setback" value="16.0" aria-describedby="l-setback-m"><span class="field__unit">°C</span></div>
+            <span class="field__message" id="l-setback-m"><svg class="mark" aria-hidden="true" hidden><use href="#m-queued"/></svg><span>Saved</span></span>
+          </div>
+          <div class="field" data-state="rest">
+            <label class="field__label" for="l-tariff">Tariff window <svg class="mark" aria-hidden="true" hidden><use href="#m-dirty"/></svg></label>
+            <div class="field__control"><input id="l-tariff" value="23:00–06:00" aria-describedby="l-tariff-m"></div>
+            <span class="field__message" id="l-tariff-m"><svg class="mark" aria-hidden="true" hidden><use href="#m-queued"/></svg><span>Saved</span></span>
+          </div>
+          </div>
+          <div id="layers-conflicts" class="section"></div>
+          <ul class="history" id="layers-history" aria-label="Recent changes"></ul>
+        </div>
+        <div class="applybar">
+          <div class="applybar__counts">
+            <span class="state-label" data-state="dirty" hidden><svg class="mark" aria-hidden="true"><use href="#m-dirty"/></svg><span id="layers-dirty">0 unsaved</span></span>
+            <span class="state-label" data-state="queued" hidden><svg class="mark" aria-hidden="true"><use href="#m-queued"/></svg><span id="layers-queued">0 queued</span></span>
+            <span class="caption" id="layers-status" role="status">No changes.</span>
+          </div>
+          <button class="btn btn--primary" id="l-apply" type="button" aria-disabled="true" aria-describedby="layers-status">Apply</button>
+          <button class="btn btn--secondary" id="l-reset" type="button" aria-disabled="true" aria-describedby="layers-status">Reset</button>
+          <button class="btn btn--secondary" id="l-revert" type="button" aria-disabled="true" aria-describedby="layers-status">Revert</button>
+          <button class="btn btn--secondary" id="l-undo" type="button" aria-disabled="true" aria-describedby="layers-status">Undo</button>
+        </div>
+      </div>
+    </section>
+
     <section class="section" id="chart" aria-labelledby="h-chart">
       <header><h2 id="h-chart">Chart series</h2><p class="muted small">Each series has its own line style and a direct label. Limits are labelled lines, never coloured series.</p></header>
       <div class="card"><div class="card__body">
@@ -321,5 +485,7 @@
     });
   })();
 </script>
+<script src="grid.js"></script>
+<script src="layers.js"></script>
 </body>
 </html>

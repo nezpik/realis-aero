@@ -1,14 +1,15 @@
 {
   "name": "realis-aero",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "description": "Realis Aero: a design system for a feasible future, with tokens, a specimen and checks.",
   "type": "module",
   "scripts": {
-    "check": "npm run check:tokens && npm run check:cvd && npm run check:render",
+    "check": "npm run check:tokens && npm run check:cvd && npm run check:render && npm run check:glyphs",
     "check:tokens": "node tools/check-tokens.mjs",
     "check:cvd": "node tools/check-cvd.mjs",
-    "check:render": "node tools/check-render.mjs"
+    "check:render": "node tools/check-render.mjs",
+    "check:glyphs": "node tools/check-glyphs.mjs"
   },
   "devDependencies": {
     "playwright": "1.63.0"

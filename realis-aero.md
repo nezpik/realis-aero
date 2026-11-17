@@ -1,9 +1,28 @@
-# Realis Aero Design System v0.4
+# Realis Aero Design System v0.5
 
-**Version**: 0.4  
-**Date**: November 2026 (v0.3: October 2026, v0.2: May 2026)  
+**Version**: 0.5  
+**Date**: November 2026 (v0.4: November 2026, v0.3: October 2026, v0.2: May 2026)  
 **Vision Holder**: Naji Zouiti  
 **Purpose**: Product-ready UI/UX, brand, and implementation specification for a feasible-future aesthetic.
+
+## What Changed in v0.5
+
+v0.5 adds the mechanics that dense and long-running products need. As in v0.4, each addition is in the token file, the specimen and the checks.
+
+- **Density**: comfortable, compact and touch as one token switch. See [Density](#density).
+- **Tables and data grids**: anatomy, a keyboard model implemented and tested key by key, and stated limits. See [Tables & Data Grids](#tables--data-grids).
+- **Layered state, undo and offline**: baseline, committed, queued and draft layers; Apply, Reset, Revert and Undo; offline as a whole-surface state; conflicts shown, not overwritten. See [Layered State, Undo and Offline](#layered-state-undo-and-offline).
+- **Typography as engineering**: bundled open-licensed faces (Source Sans 3, Source Code Pro, Noto Sans Arabic), tabular digits and real weights proven by checks, and a check that every character drawn is covered by a bundled face. See [Font Stack](#font-stack).
+- **Right to left**: the layout mirrors through logical properties, and numbers and dates are isolated. See [Internationalization and Right to Left](#internationalization-and-right-to-left).
+- **Smaller sections**: [Performance](#performance), [Settings and Personalization](#settings-and-personalization), [Measuring Success](#measuring-success), and zoom in [Accessibility](#accessibility).
+
+Building the checks found defects, corrected here:
+
+- **Numbers and dates broke in right-to-left layouts.** "−12.4" displayed as "12.4−" and "12 Sep 2026" as "Sep 2026 12", because numbers join the bidirectional reordering of their cell. They are now isolated.
+- **Charts clipped their labels in right-to-left pages**, because SVG text anchors follow the page direction while the chart's geometry does not. Charts now keep their own direction.
+- **The 44px input height** made every desktop form and table taller than the work needs. 44px is now the touch density; comfortable is 36px and compact 28px.
+- **Frutiger is a commercial face** that was first in the stack, so a device without it silently drew something else. The stack now leads with a bundled face.
+- **The disabled reasons were not reachable** on the new layer controls until each action was given an `aria-disabled` state and a status line to read its reason from.
 
 ## What Changed in v0.4
 
@@ -171,8 +190,22 @@ Realis Aero typography should be humanist, readable, slightly warm, and technica
 #### Font Stack
 
 ```css
-font-family: "Frutiger", "Aptos", "Segoe UI", "Inter", "SF Pro Text", system-ui, sans-serif;
+--font-sans: "Source Sans 3", "Noto Sans Arabic", "Segoe UI", "Inter", system-ui, sans-serif;
+--font-mono: "Source Code Pro", "Noto Sans Arabic", ui-monospace, "JetBrains Mono", monospace;
 ```
+
+The faces are bundled in [`fonts/`](fonts/), with a licence beside each, and declared in [`fonts/realis-aero.fonts.css`](fonts/realis-aero.fonts.css). All are under the SIL Open Font License 1.1, free for commercial use, embedding and modification.
+
+| Face | For | Why |
+|---|---|---|
+| **Source Sans 3** (upright and italic, variable 200–900) | Everything that is not code | A humanist sans with the warmth Realis Aero asks for. Its variable weight renders the specified 520, 550 and 560 as written, and it contains every sign and unit the system uses (`≈ ≤ ≥ − · — → µ °`). Its ten digits share one width (472 units), so figures align with no feature switched on. |
+| **Source Code Pro** (variable 200–900) | Codes, IDs, shortcuts, status lines | Digits share one width (600 units) and confusable characters differ (`0O 1lI 5S 8B`), so a transcribed code is read correctly. |
+| **Noto Sans Arabic** (variable 100–900) | Arabic text | Follows the Latin face in both stacks and is limited by `unicode-range` to Arabic code points, so Latin text never uses it and a page with no Arabic has no reason to fetch it. |
+
+- **Frutiger stays a reference for the feel, not a dependency.** It is commercial and cannot be bundled, so a stack that leads with it renders differently on every device. Source Sans 3 is this document's choice of an open humanist face; a product that licenses Frutiger may put it first, accepting that it then has to bundle it too.
+- **Marks are vector shapes, not font glyphs**, so unlike a system that draws its state marks from characters, no symbols font is needed and no device can substitute a different shape (see [State System](#state-system)). Text symbols such as `≈ ≤ − ·` are in the bundled Latin face.
+- **No system fallback for drawn characters.** `npm run check:glyphs` reads the WOFF2 character maps and fails if any character the specimen draws is missing from the face that draws it.
+- **`font-variant-numeric: tabular-nums` stays on** wherever numbers appear, so a fallback face (a system font on a device that blocked the download) still aligns.
 
 #### Type Scale
 
@@ -197,7 +230,10 @@ font-family: "Frutiger", "Aptos", "Segoe UI", "Inter", "SF Pro Text", system-ui,
 - **Labels**: Use sentence case for human clarity; reserve uppercase for compact system tags only.
 - **Hierarchy**: Use weight and spacing before using color.
 - **Line length**: Keep prose between 58 and 76 characters per line.
-- **Numbers**: Use tabular numerals for dashboards, charts, and meters.
+- **Numbers**: Use tabular numerals for dashboards, charts, tables and meters. The render check proves the bundled digits share one width.
+- **Weights are real**: 400, 520, 550, 560 and 600 each render differently because the faces are variable. A weight that renders the same as its neighbour is a defect.
+- **Codes and IDs** use the mono face, so confusable characters differ.
+- **Right to left**: numbers and dates are isolated so they keep their reading order inside Arabic text (see [Internationalization and Right to Left](#internationalization-and-right-to-left)).
 
 ### Color System
 
@@ -448,6 +484,25 @@ Use an 8px base grid with 4px micro-adjustments for dense instrumentation.
 | **space-16** | 64px | Large breathable divisions |
 | **space-24** | 96px | Landing page sections |
 
+### Density
+
+One switch changes spacing and size for the whole interface. Density never changes type size, content or capability: the same rows, limits and states appear in every density.
+
+| Token | Comfortable | Compact | Touch |
+|---|---:|---:|---:|
+| `density-control-h` | 36px | 28px | 44px |
+| `density-row-h` | 40px | 32px | 48px |
+| `density-gap-intra` | 8px | 4px | 8px |
+| `density-gap-inter` | 16px | 12px | 16px |
+| `density-pad-x` | 12px | 8px | 16px |
+| **For** | Default for desktop work | Tables, monitoring, power use | Phones, tablets, handhelds |
+
+- **Set with `data-density` on any element**, like a theme, so one region can be compact inside a comfortable page. With no attribute, a coarse pointer gets touch and everything else gets comfortable.
+- **Compact never falls below 24px** (WCAG 2.5.8). In a table the target is the whole cell, not the inner input box: in compact the editable cell's visible box is inset but stays at least 24px high.
+- **44px is the touch density**, not a universal floor. Desktop forms and tables are no longer 44px tall just because a phone needs it; a product that ships to touch devices uses touch there.
+- **Rows keep one height** within a density, whatever they contain.
+- **Density is a user choice**, offered in [Settings and Personalization](#settings-and-personalization), not a layout the product guesses from the screen width alone.
+
 ### Radius
 
 | Token | Value | Use |
@@ -637,6 +692,53 @@ Realis Aero has more meanings than families, so some states share a colour. Thes
 
 Light values are shown; dark and outdoor values are in the token file. Each text token is measured on the canvas, card, hover, inset, raised and selected surfaces and on its own tint, and each mark on the canvas, card, inset and selected surfaces.
 
+## Layered State, Undo and Offline
+
+A value can be in four places at once: the one that was opened, the last saved one, one waiting for the network, and the one being typed. Showing which is the difference between a tool that can be trusted with a setpoint and one that cannot. The specimen's [Layers section](specimen/index.html#layers-section) implements this model in [`specimen/layers.js`](specimen/layers.js).
+
+### The Layers
+
+```
+baseline  →  committed  →  queued  →  draft
+ opened       saved         applied     being typed
+                            offline
+```
+
+- **A field shows the top layer that holds a value for it.** Its marks and messages are computed by comparing a layer with the one below, never stored as flags.
+- **Draft** differs from the layer below: the ink dot and "Unsaved · was 21.5".
+- **Queued** was applied while offline: the dot, the up-arrow mark and "Queued · was 16.0 · syncs when the network returns".
+- **Committed** differs from the baseline: "Saved · was 21.5 when opened". A value the user never touched says only "Saved".
+- **Typing the layer below back clears the draft**, and with it the mark.
+
+### Apply, Reset, Revert and Undo
+
+| Action | What it does | Unavailable when |
+|---|---|---|
+| **Apply** | Commits the draft as **one named change** ("Applied 2 changes"). Offline, the label becomes **Apply offline** and the change is queued instead. | There is no draft |
+| **Reset** | Discards the draft and returns to what is saved (or queued) | There is no draft |
+| **Revert** | Returns saved values to the baseline, the values that were opened. It is itself undoable. | Nothing differs from the baseline, or the surface is offline |
+| **Undo** | Reverses the last named change, whole. Resolving a conflict is a named change too. | There is nothing to undo |
+
+- **Nothing takes effect on change.** Editing creates a draft; only Apply writes.
+- **The apply bar is persistent**: counts of unsaved and queued changes (shown only when above zero), the four actions, and a status line, so the state of the work is visible without opening anything.
+- **An unavailable action explains itself.** All four use `aria-disabled` rather than the native attribute, so they stay focusable, and each is tied to the polite status line, which gives the reason ("Nothing to apply: no unsaved changes.") when the action is activated.
+- **Recent named changes are listed** (the last three), so Undo is never a guess.
+- **Every result is announced** in the status line: "Applied 2 changes.", "Reset: 1 unsaved change discarded.", "Reverted to the values that were opened."
+
+### Offline and Sync
+
+Offline is a state of the whole surface, never a surprise.
+
+- **Text and mark both say so**: "Offline · changes queue until the network returns" with the slashed circle, in place of the live mark.
+- **The apply bar changes with it**: Apply becomes Apply offline, and Revert is unavailable because it changes saved values the user cannot see are still current.
+- **Queued changes are never lost and never silently overwrite.** On reconnect, changes that do not conflict sync; the result is reported as a partial outcome ("Back online: 1 change synced, 1 conflict to resolve.").
+- **A conflict is shown, not decided**: "Conflict · Night setback: yours 15.5, theirs 17.0 (L. Haddad, 14:03)" with **Keep mine** and **Take theirs**. Field-level resolution, not last-write-wins.
+- **In the specimen the other person's edit is scripted**, so the conflict is always produced the same way. A real product needs optimistic concurrency with field-level versions; the specimen proves the interface, not the protocol.
+
+### Partial Failure
+
+For bulk or multi-step operations, report the outcome as counts with a way to review and retry the failures ("142 of 150 saved; 8 failed · Review"). The sync result above is the one example in the specimen; bulk operations over a table are not yet demonstrated.
+
 ## Themes and Modes
 
 | Theme or mode | Purpose | How it differs |
@@ -809,11 +911,57 @@ Charts should be clear first, atmospheric second.
 - **Limits and faults**: A limit is a labelled dashed line; a fault is a labelled ring. Neither is a coloured series.
 - **Text alternative**: Every chart has a title and a description that states what the chart shows, including limits crossed and faults.
 
+### Tables & Data Grids
+
+Tables are where Realis Aero's promise of "measured, not decorative" is tested hardest. The specimen's table is [`specimen/index.html#table`](specimen/index.html), and its behaviour is in [`specimen/grid.js`](specimen/grid.js).
+
+#### Anatomy
+
+| Element | Specification |
+|---|---|
+| **Header** | Inset surface, sticky, uppercase caption. A first row names the **column groups** (Output, Health, Control); the second names the columns. Groups are separated by a card-tone rule. |
+| **Key column** | The identifying column (asset, record, person) is frozen at the inline start and stays in view when the table scrolls sideways. It also holds the marker slot. |
+| **Marker slot** | A fixed one-mark-wide slot before the key, on every row, so names align whether or not a row has a state (see [Live Values and Data Quality](#live-values-and-data-quality)). |
+| **Rows** | One height in each density (`density-row-h`), a card-tone hairline between rows, hover on `surface-hover`. |
+| **Numbers** | Aligned to the end of the cell, tabular, with the unit in the column header rather than repeated in every cell. |
+| **State** | A text label in its state colour with the mark in the slot; the row's edge is a real border only where the state has one. |
+| **Selected row** | `surface-selected` with the 3px leading bar; muted text re-points as elsewhere. |
+| **Editable cells** | Identified by structure: a surface fill with a control edge, inset in the cell, while read-only and computed cells have neither. |
+| **Footer** | Always states the limit, the selection, the unsaved edits and the sort: "Showing 8 of 1,240 · 1 selected · 0 unsaved · sorted by Asset (ascending)". A status line shows the mode and position: "NAV · Heat pump 2 · Control › Limit kW". |
+
+#### Keyboard Model
+
+The grid is a single tab stop with a roving `tabindex`; focus moves inside it with the keys below. This is the WAI-ARIA grid pattern with spreadsheet conventions for editing.
+
+| Key | Navigation mode | Edit mode |
+|---|---|---|
+| Arrow keys | Move one cell. Up from the first row reaches the header. | Stay in the field |
+| Home / End | First / last cell in the row | — |
+| Ctrl+Home / Ctrl+End | First / last cell in the table | — |
+| Page Up / Page Down | Move a page of rows | — |
+| Enter or F2 | Start editing an editable cell; **sort** when on a sortable header | Commit and move down |
+| Escape | — | Cancel and restore the value |
+| Space | Select or deselect the row | Type a space |
+| Tab / Shift+Tab | Leave the grid | Commit and move to the next / previous editable cell |
+
+- **Every state is announced with the cell.** An edited cell exposes "Unsaved, was 30.0" as its description; a sorted header exposes `aria-sort`; the footer states the sort in words.
+- **The active cell stays visible when focus is elsewhere**, as a dashed outline in the control tone, so the user can always see where they are.
+- **Typing the original value back clears the unsaved mark**: unsaved means different from the layer below, not "touched".
+- **Pointer follows the same model**: a click makes a cell active, a click on a sortable header sorts, a double click edits.
+- **Not yet specified**: range selection (Shift+Arrow, Shift+Space), copy and paste of ranges, and column visibility, reorder and resize. These are on the next-steps list.
+
+#### Rules
+
+- **Limits are stated.** When a list is capped or windowed, say so ("Showing 500 of 12,408"). Never cut a list off silently, including by permission ("3 rows hidden by permission").
+- **Truncation follows rules.** Identifiers and paths truncate in the middle so both ends stay readable; domain labels use an approved abbreviation list rather than arbitrary clipping; the full text is always available on hover, on focus and in the detail panel; values that affect a decision (amounts, states, readings) are never truncated, so the layout gives way first. The specimen does not yet show truncation.
+- **Large tables are virtualized**, with the parallel accessible structure kept (row and column counts and indexes). The budget for this is in [Performance](#performance); the specimen's eight rows do not exercise it.
+- **Bulk actions preview before they apply** and report partial success (see [Layered State, Undo and Offline](#layered-state-undo-and-offline)).
+
 ### Forms & Inputs
 
 Forms should feel precise and serviceable.
 
-- **Input height**: 44px minimum.
+- **Input height**: the density's control height (36px comfortable, 28px compact, 44px touch), and never below 24px.
 - **Labels**: Always visible; placeholders are examples, not labels.
 - **Validation**: Inline and specific. Explain how to fix the issue.
 - **Focus**: Solar ring plus clear border change.
@@ -1009,7 +1157,10 @@ Realis Aero must remain usable when glass, color, motion, and environmental imag
 - **Forced colors**: The interface stays fully usable when the system replaces colours: state edges are borders, marks take the text colour, filled buttons become outlined.
 - **Disabled controls**: Stay focusable and state their reason; never conveyed by opacity alone.
 - **Motion sensitivity**: Respect `prefers-reduced-motion`.
-- **Touch targets**: Minimum 44px by 44px on touch devices.
+- **Touch targets**: Minimum 44px by 44px in the touch density; never below 24px (WCAG 2.5.8) in any density, and in a table the target is the whole cell.
+- **Zoom**: Test at 100%, 125%, 150% and 200%. Text, controls and charts must not overlap or clip, and the page reflows. The render check covers 200% on the specimen.
+- **Right to left**: Mirrors through logical properties, with numbers and dates isolated.
+- **Grid semantics**: Tables with editing use the grid pattern: one tab stop, `aria-sort` on sorted headers, and an accessible description for unsaved cells.
 - **Error recovery**: Form errors must explain what failed and how to correct it.
 
 ### Screen Reader Metric Pattern
@@ -1019,6 +1170,70 @@ Use accessible labels that communicate meaning, not just visible text.
 ```text
 Solar generation: 42 kilowatt-hours today, up 8 percent from yesterday. Last updated 2 minutes ago. Data source: roof array sensor.
 ```
+
+## Internationalization and Right to Left
+
+- **Every kind of text is translatable**: labels, messages, units, status words, placeholders and the text alternatives of charts.
+- **Keep a domain glossary** with one entry per term, so "stale", "queued" and "maintenance" are translated once and used everywhere.
+- **Plan for 30–40% text expansion**, more for short labels, and for the 200% zoom reflow already tested.
+- **Parse and format numbers and dates by locale** (`1,234.56` and `1.234,56`), in inputs and on paste.
+- **Fail visibly on a missing translation** in test builds; a source-language string never ships silently.
+- **Language is a setting**, and right-to-left follows from it (see [Settings and Personalization](#settings-and-personalization)).
+
+### Right to Left
+
+`dir="rtl"` on the root mirrors the layout, because the system's edges and positions are logical, not physical.
+
+- **Use logical properties**: `border-inline-start`, `inset-inline-start`, `padding-inline-start` and `text-align: end`, never `left` and `right`.
+- **These move with the direction**: the rail, the 3px selection bar, state edges, the frozen key column, and the table's column order.
+- **Numbers and dates are isolated** with `<bdi>` (`unicode-bidi: isolate`). Without it a minus sign jumps to the wrong side of its digits ("12.4−") and a date reorders ("Sep 2026 12"), because digits are weakly directional and join the reordering of the surrounding text.
+- **Numbers stay aligned to the end of the cell** and keep tabular figures.
+- **Marks are not mirrored.** None of the state marks has a direction.
+- **Charts keep their own direction** (`direction: ltr`): a time axis reads left to right in every language, and a chart's text anchors are tied to its geometry. Left to follow the page's direction, the specimen's chart clipped its labels and made them collide.
+- **Digits.** The specimen's Arabic line keeps Western digits for measurements, as the rest of the page does. Whether a product uses Arabic-Indic digits is a decision to make with readers of Arabic, per product.
+- **Checked**: a mirrored copy of the specimen is rendered and measured (edges, bar, frozen column, alignment, no sideways scroll, minus sign and date order). It uses English strings with one Arabic line; it has not been reviewed by Arabic readers.
+
+## Performance
+
+These are budgets to be measured on the largest dataset and the lowest-supported device. No script measures them yet; the specimen's eight rows cannot.
+
+- **Input latency**: under 50ms from a keystroke or a key press to the visible result, in tables included.
+- **Recalculation**: dependent values (footer counts, totals, validation counts) update within 100ms of a commit.
+- **Scrolling**: tables hold 60fps through their largest supported dataset. Specify that dataset in rows by columns and test against it.
+- **Large tables are virtualized**, and the accessible row and column structure is kept in step.
+- **Background work never blocks input**, reports progress, and can be cancelled.
+- **Glass costs rendering time.** The tonal-ladder rule (glass only over moving content or imagery) is the first control; the second is measuring `backdrop-filter` on the lowest-supported device before adding a glass panel to a screen. This document gives no panel limit because none has been measured.
+
+## Settings and Personalization
+
+Settings are where people tune the product to their conditions, so they follow the same rules as every other surface. There is no settings screen in the specimen yet; the apply bar of the [Layers section](#layered-state-undo-and-offline) is the pattern they would use.
+
+| Group | Settings |
+|---|---|
+| **Display** | Theme (light, dark, outdoor, or follow the system), density (comfortable, compact, touch), reduced transparency, motion |
+| **Language** | Language and number format; right-to-left follows from the language |
+| **Workspace** | Which columns a table shows, saved layouts, default sort |
+| **Offline** | What is kept for offline use, and how long |
+| **Alerts** | Which states notify, and where |
+
+- **Staged until Apply.** A change creates a draft with the unsaved mark and counts in the apply bar, which offers Apply, Reset and Revert to defaults. Nothing takes effect on change.
+- **Preview before applying.** The staged theme and density are shown on real components in a subtree, using `data-theme` and `data-density` on that subtree (the specimen's dark panel shows the mechanism). The preview is inert: a picture, not controls.
+- **Locked settings stay visible** with their reason and owner ("Set by the grid operator · request a change", as in the specimen's disabled field). A locked setting has no editable control; hiding it would hide how the system behaves.
+- **Reordering works without a pointer**: labelled "Move up" and "Move down" buttons, each move announced.
+- **Scope is stated**: "Applies to your profile on every device" or "this device only".
+- **Find a setting** filters by text and hides a group only when none of its settings match.
+
+## Measuring Success
+
+A feasible-future system is judged by outcomes, not first impressions. This follows from the Anti-Escapism rule: an interface that cannot show its effect on real work has not earned its optimism.
+
+- **Time on task** for the top ten workflows, measured with the people who do them.
+- **Interaction cost**: keystrokes, clicks and pointer travel per task, estimated with a keystroke-level model before building and timed after.
+- **Error rate and recovery time**: how often mistakes happen, and how long it takes to notice and undo them. Undo, Revert and the status line exist to shorten this.
+- **State comprehension**: can a person say, from the screen alone, whether a value is current, who is working on a subsystem and until when? Test it on the grayscale render.
+- **Trust in stale and offline data**: whether people act on a value that was marked stale, uncertain or queued.
+- **Shortcut adoption** over time in tables and forms.
+- **Do not optimize for** time in the product, session count or other engagement measures. Less time spent on the same work is the win.
 
 ## Implementation Specification
 
@@ -1066,13 +1281,17 @@ The tokens are in [`tokens/realis-aero.tokens.css`](tokens/realis-aero.tokens.cs
   /* … */
 }
 
+/* Density: one switch for spacing and size (comfortable is the default) */
+[data-density="compact"] { --density-control-h: 28px; --density-row-h: 32px; /* … */ }
+@media (pointer: coarse) { :root:not([data-density]) { --density-control-h: 44px; /* … */ } }
+
 /* Modes */
 @media (prefers-reduced-motion: reduce) { :root { --motion-fast: 0ms; /* … */ } }
 @media print { /* solid surfaces, no shadows */ }
 @media (forced-colors: active) { :root, [data-theme] { --color-surface: Canvas; /* … */ } }
 ```
 
-The dark values appear twice (explicit theme and system preference). `npm run check:tokens` fails if the two blocks differ.
+The dark values appear twice (explicit theme and system preference), and so do the touch density values (explicit and coarse pointer). `npm run check:tokens` fails if either pair of blocks differs. The faces are declared in [`fonts/realis-aero.fonts.css`](fonts/realis-aero.fonts.css), which is loaded before the token file.
 
 ### Reference Component CSS
 
@@ -1091,8 +1310,8 @@ The dark values appear twice (explicit theme and system preference). `npm run ch
 }
 
 .realis-button-primary {
-  min-height: 44px;
-  padding: 0 var(--space-5);
+  min-height: var(--density-control-h);
+  padding: 0 calc(var(--density-pad-x) + var(--space-2));
   border: 1px solid rgba(255, 254, 250, 0.28);
   border-radius: var(--radius-pill);
   background:
@@ -1473,20 +1692,21 @@ For tasks whose value is the text the user writes (work logs, reports, maintenan
 
 ## Verification
 
-The claims in the token, state and theme sections are measured by three scripts. `npm run check` runs them all, and the workflow in `.github/workflows/checks.yml` runs them on every change to the tokens, the specimen or the tools.
+The claims in the token, state, theme, table, layer and type sections are measured by four scripts. `npm run check` runs all four, and the workflow in `.github/workflows/checks.yml` runs them on every change to the tokens, the specimen or the tools.
 
 | Check | Command | What it enforces |
 |---|---|---|
 | **Contrast** | `npm run check:tokens` | 144 token pairs in each of light, dark and outdoor: layers at least 1.12:1 from their neighbour; text at least 4.5:1 on every surface it can sit on; marks, control edges and focus rings at least 3:1; 7:1 and 4.5:1 in outdoor. Translucent tokens are composited over their surface. Also that the two dark blocks are identical. |
 | **Colour vision** | `npm run check:cvd` | The five family chart series stay at least 0.07 apart in OKLab under simulated protanopia, deuteranopia and tritanopia (Machado 2009), in every theme. |
-| **Rendering** | `npm run check:render` | In a real browser, on [`specimen/index.html`](specimen/index.html), in each theme: every state is drawn with a mark and a text label, and no two states share a mark; every run of painted text meets its target against the surface actually behind it; every control shows a focus ring of at least 2px and is at least 44px high; disabled controls are focusable, explained and not faded; a dark panel inside another theme resolves its own tokens; pausing changes mark and text. Then: glass is solid in outdoor and with reduced transparency; the system preference picks the theme when none is set; in forced colors, state edges are real borders, buttons are outlined and marks take the text colour; under reduced motion the live pulse stops and motion tokens are 0ms; a dark screen prints light with no shadows or glass; at 200% zoom nothing scrolls sideways or clips. |
+| **Rendering** | `npm run check:render` | In a real browser, on [`specimen/index.html`](specimen/index.html). **In each theme:** every state is drawn with a mark and a text label, and no two states share a mark; every run of painted text meets its target against the surface actually behind it; every control shows a focus ring of at least 2px and meets the density's height; disabled controls are focusable, explained and not faded; a dark panel inside another theme resolves its own tokens; pausing changes mark and text. **Density:** the three densities measure 36/28/44px controls and 40/32/48px rows, compact never drops below 24px, type size and rows are identical in all three, rows keep one height, a coarse pointer gets touch. **Table:** the keyboard model key by key (single tab stop, arrows, Home and End, Ctrl+Home and End, paging, header reach, sort, row selection, edit, cancel, commit, Tab while editing, unsaved marks and counts, restoring a value, leaving the grid, frozen key column). **Layers:** every action, enabled and disabled, with the status it announces; offline queueing, partial sync, a conflict and its resolution. **Type:** the bundled faces load, digits are tabular, the four weights differ. **Right to left:** edges, bar, frozen column, alignment, minus sign and date order, and chart text kept inside its frame. **Modes:** glass is solid in outdoor and with reduced transparency; the system preference picks the theme; forced-colors edges, buttons and marks; reduced motion; print is light; at 200% zoom nothing clips. |
+| **Glyphs** | `npm run check:glyphs` | Every character the specimen draws, in each theme, is covered by the bundled face that draws it, read from the WOFF2 character maps. Nothing depends on a system font. |
 
 - **Lowest measured contrast at the time of writing**: text 4.58 (light), 4.50 (dark), 7.37 (outdoor); marks and edges 3.06 (light), 3.29 (dark), 4.69 (outdoor); layers 1.16 (light), 1.13 (dark), 1.18 (outdoor).
-- **Counts at the time of writing**: 433 contrast checks, 12 colour-vision checks, 833 render checks.
-- **The checks were tested against the defects they target**: re-introducing an overflowing field, a state edge drawn with `box-shadow`, a paler muted text or a component token declared on the root alone makes them fail.
+- **Counts at the time of writing**: 435 contrast checks, 12 colour-vision checks, 1,379 render checks, 396 characters checked for coverage.
+- **The checks were tested against the defects they target**: re-introducing an overflowing field, a state edge drawn with `box-shadow`, a paler muted text, a component token declared on the root alone, or a character missing from the bundled face makes them fail.
 - **Review renders** are written to [`specimen/screenshots/`](specimen/screenshots/): each theme, grayscale, forced colors, print and 200% zoom. Grayscale is reviewed by eye.
 
-**What the checks cannot tell us.** Text on glass over imagery is skipped by the render check, because the surface behind it is not one colour. Real sunlight on a real screen, colour perception by people rather than a simulation, and the reference typeface (the specimen renders in the first installed face of the font stack) all still need people and devices.
+**What the checks cannot tell us.** Text on glass over imagery is skipped by the render check, because the surface behind it is not one colour. Real sunlight on a real screen, colour perception by people rather than a simulation, how screen readers actually announce the grid and the status lines (the checks read the attributes, not the speech), whether Arabic readers find the mirrored layout right, performance on large tables and low-end devices, and a real sync conflict all need people and devices. The keyboard model is tested in Chromium only.
 
 ## Acceptance Criteria
 
@@ -1515,6 +1735,8 @@ A design qualifies as Realis Aero if it meets these standards:
 - **States**: Live, stale, offline, degraded, maintenance, success, and uncertainty states are defined, each with its mark, label and edge from the State System.
 - **Data quality**: Stale values show their age, uncertain values their reason, and a bad value is replaced, never shown as current.
 - **Unsaved and queued**: Marked with the ink dot, never solar.
+- **Layers**: Apply, Reset, Revert and Undo are available only when they can act, and say why when they cannot. Offline is stated by text and mark.
+- **Tables**: One tab stop; the footer states the limit, selection, unsaved edits and sort; rows keep one height; numbers are aligned and isolated.
 - **Metrics**: Units, timestamps, and confidence are shown where needed.
 - **Navigation**: Current location and system status are visible.
 - **Forms**: Errors are specific and recoverable.
@@ -1530,6 +1752,8 @@ A design qualifies as Realis Aero if it meets these standards:
 - **Reduced transparency**: Glass panels have solid-surface fallbacks.
 - **Grayscale and forced colors**: Every state can still be told apart; state edges are borders, not shadows.
 - **Themes**: The screen has been checked in light, dark and outdoor, and `npm run check` passes.
+- **Density and direction**: The screen holds in compact and touch density and mirrored right to left, with nothing clipped.
+- **Type**: Only bundled faces draw text, digits are tabular and no character falls back to a system font.
 - **Disabled**: Disabled controls are focusable and state their reason.
 - **Ruled Sheet**: Every part has a visible label tied to its field; focus shows as a bar, not colour alone; ruled lines never reduce text contrast.
 
@@ -1549,17 +1773,23 @@ These are renders of the working specimen, written by `npm run check:render`.
 ![Realis Aero specimen, forced colors](specimen/screenshots/forced-colors.png)  
 *Forced colors: every state carried by marks, borders and text.*
 
-## Recommended v0.5 Next Steps
+![Realis Aero specimen, compact density](specimen/screenshots/density-compact.png)  
+*Compact density: the same rows, states and type size in less space.*
 
-- **Done in v0.3**: tonal ladder, contrast validation of the light palette with an automated check, domain semantics.
-- **Done in v0.3.1**: the Ruled Sheet pattern and the Writing Workspace.
+![Realis Aero specimen, right to left](specimen/screenshots/rtl.png)  
+*Right to left: rail, bars, edges and the frozen column move; numbers and dates keep their order.*
+
+## Recommended v0.6 Next Steps
+
+- **Done in v0.3 and v0.3.1**: tonal ladder, domain semantics, the Ruled Sheet and Writing Workspace.
 - **Done in v0.4**: state system, live values and data quality, three-tier tokens, dark and outdoor themes, forced colors, print, specimen and checks.
-- **Density and tables**: comfortable, compact and touch densities as one token switch; a table specification with a keyboard model.
-- **Layered state and offline**: baseline, committed, queued and draft layers; Apply, Reset and Revert; visible sync conflicts.
-- **Typography**: a bundled open-licensed humanist face in place of the Frutiger-first stack, a mono face for codes, and Arabic with right-to-left layout.
-- **Ruled Sheet in the specimen**: add the sheet to the specimen in all three themes and to the render check.
+- **Done in v0.5**: density, tables and the grid keyboard model, layered state and offline, bundled typography, right to left, and the smaller sections.
+- **Ruled Sheet in the specimen**: add the sheet to the specimen in all three themes and densities, and to the render check.
+- **Tables, continued**: range selection, copy and paste with a paste preview, column visibility, reorder and resize, a virtualized example with a measured budget, and a truncation example.
+- **Pseudo-localization**: a test build that expands every string by 40% and marks missing translations, to test the expansion rule.
+- **Settings screen**: build the settings specimen with staged changes, an inert preview, locked settings and keyboard reordering.
+- **Measure performance**: a script that renders the largest supported table and measures latency, recalculation and scroll.
 - **Glass on imagery**: validate glass panels on real photographic backgrounds; the render check skips them.
-- **Smaller sections**: internationalization, performance budgets (including `backdrop-filter`), settings, and how success is measured.
 - **Automation**: provenance on values, staged changes, and the rule that the product works with automation off.
 - **Component specs**: Produce Figma variants for every component listed in this document.
 - **Icon library**: Extend the 16px state marks into a 24px icon grid with engineering-natural hybrid motifs.
@@ -1568,4 +1798,4 @@ These are renders of the working specimen, written by `npm run check:render`.
 
 ---
 
-**Realis Aero v0.4 is a feasible-future system: optimistic because it is measurable, beautiful because it is honest, and calm because it is built to be maintained.**
+**Realis Aero v0.5 is a feasible-future system: optimistic because it is measurable, beautiful because it is honest, and calm because it is built to be maintained.**

@@ -1,4 +1,4 @@
-/* Realis Aero design tokens, v0.4
+/* Realis Aero design tokens, v0.5
  *
  * Three tiers:
  *   1. Primitives   --<family>-<step>     raw ramps; never used by components
@@ -91,7 +91,10 @@
   --graphite-100: #e0e6e5;
 
   /* Non-colour constants */
-  --font-sans: "Frutiger", "Aptos", "Segoe UI", "Inter", "SF Pro Text", system-ui, sans-serif;
+  /* Bundled faces first (fonts/realis-aero.fonts.css), so every device renders
+     the same letters. The Arabic face only ever serves Arabic code points. */
+  --font-sans: "Source Sans 3", "Noto Sans Arabic", "Segoe UI", "Inter", system-ui, sans-serif;
+  --font-mono: "Source Code Pro", "Noto Sans Arabic", ui-monospace, "JetBrains Mono", monospace;
 
   --text-display-xl: 64px;
   --text-display-lg: 48px;
@@ -149,6 +152,42 @@
   --motion-standard: 220ms;
   --motion-slow: 360ms;
   --motion-live-pulse: 600ms;
+}
+
+/* ---------- Density ----------
+ * One switch for spacing and size. A density never changes type size,
+ * content or capability. With no data-density, a coarse pointer gets touch.
+ * The two touch blocks must stay identical; check-tokens fails otherwise. */
+:root,
+[data-density="comfortable"] {
+  --density-control-h: 36px;
+  --density-row-h: 40px;
+  --density-gap-intra: 8px;
+  --density-gap-inter: 16px;
+  --density-pad-x: 12px;
+}
+[data-density="compact"] {
+  --density-control-h: 28px;
+  --density-row-h: 32px;
+  --density-gap-intra: 4px;
+  --density-gap-inter: 12px;
+  --density-pad-x: 8px;
+}
+[data-density="touch"] {
+  --density-control-h: 44px;
+  --density-row-h: 48px;
+  --density-gap-intra: 8px;
+  --density-gap-inter: 16px;
+  --density-pad-x: 16px;
+}
+@media (pointer: coarse) {
+  :root:not([data-density]) {
+    --density-control-h: 44px;
+    --density-row-h: 48px;
+    --density-gap-intra: 8px;
+    --density-gap-inter: 16px;
+    --density-pad-x: 16px;
+  }
 }
 
 /* ---------- 2. Semantic: light (default) ---------- */

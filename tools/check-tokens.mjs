@@ -100,7 +100,21 @@ const same = explicit && system && JSON.stringify(explicit.decls) === JSON.strin
 console.log(`\n${same ? 'ok  ' : 'FAIL'} dark values are identical for data-theme="dark" and the system preference`);
 if (!same) failures++;
 
+// Touch density also exists twice (explicit and coarse pointer).
+const touch = blocks.find(b => b.selectors.includes('[data-density="touch"]'));
+const coarse = blocks.find(b => b.selectors.includes(':root:not([data-density])'));
+const sameTouch = touch && coarse && JSON.stringify(touch.decls) === JSON.stringify(coarse.decls);
+console.log(`${sameTouch ? 'ok  ' : 'FAIL'} touch density is identical for data-density="touch" and a coarse pointer`);
+if (!sameTouch) failures++;
+
+// Densities: controls never drop below the 24px minimum target, and touch reaches 44px.
+const px = (sel, name) => parseFloat(blocks.find(b => b.selectors.includes(sel)).decls[name]);
+const sizes = { comfortable: px('[data-density="comfortable"]', '--density-control-h'), compact: px('[data-density="compact"]', '--density-control-h'), touch: px('[data-density="touch"]', '--density-control-h') };
+const densOk = sizes.compact >= 24 && sizes.comfortable > sizes.compact && sizes.touch >= 44;
+console.log(`${densOk ? 'ok  ' : 'FAIL'} density control heights: compact ${sizes.compact}px >= 24, comfortable ${sizes.comfortable}px, touch ${sizes.touch}px >= 44`);
+if (!densOk) failures++;
+
 console.log('\nLowest measured:');
 for (const [k, v] of Object.entries(lowest)) console.log(`  ${k.padEnd(14)} ${v.r.toFixed(2)}  ${v.label} (${v.fg} on ${v.bg})`);
-console.log(failures ? `\n${failures} failing check(s) of ${count + 1}` : `\nAll ${count + 1} checks pass.`);
+console.log(failures ? `\n${failures} failing check(s) of ${count + 3}` : `\nAll ${count + 3} checks pass.`);
 process.exit(failures ? 1 : 0);
