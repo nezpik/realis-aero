@@ -1,0 +1,25 @@
+{
+  "$description": "Spacing and size for the touch density.",
+  "density": {
+    "control-h": {
+      "$type": "dimension",
+      "$value": "44px"
+    },
+    "row-h": {
+      "$type": "dimension",
+      "$value": "48px"
+    },
+    "gap-intra": {
+      "$type": "dimension",
+      "$value": "8px"
+    },
+    "gap-inter": {
+      "$type": "dimension",
+      "$value": "16px"
+    },
+    "pad-x": {
+      "$type": "dimension",
+      "$value": "16px"
+    }
+  }
+}

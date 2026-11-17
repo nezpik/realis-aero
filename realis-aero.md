@@ -1,9 +1,80 @@
-# Realis Aero Design System v0.2
+# Realis Aero Design System v0.5
 
-**Version**: 0.2  
-**Date**: May 2026  
+**Version**: 0.5  
+**Date**: November 2026 (v0.4: November 2026, v0.3: October 2026, v0.2: May 2026)  
 **Vision Holder**: Naji Zouiti  
 **Purpose**: Product-ready UI/UX, brand, and implementation specification for a feasible-future aesthetic.
+
+## What Changed in v0.5
+
+v0.5 adds the mechanics that dense and long-running products need. As in v0.4, each addition is in the token file, the specimen and the checks.
+
+- **Density**: comfortable, compact and touch as one token switch. See [Density](#density).
+- **Tables and data grids**: anatomy, a keyboard model implemented and tested key by key, and stated limits. See [Tables & Data Grids](#tables--data-grids).
+- **Layered state, undo and offline**: baseline, committed, queued and draft layers; Apply, Reset, Revert and Undo; offline as a whole-surface state; conflicts shown, not overwritten. See [Layered State, Undo and Offline](#layered-state-undo-and-offline).
+- **Typography as engineering**: bundled open-licensed faces (Source Sans 3, Source Code Pro, Noto Sans Arabic), tabular digits and real weights proven by checks, and a check that every character drawn is covered by a bundled face. See [Font Stack](#font-stack).
+- **Right to left**: the layout mirrors through logical properties, and numbers and dates are isolated. See [Internationalization and Right to Left](#internationalization-and-right-to-left).
+- **Token export**: DTCG JSON for Figma tooling, a Tailwind preset and a React Native module, generated from the token file and checked against it. See [Token Export](#token-export).
+- **The table model, completed**: range selection, copy and paste with a preview, column visibility, order and width with a keyboard alternative for every pointer action, middle truncation of paths, and a virtualized table of 12,408 rows with a measured budget. See [Tables & Data Grids](#tables--data-grids).
+- **The Ruled Sheet and the Writing Workspace, built and measured**: the sheet, the workspace and the reading pages are in a specimen, and 141 checks hold the document's claims to the browser. They found that the pattern could not ship in dark as specified. See [Ruled Sheet](#ruled-sheet-writing--reading).
+- **Glass, specified and measured**: bare glass carries no text, text sits on reading plates, and the plate's legibility is measured on real rendered pixels. All four variants are now tokens, and the internal data layer, glass states and wear are built. See [Glass](#glass).
+- **A settings screen**: staged until Apply, an inert preview, locked settings with their owner, reordering without a pointer, find and stated scope. See [Settings and Personalization](#settings-and-personalization).
+- **Smaller sections**: [Performance](#performance), [Measuring Success](#measuring-success), and zoom in [Accessibility](#accessibility).
+
+Building the checks found defects, corrected here:
+
+- **Numbers and dates broke in right-to-left layouts.** "−12.4" displayed as "12.4−" and "12 Sep 2026" as "Sep 2026 12", because numbers join the bidirectional reordering of their cell. They are now isolated.
+- **Charts clipped their labels in right-to-left pages**, because SVG text anchors follow the page direction while the chart's geometry does not. Charts now keep their own direction.
+- **The 44px input height** made every desktop form and table taller than the work needs. 44px is now the touch density; comfortable is 36px and compact 28px.
+- **Frutiger is a commercial face** that was first in the stack, so a device without it silently drew something else. The stack now leads with a bundled face.
+- **The reason an action was unavailable was a message after a click**, not something a screen reader could find first. Every unavailable action now carries its reason as its description, and still announces it when activated.
+- **The Ruled Sheet could not ship in dark.** Its focus label, focus bar and highlight bar used the primitives `aero-blue-800` and `aero-blue-600`, which measure 1.45:1, 2.50:1 and 2.86:1 in dark (the bars need 3:1, the label 4.5:1). The semantic tokens `state-info-text` and `selected-edge` give 7.61:1 to 8.70:1. Components use semantic tokens only, and this was the clearest case of why.
+- **In forced colors the sheet had no focus indicator at all.** The focus bar and the highlight bar were `box-shadow`, which forced colors removes, and the writing field had `outline: none`. Both bars are now real borders, taken out of the padding so the text does not move.
+- **The reading lines could not be reached from a keyboard** in the first implementation: clickable list items with no role and no tab stop. They are now options in a listbox with one tab stop, arrow keys, Home, End and Enter.
+- **Quick-pick chips were about 26px tall,** under the 36px, 28px and 44px control heights the density system promises. They follow the density now.
+- **The side panel was `aria-modal` but did not trap focus or make the screen inert.** It does both now.
+- **Selecting a reading line rebuilt the list,** which destroyed the element before a double click could land on it: the same defect as the column-resize handle. Selection now updates the lines in place.
+- **Frosted glass was legible only over near-white.** Measured, light frosted glass kept every text role at 4.5:1 only over backdrops brighter than gray 230, and dark frosted glass only below gray 138. Over a mid-gray photograph its muted and state text failed, so the glass could not carry text over the imagery it was specified for. Text now sits on a plate that holds over every backdrop.
+- **The glass tokens contradicted the material table.** `opacity-glass-clear` was 0.72 (table: 0.58) and `opacity-glass-frosted` 0.82 (table: 0.72), nothing used them, and dense hardware glass and the alert blur were not tokens at all. A check now fails if a tint's alpha differs from its token.
+- **Dense hardware glass broke outdoor's AAA promise.** It is a dark subtree, so inside an outdoor page it escaped the outdoor theme and its muted text measured 6.28:1 against the 7:1 target. In outdoor it now stays in the outdoor theme.
+- **Every glass component put text directly on glass**, and the secondary button, the system button and the tooltip were specified as glass over a flat canvas or over arbitrary charts, which the tonal ladder forbids.
+- **A virtualized table cannot be printed.** In print, the large table's spacer rows made the page about 500,000px tall, thousands of blank pages. The large table is now left out of print, and the page says why.
+- **A plain click on a column edge rebuilt the header**, destroying the element before a double click could land on it. A pointer action that changes nothing must not re-render the control under the pointer.
+
+## What Changed in v0.4
+
+v0.4 turns four promises of earlier versions into specifications. Each one is backed by a token file, a working specimen and automated checks that live beside this document.
+
+- **State system**: every product and editing state now has a mark, a text label and, where needed, an edge, with collision rules for the states that share a colour family. See [State System](#state-system).
+- **Live values and data quality**: how freshness, pausing and good, uncertain, stale and bad readings are shown on the value itself. See [Live Values and Data Quality](#live-values-and-data-quality).
+- **Tokens in three tiers**: primitives, semantic and component tokens in [`tokens/realis-aero.tokens.css`](tokens/realis-aero.tokens.css), which is now the source of truth. See [Token Architecture](#token-architecture).
+- **Themes and modes**: a measured dark ladder, an outdoor theme held to AAA, forced colors, print, reduced transparency, and themes that can be set on any element. See [Themes and Modes](#themes-and-modes).
+- **Verification**: three scripts measure the tokens and the rendered specimen. See [Verification](#verification).
+
+Measuring found defects in v0.3, corrected here:
+
+- **Focus ring on a selected item** measured 2.94:1 (solar-700 on aero-blue-100). Focus now re-points to a darker solar on selected surfaces (3.47:1), as muted text already did.
+- **Chart colours** failed twice. On a card, the generation and live-flow colours measured 2.12:1 and 2.29:1. Under simulated deuteranopia, ecological gain and material collapsed into each other (OKLab distance 0.022 against a 0.07 target). Charts now use dedicated series tokens per theme.
+- **Unsaved state used solar**, the family that also means focus and warning. Unsaved is now an ink dot.
+- **Disabled contradicted itself** (neutral fill in one section, reduced opacity in another). Neutral fill is the rule; opacity is for imagery only.
+- **Motion durations** were specified but missing from the CSS. They are tokens now, and drop to 0ms under reduced motion.
+
+## What Changed in v0.3
+
+v0.3 keeps every v0.2 palette family and principle. It adds the missing rule for **how surfaces stack**, measured on the first desktop product built with the system:
+
+- **Tonal ladder**: five named layers (rail, canvas, card, inset, overlay) with measured separation targets. In v0.2 most adjacent layers sat at 1.03–1.08:1 and merged into one cream field.
+- **Dark aerospace rail** for desktop navigation, as the Navigation and Color sections already intended ("dark navigation", "anchor trust in aerospace blue").
+- **Readable metadata**: muted text darkened to meet AA on every light surface (v0.2 graphite-500 measured 3.6–4.3:1).
+- **Identifiable controls**: a 3:1 control edge for inputs and checkboxes (v0.2 borders measured 1.39:1).
+- **Honest overlays**: solid surfaces over a defined scrim; glass only where content moves beneath it.
+- **Danger that can be read and acted on**: coral-700 for danger text and destructive buttons.
+- **Domain semantics**: how the palette families map onto a product outside energy and ecology.
+- **Automated contrast check**: every pair below is meant to be asserted in code against the live tokens.
+
+### v0.3.1: the Ruled Sheet
+
+v0.3.1 adds one pattern, found while building a daily work log: the **Ruled Sheet**, a surface for writing and reading long text that borrows the *structure* of a working notebook (margin, ruled lines, an order of parts) without its texture. Form boxes ask for "a few words"; a ruled page invites the writing the task really needs. See [Ruled Sheet (Writing & Reading)](#ruled-sheet-writing--reading) and [Writing Workspace](#writing-workspace).
 
 ## Executive Definition
 
@@ -26,6 +97,7 @@ Glass is not decoration. Glass reveals. Translucent surfaces should expose usefu
 
 - **Do**: Use glass to reveal hierarchy, state, and context.
 - **Avoid**: Frosted panels that hide information, ornamental bubbles, fake refraction, or excessive blur.
+- **Test**: Remove the backdrop. If the panel tells you the same thing, it has no business being glass. And the opposite test: if its text is only legible over some backdrops, the text does not belong on the glass. See [Glass](#glass).
 
 ### 3. Earned Optimism
 
@@ -110,7 +182,24 @@ Every major product surface should define:
 - **Success state**: A measurable improvement occurred.
 - **Uncertainty state**: Confidence is low; communicate why.
 
+How each state is drawn is specified in [State System](#state-system).
+
 ## Design Tokens
+
+### Token Architecture
+
+Tokens live in [`tokens/realis-aero.tokens.css`](tokens/realis-aero.tokens.css) in three tiers. The tables in this document describe them; the file is the source of truth, and the checks read the file.
+
+| Tier | Naming | Example | Rule |
+|---|---|---|---|
+| **Primitive** | `--<family>-<step>` | `--aero-blue-800`, `--solar-700` | Raw ramps. Never used by components. |
+| **Semantic** | `--color-*`, `--state-*`, `--chart-*`, `--glass-*` | `--color-surface-inset`, `--state-warning-text` | Meaning. Themes re-point these and nothing else. |
+| **Component** | `--c-*` | `--c-button-primary-bg`, `--c-row-selected-edge` | Named slots, mapped to semantic tokens. |
+
+- **Components use semantic and component tokens only.** A component that names a primitive cannot follow a theme.
+- **A product may adjust primitives** within the measured targets. It does not repurpose a semantic token or add a family.
+- **Derived tokens are declared on every themed element.** A token that points at a semantic token (a shadow that uses the theme's shadow tint, every `--c-*` token) is computed where it is declared. Declared on `:root` alone, it would keep the root theme's value inside a panel that sets another theme. The token file declares them on `:root, [data-theme]`, and the render check proves it on a dark panel inside a light page.
+- **State tokens come in three roles**: `-mark` for icons and edges (3:1), `-text` for labels (4.5:1), `-tint` for a fill behind text.
 
 ### Typography
 
@@ -119,8 +208,22 @@ Realis Aero typography should be humanist, readable, slightly warm, and technica
 #### Font Stack
 
 ```css
-font-family: "Frutiger", "Aptos", "Segoe UI", "Inter", "SF Pro Text", system-ui, sans-serif;
+--font-sans: "Source Sans 3", "Noto Sans Arabic", "Segoe UI", "Inter", system-ui, sans-serif;
+--font-mono: "Source Code Pro", "Noto Sans Arabic", ui-monospace, "JetBrains Mono", monospace;
 ```
+
+The faces are bundled in [`fonts/`](fonts/), with a licence beside each, and declared in [`fonts/realis-aero.fonts.css`](fonts/realis-aero.fonts.css). All are under the SIL Open Font License 1.1, free for commercial use, embedding and modification.
+
+| Face | For | Why |
+|---|---|---|
+| **Source Sans 3** (upright and italic, variable 200–900) | Everything that is not code | A humanist sans with the warmth Realis Aero asks for. Its variable weight renders the specified 520, 550 and 560 as written, and it contains every sign and unit the system uses (`≈ ≤ ≥ − · — → µ °`). Its ten digits share one width (472 units), so figures align with no feature switched on. |
+| **Source Code Pro** (variable 200–900) | Codes, IDs, shortcuts, status lines | Digits share one width (600 units) and confusable characters differ (`0O 1lI 5S 8B`), so a transcribed code is read correctly. |
+| **Noto Sans Arabic** (variable 100–900) | Arabic text | Follows the Latin face in both stacks and is limited by `unicode-range` to Arabic code points, so Latin text never uses it and a page with no Arabic has no reason to fetch it. |
+
+- **Frutiger stays a reference for the feel, not a dependency.** It is commercial and cannot be bundled, so a stack that leads with it renders differently on every device. Source Sans 3 is this document's choice of an open humanist face; a product that licenses Frutiger may put it first, accepting that it then has to bundle it too.
+- **Marks are vector shapes, not font glyphs**, so unlike a system that draws its state marks from characters, no symbols font is needed and no device can substitute a different shape (see [State System](#state-system)). Text symbols such as `≈ ≤ − ·` are in the bundled Latin face.
+- **No system fallback for drawn characters.** `npm run check:glyphs` reads the WOFF2 character maps and fails if any character the specimen draws is missing from the face that draws it.
+- **`font-variant-numeric: tabular-nums` stays on** wherever numbers appear, so a fallback face (a system font on a device that blocked the download) still aligns.
 
 #### Type Scale
 
@@ -145,7 +248,10 @@ font-family: "Frutiger", "Aptos", "Segoe UI", "Inter", "SF Pro Text", system-ui,
 - **Labels**: Use sentence case for human clarity; reserve uppercase for compact system tags only.
 - **Hierarchy**: Use weight and spacing before using color.
 - **Line length**: Keep prose between 58 and 76 characters per line.
-- **Numbers**: Use tabular numerals for dashboards, charts, and meters.
+- **Numbers**: Use tabular numerals for dashboards, charts, tables and meters. The render check proves the bundled digits share one width.
+- **Weights are real**: 400, 520, 550, 560 and 600 each render differently because the faces are variable. A weight that renders the same as its neighbour is a defect.
+- **Codes and IDs** use the mono face, so confusable characters differ.
+- **Right to left**: numbers and dates are isolated so they keep their reading order inside Arabic text (see [Internationalization and Right to Left](#internationalization-and-right-to-left)).
 
 ### Color System
 
@@ -158,9 +264,12 @@ White is the equilibrium layer: it creates breathing room, calibration, glass re
 | Token | Hex | Role |
 |---|---|---|
 | **equilibrium-white-000** | `#FFFEFA` | Pure equilibrium white, readable glass reflection |
-| **equilibrium-white-050** | `#FAF7F0` | Primary breathable background |
+| **equilibrium-white-050** | `#FAF7F0` | Breathable highlight; hover on white surfaces |
+| **equilibrium-white-075** | `#F3EDE1` | Workspace canvas (v0.3) |
 | **equilibrium-white-100** | `#F2EBDD` | Warm calibrated surface |
 | **equilibrium-white-200** | `#E3D9C7` | Soft mineral border and disabled surface |
+| **equilibrium-white-300** | `#D9CDB6` | Card hairline (v0.3) |
+| **mineral-500** | `#8F8574` | Control edge: inputs, checkboxes, drop zones (v0.3) |
 | **aero-blue-950** | `#071D2B` | Deep aerospace night, primary dark anchor |
 | **aero-blue-900** | `#0D2F45` | Cockpit surface, dark navigation |
 | **aero-blue-800** | `#174A63` | Primary engineering blue |
@@ -191,8 +300,34 @@ White is the equilibrium layer: it creates breathing room, calibration, glass re
 | **bio-green-600** | `#5E8156` | Ecological success |
 | **bio-green-400** | `#9CB58D` | Soft restoration highlight |
 | **bio-green-100** | `#E4ECD8` | Pale ecological proof surface |
-| **signal-coral-600** | `#B85F52` | Critical fault, urgent maintenance |
+| **signal-coral-800** | `#85402F` | Destructive fill, hover (v0.3) |
+| **signal-coral-700** | `#9A4A3D` | Danger text and destructive fill (v0.3) |
+| **signal-coral-600** | `#B85F52` | Critical fault, urgent maintenance; icons, edges and tints |
 | **signal-coral-300** | `#E08A7B` | Soft critical highlight |
+
+#### Primitives Added in v0.4
+
+Every one of these exists because a measured pair needed it.
+
+| Token | Hex | Role |
+|---|---|---|
+| **aero-blue-975** | `#030E16` | Dark rail |
+| **aero-blue-925** | `#092437` | Dark inset |
+| **aero-blue-875** | `#123A53` | Dark hover, row divider, disabled fill |
+| **aero-blue-750** | `#2A546C` | Dark card edge |
+| **aero-blue-450** | `#6F93A6` | Dark control edge |
+| **solar-750** | `#A86E10` | Warning mark; focus ring on selected surfaces |
+| **umber-200** | `#C6AF93` | Maintenance text on dark |
+| **bio-green-300** | `#A2B994` | Success text on dark |
+| **bio-green-900** | `#2C5035` | Success text, outdoor |
+| **teal-system-900** | `#0B514F` | Live text, outdoor |
+| **signal-coral-100** | `#F6E3DD` | Error tint |
+| **signal-coral-200** | `#E6A194` | Danger text on dark |
+| **signal-coral-900** | `#723728` | Danger text and destructive fill, outdoor |
+| **signal-coral-950** | `#5A2A1E` | Destructive hover, outdoor |
+| **mineral-600** / **mineral-700** | `#6D6454` / `#5F574A` | Outdoor card edge / control edge |
+| **graphite-700** | `#3B474C` | Outdoor muted text |
+| **graphite-975** | `#0A1014` | Outdoor primary text |
 
 #### Neutral Palette
 
@@ -207,7 +342,8 @@ White is the equilibrium layer: it creates breathing room, calibration, glass re
 | **graphite-900** | `#172126` | Dark text and dark neutral surface |
 | **graphite-800** | `#263238` | Secondary dark surface |
 | **graphite-600** | `#58666B` | Muted text and forecast line |
-| **graphite-500** | `#6F7C80` | Muted metadata and tertiary text |
+| **graphite-550** | `#5F6C70` | Muted metadata, AA on every light surface (v0.3) |
+| **graphite-500** | `#6F7C80` | Large decorative labels only (fails AA at body size) |
 | **graphite-400** | `#A9B4B5` | Metadata, disabled text, cool divider |
 | **graphite-100** | `#E0E6E5` | Pale cool separator |
 
@@ -215,16 +351,31 @@ White is the equilibrium layer: it creates breathing room, calibration, glass re
 
 | Role | Light Mode | Dark Mode | Notes |
 |---|---|---|---|
-| **background** | `#FAF7F0` | `#071D2B` | Equilibrium canvas / aerospace night |
-| **surface** | `#FFFEFA` | `#0D2F45` | Primary readable surfaces |
+| **background** | `#F3EDE1` | `#071D2B` | L1 canvas / aerospace night (v0.3: was `#FAF7F0`) |
+| **surface** | `#FFFEFA` | `#0D2F45` | L2 cards and overlays |
+| **surface-inset** | `#F2EBDD` | `#092437` | L3 regions inside cards: table heads, section rows, tracks |
+| **surface-hover** | `#FAF7F0` | `#123A53` | Row and item hover on white |
+| **surface-selected** | `#D9EAF1` | `#174A63` | Selected item: rail entry, focused grid row, active filter |
+| **text-muted-on-selected** | `#58666B` | `#E0E6E5` | Muted text inside a selected item (4.82:1; graphite-550 gives 4.40) |
 | **surface-raised** | `#F2EBDD` | `#174A63` | Raised cards, panels, and controls |
 | **surface-material** | `#EFE3D2` | `#3A2A1E` | Infrastructure and maintenance surfaces |
 | **text-primary** | `#11181C` | `#FFFEFA` | Body and headings |
 | **text-secondary** | `#58666B` | `#E0E6E5` | Supporting text |
-| **text-muted** | `#6F7C80` | `#A9B4B5` | Metadata |
+| **text-muted** | `#5F6C70` | `#A9B4B5` | Metadata, labels, hints, placeholders (v0.3) |
+| **danger-text** | `#9A4A3D` | `#E6A194` | Error text and destructive buttons (v0.3) |
+| **border-subtle** | `#F2EBDD` | `#123A53` | Row dividers inside cards |
+| **border-card** | `#D9CDB6` | `#2A546C` | Card hairlines, structural dividers |
+| **border-control** | `#8F8574` | `#6F93A6` | Inputs, checkboxes, drop zones (≥ 3:1) |
+| **scrim** | `rgba(7, 29, 43, 0.40)` | `rgba(0, 0, 0, 0.55)` | Behind dialogs and side panels |
+| **disabled-fill / disabled-text** | `#F2EBDD` / `#58666B` | `#123A53` / `#A9B4B5` | Disabled primary actions |
+| **rail** | `#0D2F45` | `#030E16` | L0 desktop navigation; the darkest layer in dark |
 | **action-primary** | `#174A63` | `#235F7A` | Primary buttons, active nav, engineering trust |
 | **action-primary-hover** | `#0D2F45` | `#2D6F8E` | Hover and selected emphasis |
 | **focus-ring** | `#B87912` | `#F3C766` | High-visibility solar focus |
+| **focus-ring-on-selected** | `#A86E10` | `#F3C766` | Focus on a selected item (v0.4: solar-700 measured 2.94:1 there) |
+| **selected-edge** | `#174A63` | `#9CC6D8` | The 3px leading bar of a selected item (v0.4) |
+| **text-on-action** | `#FFFEFA` | `#FFFEFA` | Label on a filled action (v0.4) |
+| **action-danger / hover** | `#9A4A3D` / `#85402F` | `#9A4A3D` / `#85402F` | Destructive fill (v0.4) |
 | **energy** | `#D79520` | `#F3C766` | Generation, progress, sunlight, instrument highlight |
 | **material** | `#65462F` | `#B79A78` | Infrastructure, repair, tactile systems |
 | **success** | `#5E8156` | `#9CB58D` | Verified ecological gain only |
@@ -233,19 +384,31 @@ White is the equilibrium layer: it creates breathing room, calibration, glass re
 | **info** | `#2D6F8E` | `#9CC6D8` | Atmospheric/system information |
 | **live-data** | `#35BDB2` | `#8FE1D8` | Real-time streams only |
 
+The family accents from **energy** to **live-data** are for icons, edges and fills, never text: several of them sit below 4.5:1 on a card. Text and marks that carry a state use the [state tokens](#state-tokens). Outdoor values for every role are in [Themes and Modes](#themes-and-modes) and the token file.
+
 #### Data Visualization Colors
 
-| Meaning | Color | Secondary Encoding |
-|---|---|---|
-| **Generation / output** | `#E3A72F` | Solid solar line |
-| **Storage / reserve** | `#174A63` | Filled aerospace-blue area |
-| **Live flow / sensor stream** | `#35BDB2` | Thin glowing line |
-| **Ecological gain** | `#5E8156` | Leaf marker or rounded cap |
-| **Material / load / infrastructure** | `#8B6848` | Dashed umber line |
-| **Energy peak** | `#F3C766` | Bright marker and label |
-| **Warning threshold** | `#B87912` | Triangle marker |
-| **Fault / critical** | `#B85F52` | Strong outline and icon |
-| **Forecast / uncertainty** | `#58666B` | Dotted line and confidence band |
+Charts use their own series tokens. The family accents cannot be used directly: on a card, solar-500 measures 2.12:1 and teal-500 2.29:1, and bio-green-600 and umber-500 are 0.022 apart in OKLab under simulated deuteranopia.
+
+| Meaning | Token | Light | Dark | Outdoor | Secondary encoding (required) |
+|---|---|---|---|---|---|
+| **Generation / output** | `chart-generation` | `#B87912` | `#D79520` | `#734A04` | Solid 2px line |
+| **Storage / reserve** | `chart-storage` | `#0D2F45` | `#659BB3` | `#2D6F8E` | Solid line over a 16% filled area |
+| **Live flow / sensor stream** | `chart-flow` | `#1B817B` | `#D9F4F0` | `#0D5C5A` | Thin 1.5px line with a dot at each reading |
+| **Ecological gain** | `chart-eco` | `#3C6443` | `#A2B994` | `#223F2A` | Round-capped dotted line |
+| **Material / load / infrastructure** | `chart-material` | `#4C3524` | `#967554` | `#291D15` | Long-dashed line |
+| **Forecast / uncertainty** | `chart-forecast` | `#58666B` | `#A9B4B5` | `#3B474C` | Dotted line and confidence band |
+| **Warning limit** | `chart-threshold` | warning mark | warning mark | warning mark | Dashed horizontal line with a triangle and a text label |
+| **Fault / critical** | `chart-fault` | error mark | error mark | error mark | Ring marker with a text label |
+| **Selected point or entity** | `chart-selected` | selected edge | selected edge | selected edge | Outlined marker; the same edge as a selected row |
+
+**Rules**
+
+- **Measured**: every series reaches 3:1 on a card and on an inset (4.5:1 in outdoor), and the five family series stay at least 0.07 apart in OKLab under simulated protanopia, deuteranopia and tritanopia, in every theme.
+- **Line style is not optional.** Colour separates the series for most readers; the line style and a direct label at the end of each series separate them for everyone, in grayscale and in forced colors.
+- **Limits and faults are marks, not series.** A warning limit is a labelled line; a fault is a labelled ring. Status colours never colour a data series.
+- **Energy peak** is a labelled marker on the generation series, not a colour of its own.
+- **More than five series** means small multiples or direct labels, not more hues.
 
 #### Color Rules
 
@@ -271,6 +434,56 @@ White is the equilibrium layer: it creates breathing room, calibration, glass re
 | **Bio green** | 2–4% | Verified ecological success and restoration only |
 | **Signal coral** | <2% | Critical operational states |
 
+### Surface Layering (Tonal Ladder) — v0.3
+
+Depth is communicated by tone first, then hairline, then shadow. Each layer has one job and a measured distance from its neighbours.
+
+| Layer | Role | Token | Measured separation |
+|---|---|---|---|
+| **L0 Rail** | Persistent navigation, the stable frame | `rail` (aero-blue-900, solid) | 11.9:1 vs canvas; labels 13.8:1 |
+| **L1 Canvas** | Workspace behind all content | `background` `#F3EDE1` | — |
+| **L2 Card** | Panels, steps, toasts, dialogs | `surface` + `border-card` + elevation-1 | 1.16:1 vs canvas |
+| **L3 Inset** | Regions inside a card: table heads, section rows, preview tracks, drop zones | `surface-inset` | 1.18:1 vs card |
+| **L4 Overlay** | Side panels and dialogs | solid `surface` over `scrim`, elevation-4 | 2.8:1 vs the dimmed page |
+
+**Targets** (asserted by the automated check): layers ≥ 1.12:1 from their neighbour; control edges and focus rings ≥ 3:1; all text ≥ 4.5:1 on every surface it can sit on.
+
+**Rules**
+
+- **Components placed on the canvas use the white surface**, not `surface-raised`: a raised track on the canvas measures 1.02:1 and disappears (segmented controls, chips, selects).
+- **Inside an overlay, repeat the ladder**: a side panel is a workspace (canvas + white step cards) with a solid white header.
+- **Glass only over moving content**: toasts and sticky elements over scrolling lists. A sidebar or header over a flat canvas is solid; blur that reveals nothing is decoration (see Honest Translucency) and costs rendering time. The full rules, with the backdrops glass is allowed over, are in [Glass](#glass).
+- **One filled action per surface.** Primary is filled aerospace blue; a dialog's destructive answer is filled coral-700; everything else is outlined or ghost.
+- **Disabled is neutral**: mineral fill and graphite text, never a faded primary that still looks clickable.
+- **Selected items re-point muted text**: on `surface-selected` the muted token steps up to `text-muted-on-selected`, so metadata inside a selected row or card stays AA without per-element overrides.
+- **Placeholders use the muted token**, never the browser default grey (3.9:1 on inset surfaces).
+- **Table rows keep one height**: a list inside a cell (tags, groups, assignees) stays on one line, shows the first items and a "+N" toggle, and opens a detail row in the inset band below, grouped by meaning (e.g. members by team). The toggle keeps the same label open or closed and the detail never widens the columns, so nothing re-flows. A remainder of one is shown rather than "+1"; items matching the current search come first and are outlined.
+- **Dense grids may identify cells by structure**: editable cells in a data-entry grid use an inset fill with a card edge, the control edge on hover and the solar ring on focus, so 35 rows do not turn into a wall of dark borders.
+
+**Dark rail details**: labels graphite-100; strong labels white; hover white 6%; active `rgba(156, 198, 216, 0.18)` with a 3px aero-blue-300 bar; focus ring solar-300; role pill aero-blue-300 on the active tint; dividers white 10%.
+
+### Domain Semantics: Mapping the Palette to a Product
+
+The family rules above were written for energy and ecological systems. A product in another domain (records, scheduling, education, operations) keeps each family's *intent* and maps its own concepts onto it:
+
+| Family | Intent | Meaning in a general product |
+|---|---|---|
+| **Aerospace blue** | Structure and trust | Navigation, primary action, selection; the product's everyday record type |
+| **Umber** | Material, weight, record | The formal or archival record type, when the product distinguishes one from everyday work |
+| **Solar** | Energy and thresholds | Focus, attention, in-progress, warnings and thresholds. Not unsaved work (v0.4): that is an ink dot, see [State System](#state-system) |
+| **Bio green** | Verified proof | Confirmed by the system of record: saved, completed, published |
+| **Signal coral** | Critical states | Faults, invalid input, destructive actions |
+| **Teal** | Live systems | Reserved for a live sync indicator; never decoration |
+
+**Rules**
+
+- **Map once, in writing**: each product records its mapping next to its tokens. A family never carries two unrelated meanings in the same product.
+- **Status follows the same table**: *planned* is neutral (nothing to signal yet), *partial* or *needs attention* is solar, *done and recorded* is bio green.
+- **Coverage views**: paint what exists in aerospace blue, leave gaps on the inset tone, and use one solar marker per row that has nothing recorded. Colour is never the only signal; counts and labels stay.
+- **Do not borrow a family for variety**: if a product has more categories than families, distinguish them by label, icon or position rather than by new colours.
+
+Long-form records are written and read on the [Ruled Sheet](#ruled-sheet-writing--reading); its highlighted part is the one the record's audience reads first (for example, the action expected before the next session).
+
 ### Spacing
 
 Use an 8px base grid with 4px micro-adjustments for dense instrumentation.
@@ -288,6 +501,25 @@ Use an 8px base grid with 4px micro-adjustments for dense instrumentation.
 | **space-12** | 48px | Page rhythm |
 | **space-16** | 64px | Large breathable divisions |
 | **space-24** | 96px | Landing page sections |
+
+### Density
+
+One switch changes spacing and size for the whole interface. Density never changes type size, content or capability: the same rows, limits and states appear in every density.
+
+| Token | Comfortable | Compact | Touch |
+|---|---:|---:|---:|
+| `density-control-h` | 36px | 28px | 44px |
+| `density-row-h` | 40px | 32px | 48px |
+| `density-gap-intra` | 8px | 4px | 8px |
+| `density-gap-inter` | 16px | 12px | 16px |
+| `density-pad-x` | 12px | 8px | 16px |
+| **For** | Default for desktop work | Tables, monitoring, power use | Phones, tablets, handhelds |
+
+- **Set with `data-density` on any element**, like a theme, so one region can be compact inside a comfortable page. With no attribute, a coarse pointer gets touch and everything else gets comfortable.
+- **Compact never falls below 24px** (WCAG 2.5.8). In a table the target is the whole cell, not the inner input box: in compact the editable cell's visible box is inset but stays at least 24px high.
+- **44px is the touch density**, not a universal floor. Desktop forms and tables are no longer 44px tall just because a phone needs it; a product that ships to touch devices uses touch there.
+- **Rows keep one height** within a density, whatever they contain.
+- **Density is a user choice**, offered in [Settings and Personalization](#settings-and-personalization), not a layout the product guesses from the screen width alone.
 
 ### Radius
 
@@ -321,9 +553,13 @@ Shadows should feel physical, soft, and directional. They should not create floa
 | **blur-sm** | 8px | Dense UI glass |
 | **blur-md** | 14px | Standard glass panels |
 | **blur-lg** | 24px | Large background glass |
-| **opacity-glass-clear** | 0.72 | Clear operational glass |
-| **opacity-glass-frosted** | 0.82 | Frosted system glass |
-| **opacity-disabled** | 0.42 | Disabled elements |
+| **opacity-glass-clear** | 0.58 | Clear operational glass tint (v0.5: was 0.72, contradicting the material table) |
+| **opacity-glass-frosted** | 0.72 | Frosted system glass tint (v0.5: was 0.82) |
+| **opacity-glass-dense** | 0.72 | Dense hardware glass tint |
+| **opacity-glass-alert** | 0.78 | Alert glass tint |
+| **opacity-glass-plate-light** / **-dark** | 0.92 / 0.88 | The reading plate |
+| **glass-stream-idle** / **-live** / **-stale** | 0.20 / 0.28 / 0.10 | Internal data layer line opacity |
+| **opacity-disabled** | 0.42 | Disabled imagery and illustrations only; controls use `disabled-fill` and `disabled-text` (v0.4) |
 | **stroke-hairline** | 0.5px | High-density visualizations |
 | **stroke-sm** | 1px | Standard borders |
 | **stroke-md** | 1.5px | Active controls |
@@ -357,35 +593,372 @@ Shadows should feel physical, soft, and directional. They should not create floa
 
 Materials should feel like they belong to instruments, vehicles, public infrastructure, renewable systems, and repairable personal devices. Glass, metal, polymer, rubber, ceramic, water, air, and vegetation should be represented with restraint.
 
-### Glass Material Variants
+### Glass
 
-| Material | Background | Blur | Border | Shadow | Use |
+Glass is the material Realis Aero is named for and the one most likely to break its own promise. A blurred, translucent panel that hides what is behind its text is the "frosted panel that hides information" the Honest Translucency principle rejects, and a panel that is only legible over a white page is no material for imagery. This section makes glass **reveal** and makes it **legible**, and the checks measure both. The specimen is [`specimen/glass.html`](specimen/glass.html), drawn by [`specimen/glass.css`](specimen/glass.css) and [`specimen/glass.js`](specimen/glass.js).
+
+#### What the First Measurements Found
+
+Measuring the glass as it was specified found problems that only a measurement could:
+
+- **Frosted glass was legible only over near-white.** With every text role laid on bare glass, light frosted glass reached 4.5:1 only over backdrops brighter than gray 230 (of 255), and dark frosted glass only below gray 138. Over a mid-gray photograph its muted and state text failed.
+- **The material table and the tokens disagreed**, and two of the four variants were not tokens.
+- **The internal data layer, the imperfections and any glass behaviour in a state** were specified and never built, so they had never been looked at.
+- **Every glass component put its text straight onto the glass.**
+
+#### The Rule: Bare Glass Carries No Text
+
+Glass shows; plates carry. The two have different jobs and are measured differently.
+
+| Part | Carries | Never carries |
+|---|---|---|
+| **Bare glass** | The blurred backdrop, the edge, the internal data layer, and the few cues that repeat the state system (haze, seam) | Text, state marks, values, controls |
+| **Reading plate** | All text, state labels and marks, values and controls | — |
+
+Between the plates the glass is free to be translucent, so it can reveal what is behind it; where a person has to read, a plate guarantees that they can. This is the only way a translucent surface can both reveal and be legible over an arbitrary backdrop, and it is the reason the rule has no exceptions: the specimen's stress samples are the only text on bare glass anywhere in it, and they are there to show it failing.
+
+#### Anatomy
+
+Back to front. Every layer after the tint is decoration or structure, and none but the plates carries text.
+
+| Layer | Token | What it does |
+|---|---|---|
+| **Backdrop** | — | The imagery or moving content the glass is placed over |
+| **Blur** | `glass-blur-*` | Softens the backdrop so it reads as depth, not as competing detail |
+| **Tint** | `glass-*-bg` | Gives the glass its colour and body; sets how much of the backdrop shows |
+| **Wear** | `glass-scratch` | Optional micro-scratches, touch surfaces only |
+| **Haze / seam** | `glass-haze`, `glass-seam` | State cues that repeat the state system (stale, maintenance) |
+| **Streams** | `glass-stream-*` | The internal data layer: system lines drawn on the glass |
+| **Edge** | `glass-border`, `glass-edge-light`, `glass-edge-shade` | A hairline, a light edge on top and a shaded edge below: the glass's thickness |
+| **Plates** | `glass-plate-bg`, `glass-plate-edge` | Everything that is read |
+
+The specimen's anatomy panel has a switch for each layer, so what each contributes can be seen by removing it.
+
+#### Variants
+
+| Variant | Tint (light) | Blur | Hairline | Use | Bare-glass envelope, light / dark |
 |---|---|---:|---|---|---|
-| **Clear Operational Glass** | `rgba(255, 254, 250, 0.58)` | 8px | `rgba(255, 254, 250, 0.42)` | elevation-2 | Compact controls, live labels |
-| **Frosted System Glass** | `rgba(242, 235, 221, 0.72)` | 14px | `rgba(255, 254, 250, 0.34)` | elevation-3 | Cards and panels |
-| **Dense Hardware Glass** | `rgba(7, 29, 43, 0.72)` | 18px | `rgba(156, 198, 216, 0.28)` | elevation-3 | Dark instrument panels |
-| **Alert Glass** | `rgba(255, 254, 250, 0.78)` | 12px | semantic warning/danger border | elevation-3 | Alerts, maintenance states |
-| **Reduced Transparency Surface** | solid semantic surface | 0px | standard border | elevation-1 | Accessibility fallback |
+| **Clear** | `rgba(255, 254, 250, 0.58)` | 8px | `rgba(255, 254, 250, 0.42)` | A lens over a small readout: compact controls, live labels (their text on a small plate) | gray 206–255 / 0–105 |
+| **Frosted** | `rgba(242, 235, 221, 0.72)` | 14px, saturate 1.12 | `rgba(255, 254, 250, 0.42)` | Panels over imagery or moving content | gray 230–255 / 0–138 |
+| **Dense hardware** | `rgba(7, 29, 43, 0.72)` | 18px, saturate 1.12 | `rgba(156, 198, 216, 0.28)` | Dark instrument panels over imagery. A dark subtree (`data-theme="dark"`), except in outdoor | — / 0–215 |
+| **Alert** | `rgba(255, 254, 250, 0.78)` | 12px | `rgba(255, 254, 250, 0.42)` plus the state's 3px leading edge | Notices and maintenance messages over moving content | gray 161–255 / 0–162 |
+| **Reduced transparency surface** | the solid surface | none | the card hairline | The fallback for every other row | — |
 
-### Imperfection Rules
+- **Light values are shown**; dark tints are the same alphas on `aero-blue-900` (dense on `#030E16`), and every value is in the token file.
+- **The envelope** is the range of backdrop grays (0 black, 255 white) over which *every* text role would reach 4.5:1 if it were laid on that variant bare. It is printed by `npm run check:tokens`. It is why bare glass carries no text: no variant covers the backdrops that photographs and live data actually contain.
+- **An alert's colour comes from the state system**, as a real 3px border, not from a coloured glass border.
+- **Each tint's alpha is its `opacity-glass-*` token**, and a check fails if they differ.
 
-Imperfections should signal real use, not visual noise.
+#### The Reading Plate
 
-- **Micro-scratches**: 1px or thinner, 3% to 8% opacity, aligned with plausible touch or cleaning direction.
-- **Fingerprints**: Use only on touch surfaces and only at large sizes or close-up views.
-- **Condensation**: Use near weather, cooling, water, greenhouse, or thermal systems; never as generic decoration.
-- **Dust or pollen**: Use for outdoor infrastructure, vents, sensor housings, and seasonal surfaces.
-- **Wear**: Apply to edges, handles, frequently pressed buttons, and replaceable modules.
+| Token | Light | Dark |
+|---|---|---|
+| `glass-plate-bg` | `rgba(255, 254, 250, 0.92)` | `rgba(13, 47, 69, 0.88)` |
+| `glass-plate-edge` | `rgba(217, 205, 182, 0.55)` | `rgba(42, 84, 108, 0.70)` |
 
-### Internal Data Layer
+A plate is a surface, 1px edge, `radius-sm`, in the colour of the layer it stands in for. It holds text of every role.
 
-Glass panels may reveal low-intensity system lines beneath the surface.
+- **It is a guarantee, and it is measured twice.** Over pure black and pure white, for every variant in both themes, every text role reaches 4.5:1 and every state mark 3:1 (29 checks in `npm run check:tokens`, composited as the browser does: plate over tint over backdrop). And on real rendered pixels: the glass page has 79 plate text runs, laid over a landscape, a dark ground, fine black and white detail and white beside black, and every one reaches 4.5:1 (7:1 in outdoor) against the pixels actually behind its box.
+- **It holds while content moves.** A notice over a scrolling list of bright, dark and mid rows was measured at eight scroll positions: its lowest text contrast was 5.13:1.
+- **The plate is the size of its text, not of the panel.** A panel with a plate that fills it is a solid card with a thin rim. Leave the frame, the margins and the spaces between plates visible: that is where the glass reveals.
+- **Plates stack with the tint beneath them.** A 0.92 plate over a 0.72 tint is 97.8% opaque, a 0.88 plate in dark 96.6%, so a plate does not need to be fully opaque to hold.
+- **A plate may be thinner only against a backdrop that has been measured.** The alpha needed by the frosted tint depends on the darkest (light) or brightest (dark) region behind the plate:
 
-- **Line opacity**: 10% to 28%.
-- **Line width**: 1px to 2px.
-- **Glow**: Use `teal-system-500` at low opacity; pulse only on fresh data.
-- **Meaning**: Every stream must map to a real category: power, water, air, heat, carbon, network, maintenance, or movement.
-- **Animation**: Idle streams should barely move or remain still; live updates may pulse once.
+| Light, darkest region behind the plate | gray 0 | 64 | 128 | 192 | 224 and up |
+|---|---:|---:|---:|---:|---:|
+| **Plate alpha needed** | 0.76 | 0.70 | 0.59 | 0.34 | 0.30 or less |
+
+| Dark, brightest region behind the plate | gray 255 | 224 | 192 | 160 and down |
+|---|---:|---:|---:|---:|
+| **Plate alpha needed** | 0.57 | 0.49 | 0.38 | 0.30 or less |
+
+  The tokens keep the guarantee for any backdrop. Lowering the alpha is a decision about one known backdrop (a fixed brand photograph, a map style) and has to be re-measured when the backdrop changes.
+
+#### Where Glass Is Allowed
+
+| Backdrop | Glass? | Why |
+|---|---|---|
+| **Imagery**: a photographed or illustrated environment | Yes | The glass shows context: the place the data is about |
+| **Moving content**: a scrolling list, a live data field | Yes | The glass shows that something moves behind it, and stays in place while it does |
+| **A flat canvas** | No, solid | Blur over nothing reveals nothing, and costs rendering time |
+| **Content the person has to read** (a table, a form) | No, solid overlay | A translucent panel over data hides it; use a solid L4 overlay over a scrim |
+| **Another glass panel** | Never | A blur on a blur cannot be measured, compounds the cost and doubles the haze. Components inside glass are plates and solid controls |
+
+The test from [Honest Translucency](#2-honest-translucency): remove the backdrop. If the panel reads the same, it should be solid.
+
+#### Edge and Light
+
+One light source, from above, a little warm: diffused daylight or low sun. Shadows fall straight down (the `shadow-*` tokens have a vertical offset only), and the edges agree with them.
+
+- **Light edge**: 1px inside the top edge, `glass-edge-light` (white 42% in light, blue-white 24% in dark).
+- **Shaded edge**: 1px inside the bottom edge, `glass-edge-shade` (10% in light, 30% black in dark).
+- **Hairline**: 1px, `glass-border`.
+- **Radius**: `radius-lg` for panels, `radius-xl` for hero panels, `radius-sm` for plates.
+- **What is left out on purpose**: a diagonal gloss sweep, a specular streak, rainbow refraction, an inner glow. These are the "glossy, decorative, magical" glass the Frutiger Aero comparison rejects; the two edges alone give the pane its thickness.
+
+#### Internal Data Layer
+
+System lines drawn on the glass, under the plates and over the tint. They are what lets glass **reveal structure** as well as the backdrop.
+
+- **Drawn as SVG**, hidden from assistive technology, and never taking the pointer. Removed in every fallback.
+- **Opacity** 20% at idle (`glass-stream-idle`), 28% for the instant of a fresh reading, 10% when stale. All inside the 10% to 28% range.
+- **Width** 2px, round caps, constant at any panel size.
+- **Colour** `glass-stream-color`: teal-system-700 in light, teal-system-300 in dark, because the lines are live system structure.
+- **Every line is a real category with its own line style**, and is named on a plate. A line is never the only carrier of anything.
+
+| Category | Line style | Category | Line style |
+|---|---|---|---|
+| **Power** | Solid | **Carbon** | Short dash |
+| **Heat** | Dash, dot | **Network** | Dash, dot, dot (1px) |
+| **Water** | Long dash | **Maintenance** | Long dash, dots |
+| **Air** | Round dots | **Movement** | Very long dash |
+
+- **A fresh reading pulses its own line once**, for 600ms (`motion-live-pulse`), from 28% back to idle, and no other line moves. Idle lines stay still. Under reduced motion nothing pulses and the announcement ("Fresh reading on the water stream.") carries it.
+- **Checked**: every line within the opacity and width ranges, eight categories with eight distinct styles, the pulse once and only on its own line, none under reduced motion, and the layer hidden from assistive technology.
+
+#### Glass and State
+
+**Glass never carries a state alone.** Each cue below repeats one the state system already gives, so removing the glass loses nothing.
+
+| State | What the glass does | The cue it repeats |
+|---|---|---|
+| **Live** | Clear, lines at idle, one pulse on a fresh reading | The live label and mark |
+| **Stale** | A haze under the plates (`glass-haze`); lines drop to 10% and stop | The clock mark and the age on the plate |
+| **Offline** | Solid and recessed, no light, no lines, no shadow ("Offline wins over glass") | The offline label and mark |
+| **Maintenance** | A seam and four corner fasteners in `glass-seam` (umber), and the 3px leading edge | The nut mark and the who-and-when label |
+| **Warning, error** (alert glass) | The 3px leading edge in the state's colour, as a real border | The warning or error mark and message on the plate |
+| **Degraded, success, uncertain** | Nothing: the plate carries them | The state system, on the plate |
+
+A fogged pane for stale data is a deliberate use of the glass metaphor: you can still read it, and you can see that you are looking through something. The seam and fasteners say "this panel is serviceable", which is what Repairable Beauty asks of a module under maintenance. Neither is ornament, because each repeats a label.
+
+#### Wear
+
+Imperfections signal use, so each has a place and a reason.
+
+- **Micro-scratches** (built): hairlines under the plates in `glass-scratch` (5% in light, 6% in dark; the range is 3% to 8%), crossing at two angles. **Touch surfaces only**, off unless a surface asks (`data-wear`), and removed in every fallback. Being under the plates they never touch a contrast measurement.
+- **Fingerprints, condensation, dust and edge wear** are specified for products and **not built** in the specimen. Fingerprints are for touch surfaces seen large; condensation only near weather, cooling, water, greenhouse or thermal systems; dust only for outdoor housings and vents; wear on edges, handles and replaceable modules. None is generic decoration.
+
+#### Fallbacks
+
+Every fallback is the same move: the glass tokens become solid. Components need no rule of their own.
+
+| Mode | What glass becomes |
+|---|---|
+| **Reduced transparency** | The solid surface, a card hairline, a solid plate; no blur, lines, haze, scratches or edge light |
+| **Outdoor** | The same. Dense hardware glass stays in the outdoor theme, because a dark subtree would fall outside the 7:1 target |
+| **Print** | The same, with the control-tone edge; the printed page is light |
+| **Forced colors** | `Canvas` with a `CanvasText` border; the seam in `CanvasText` |
+| **No `backdrop-filter`** | The same, through `@supports not`: unblurred tint over a sharp backdrop would not be the material this system describes |
+| **Offline** | A solid, recessed surface, whatever the mode |
+
+`npm run check:tokens` asserts that each of the six token blocks makes every tint and the plate solid and removes blur, lines, haze, scratches and light. The glass page is then rendered in reduced transparency (light and dark), outdoor, forced colors and print, and every panel is checked to be solid.
+
+#### Limits of What Is Measured
+
+- **The backdrops are stress tests drawn in code, not photographs.** They are chosen to be hard (white beside black, fine detail that defeats a blur) and deterministic, so a run is repeatable. Real photography, video and map imagery have to be put through the same pixel measurement before a product ships glass over them.
+- **Blur and compositing differ between browsers and GPUs.** The measurement is of one engine.
+- **Focus rings** that fall on bare glass at a plate's edge are not measured.
+- **Whether people read the haze and the seam as intended** has not been tested with people.
+- **Rendering cost on real devices** is not measured (see [Performance](#performance)).
+
+## State System
+
+A state is never a colour alone. Each one has a **mark** (a shape), a **text label**, and where it needs one an **edge** (a real border). Colour reinforces. The test: every state on the specimen can still be told apart in the grayscale and forced-colors renders.
+
+Marks are drawn as vector shapes on a 16px grid with a 1.5px stroke, so they do not depend on the device's fonts. The specimen holds the set in [`specimen/index.html`](specimen/index.html).
+
+### Product States
+
+The seven required product states, plus paused. These describe a system, a subsystem or a whole surface.
+
+| State | Mark | Label pattern | Edge and surface | Family |
+|---|---|---|---|---|
+| **Live** | Ring with a filled centre | "Live · 14:02:31" | None | Teal |
+| **Paused** | Two bars | "Paused · 34 updates pending" | None | Neutral |
+| **Stale** | Clock | "Stale · 18 min" (the age is required) | Dashed border in the control tone; value in secondary text | Neutral |
+| **Offline** | Circle with a slash | "Offline · last sync 13:44" | Inset fill, no shadow, no glass; value in secondary text | Neutral |
+| **Degraded** | Half-filled circle | "Degraded · 71% of expected" | 3px leading edge | Solar |
+| **Maintenance** | Hexagonal nut | "Maintenance · scheduled 16:00" (who and when) | 3px leading edge | Umber |
+| **Success** | Circle with a check, outlined | "Verified · saved 14:02" | None | Bio green |
+| **Uncertain** | Dotted circle with a question mark | "Uncertain · sensor drift" (the reason is required) | 2px dotted border; value prefixed "≈" | Neutral |
+
+- **The label says what the mark cannot**: the age of stale data, the reason for uncertainty, who is doing the maintenance and until when.
+- **Maintenance is umber, not solar.** It is planned human work on a repairable system, which is what the umber family means. v0.3's reference component painted it as a warning.
+- **Live pulses once.** A fresh reading may pulse its mark once (`motion-live-pulse`, 600ms) and settle. Nothing loops. Under reduced motion the pulse is removed and the label carries the state.
+
+### Live Values and Data Quality
+
+A product state describes a surface; data quality describes one value. Both can be present.
+
+- **Freshness is visible.** A live region shows when it last updated and whether updates are running: "Live · 14:02:31" or "Paused · 34 updates pending".
+- **Pausing is allowed and explicit.** The user can freeze a live view to read it. The control is labelled, its pressed state is exposed, and the indicator changes shape (ring to bars) as well as text.
+- **A fixed marker slot sits before the name**, one mark wide, on every row. Digits stay aligned whether or not a mark is present.
+- **Every value carries a text quality label** where quality matters:
+
+| Quality | Shown as |
+|---|---|
+| **Good** | The value, plainly. No mark. |
+| **Uncertain** | The value with a dotted underline, the uncertain mark and the reason ("calibration due") |
+| **Stale** | The value in secondary text, the clock mark and its age ("12 min") |
+| **Bad or communication lost** | The value is replaced by "—". The label gives the age of the failure and the last good value ("comm lost 00:42 · last good 46 L/min"). The last good value is never shown as if it were current. |
+
+- **The limit sits beside the value** it constrains ("1.92 bar" next to "≤ 1.80 bar"), so a reading can be judged without opening anything.
+- **In charts**, limits are labelled lines and faults are labelled rings (see [Data Visualization Colors](#data-visualization-colors)).
+
+### Editing and Interaction States
+
+| State | Treatment | Family |
+|---|---|---|
+| **Hover** | `surface-hover` fill | Neutral |
+| **Selected** | `surface-selected` fill and a 3px leading bar in `selected-edge`; muted text and the focus ring re-point | Aerospace blue |
+| **Focus** | 2px solar ring, offset 2px outside the element (inset inside list rows). Never removed, never a fill. | Solar |
+| **Editable** | Surface fill with a 1px control edge (3:1) | Neutral |
+| **Read-only / computed** | No edge; takes the surface it sits on | Neutral |
+| **Unsaved** | A filled ink dot after the field's label, and "Unsaved · was …" under the field | Ink |
+| **Queued (offline)** | The unsaved dot, plus an up-arrow mark and "Queued · syncs when the network returns" | Ink |
+| **Error** | Coral control edge with a 3px leading edge; filled circle with an exclamation mark; a message that says how to fix it | Signal coral |
+| **Warning** | Solar control edge; outlined triangle; a message. The value is allowed. | Solar |
+| **Info** | Outlined circle with an "i" | Aerospace blue |
+| **Disabled** | `disabled-fill` and `disabled-text`, card-tone edge. Never reduced opacity. The control stays focusable (`aria-disabled="true"`, not the native attribute) and its reason is tied to it with `aria-describedby`. | Neutral |
+
+### Collision Rules
+
+Realis Aero has more meanings than families, so some states share a colour. These rules keep them apart.
+
+- **Focus, warning and degraded are all solar.** They differ by shape: focus is always an offset ring and nothing else; warning is always a triangle with a border *on* the control; degraded is always a half-filled circle with a leading edge on a card. Solar is never a fill behind text for any of them.
+- **Unsaved is ink, not solar.** A screen full of edits must not look like a screen full of warnings.
+- **Selected, info and the primary action are all aerospace blue.** Selected is a pale fill with a bar; info is an outlined mark with text; primary is a filled button. Blue text on its own always means a link or info, never selection.
+- **Live and success are neighbours in hue** and close under colour-vision deficiency. Live is a ring with a centre and a time; success is a check and a past-tense word.
+- **Stale, uncertain and forecast are all neutral.** Stale is dashed and has an age; uncertain is dotted and has a reason; forecast is a dotted line with a band, in charts only.
+- **Maintenance is not a fault.** Umber with a nut means planned work; coral with a filled circle means something broke.
+- **Error outranks warning.** One mark per message; when a value has both, the error is shown and the warning is counted.
+- **Offline wins over glass.** An offline surface is solid and recessed, whatever material it used when live.
+- **A disabled primary loses its fill.** A filled button looks actionable, and disabled text on aerospace blue is unreadable.
+- **On a selected item, re-point; do not override.** `text-muted` becomes `text-muted-on-selected` and the focus ring becomes `focus-ring-on-selected`, once, on the selected element.
+- **Edges are borders, and only where the state is.** A state edge is drawn with `border`, never `box-shadow`, and no transparent edge is reserved on items that do not have the state: forced colors removes shadows and paints transparent borders.
+
+### State Tokens
+
+| State | Mark (≥ 3:1) | Text (≥ 4.5:1) | Tint |
+|---|---|---|---|
+| **live** | teal-system-700 | teal-system-800 | — |
+| **success** | bio-green-600 | bio-green-800 | bio-green-100 |
+| **warning** / **degraded** | solar-750 | solar-800 | solar-100 |
+| **error** | signal-coral-600 | signal-coral-700 | signal-coral-100 |
+| **maintenance** | umber-600 | umber-700 | umber-100 |
+| **info** | aero-blue-600 | aero-blue-700 | — |
+| **neutral** (paused, stale, offline, uncertain, bad) | graphite-600 | text-secondary | — |
+| **dirty** (unsaved, queued) | text-primary | text-primary | — |
+
+Light values are shown; dark and outdoor values are in the token file. Each text token is measured on the canvas, card, hover, inset, raised and selected surfaces and on its own tint, and each mark on the canvas, card, inset and selected surfaces.
+
+## Layered State, Undo and Offline
+
+A value can be in four places at once: the one that was opened, the last saved one, one waiting for the network, and the one being typed. Showing which is the difference between a tool that can be trusted with a setpoint and one that cannot. The specimen's [Layers section](specimen/index.html#layers-section) implements this model in [`specimen/layers.js`](specimen/layers.js).
+
+### The Layers
+
+```
+baseline  →  committed  →  queued  →  draft
+ opened       saved         applied     being typed
+                            offline
+```
+
+- **A field shows the top layer that holds a value for it.** Its marks and messages are computed by comparing a layer with the one below, never stored as flags.
+- **Draft** differs from the layer below: the ink dot and "Unsaved · was 21.5".
+- **Queued** was applied while offline: the dot, the up-arrow mark and "Queued · was 16.0 · syncs when the network returns".
+- **Committed** differs from the baseline: "Saved · was 21.5 when opened". A value the user never touched says only "Saved".
+- **Typing the layer below back clears the draft**, and with it the mark.
+
+### Apply, Reset, Revert and Undo
+
+| Action | What it does | Unavailable when |
+|---|---|---|
+| **Apply** | Commits the draft as **one named change** ("Applied 2 changes"). Offline, the label becomes **Apply offline** and the change is queued instead. | There is no draft |
+| **Reset** | Discards the draft and returns to what is saved (or queued) | There is no draft |
+| **Revert** | Returns saved values to the baseline, the values that were opened. It is itself undoable. | Nothing differs from the baseline, or the surface is offline |
+| **Undo** | Reverses the last named change, whole. Resolving a conflict is a named change too. | There is nothing to undo |
+
+- **Nothing takes effect on change.** Editing creates a draft; only Apply writes.
+- **The apply bar is persistent**: counts of unsaved and queued changes (shown only when above zero), the four actions, and a status line, so the state of the work is visible without opening anything.
+- **An unavailable action explains itself.** All four use `aria-disabled` rather than the native attribute, so they stay focusable. The reason is the control's description ("Nothing to apply: no unsaved changes."), and it is announced in the polite status line when the action is activated.
+- **Recent named changes are listed** (the last three), so Undo is never a guess.
+- **Every result is announced** in the status line: "Applied 2 changes.", "Reset: 1 unsaved change discarded.", "Reverted to the values that were opened."
+
+### Offline and Sync
+
+Offline is a state of the whole surface, never a surprise.
+
+- **Text and mark both say so**: "Offline · changes queue until the network returns" with the slashed circle, in place of the live mark.
+- **The apply bar changes with it**: Apply becomes Apply offline, and Revert is unavailable because it changes saved values the user cannot see are still current.
+- **Queued changes are never lost and never silently overwrite.** On reconnect, changes that do not conflict sync; the result is reported as a partial outcome ("Back online: 1 change synced, 1 conflict to resolve.").
+- **A conflict is shown, not decided**: "Conflict · Night setback: yours 15.5, theirs 17.0 (L. Haddad, 14:03)" with **Keep mine** and **Take theirs**. Field-level resolution, not last-write-wins.
+- **In the specimen the other person's edit is scripted**, so the conflict is always produced the same way. A real product needs optimistic concurrency with field-level versions; the specimen proves the interface, not the protocol.
+
+### Partial Failure
+
+For bulk or multi-step operations, report the outcome as counts with a way to review and retry the failures ("142 of 150 saved; 8 failed · Review"). Two examples are in the specimen: the sync result above, and a paste that applies some values and skips others (see [Copy and Paste](#copy-and-paste)). Bulk edits over a whole table, with retry, are not yet demonstrated.
+
+## Themes and Modes
+
+| Theme or mode | Purpose | How it differs |
+|---|---|---|
+| **Light** | Default | The v0.3 tonal ladder |
+| **Dark** | User preference, evening and low light | Designed, not inverted: see the dark ladder below |
+| **Outdoor** | Direct sunlight, field and site work | Held to WCAG AAA: 7:1 for text, 4.5:1 for marks and control edges. Layers are separated by strong edges. Glass is solid, and dense hardware glass stays in the outdoor theme instead of becoming a dark panel. |
+| **Forced colors** | Windows High Contrast and similar | Tokens map to system colours; borders, marks and text carry everything |
+| **Print** | Reports, logs, sheets | Always light, whatever the screen showed. No glass, no shadows, no navigation. |
+| **Reduced transparency** | Low vision, battery saver, user setting | Glass becomes the solid surface of its layer |
+| **Reduced motion** | Motion sensitivity | Motion tokens drop to 0ms; the live pulse is removed |
+
+### Setting a Theme
+
+- `data-theme="light | dark | outdoor"` on **any element** sets the theme for that subtree, so one panel can be shown in another theme (a dark instrument panel on a light page, a preview in settings).
+- With no `data-theme` on the root, the system preference decides between light and dark.
+- `data-reduced-transparency="true"` on the root is the user-facing setting; `prefers-reduced-transparency` is honoured where the browser supports it.
+- Dark values are declared for screens only, so printing a dark screen gives a light page without a second set of values.
+
+### Dark Ladder
+
+In dark, higher layers are lighter, the inset is recessed darker, and the rail is the darkest layer. State colours are lighter and less saturated. There is no pure black.
+
+| Layer | Token | Dark value | Measured separation |
+|---|---|---|---|
+| **L0 Rail** | `rail` | `#030E16` | 1.13:1 vs canvas; labels 15.4:1 |
+| **L1 Canvas** | `background` | `#071D2B` | — |
+| **L2 Card** | `surface` + `border-card` `#2A546C` | `#0D2F45` | 1.24:1 vs canvas |
+| **L3 Inset** | `surface-inset` | `#092437` | 1.14:1 vs card |
+| **Selected** | `surface-selected` + bar `#9CC6D8` | `#174A63` | 1.45:1 vs card; bar 5.23:1 on its fill |
+| **L4 Overlay** | solid `surface` over `scrim` `rgba(0, 0, 0, 0.55)` | `#0D2F45` | — |
+
+- **Control edge** `#6F93A6`: 4.24:1 on a card, 4.85:1 on an inset.
+- **Focus ring** solar-300: 6.00:1 or more on every surface.
+- **Lowest text pair**: muted text on the raised surface, 4.50:1. It passes with no margin; do not lighten `surface-raised` or darken `text-muted` in dark without re-running the check.
+- **The Ruled Sheet in dark** uses the same ladder: sheet on `surface`, ruled lines in `border-subtle`, margin rule in `border-card`, focus and highlight bars in `selected-edge`. It is in the specimen and measured: its text reaches 6.55:1 or better on real pixels (see [Ruled Sheet](#ruled-sheet-writing--reading)).
+
+### Outdoor
+
+- **Surfaces**: canvas `#F2EBDD`, card `#FFFEFA`, card edge `#6D6454`, control edge `#5F574A` (6.00:1 or more).
+- **Text**: primary `#0A1014`, secondary `#263238`, muted `#3B474C`. The lowest text pair measures 7.37:1.
+- **Actions**: primary fill aero-blue-900; destructive fill signal-coral-900.
+- **State text** steps one or two stops darker than light (teal-900, bio-green-900, solar-900, coral-900, umber-800, aero-blue-800).
+- **No glass, and tints are not relied on**: in sunlight a pale tint is invisible, so marks, edges and text do the work.
+- Sunlight on a real screen still has to be tested on a device; the check proves the ratios, not the readability.
+
+### Forced Colors
+
+The system replaces author colours, drops backgrounds and removes shadows. Glass, tints and elevation all disappear, so Realis Aero is more exposed here than a flat system would be.
+
+- **Every state survives because it never depended on a fill**: marks take the system text colour, edges are real borders, and labels are text.
+- **Filled buttons become outlined**: the primary and destructive buttons are marked by a 3px border; a disabled button by a dashed one.
+- **Selection uses the system highlight**, and everything inside a selected item takes the highlight text colour.
+- **The scrim is removed**; the overlay is separated by its border.
+
+### Print
+
+- Light values, solid surfaces, no shadows; cards take the control-tone edge because printers drop pale tints.
+- State edges, marks and labels print. Hover, focus and navigation do not.
+- Cards and metric panels avoid page breaks.
 
 ## Component Library
 
@@ -396,7 +969,7 @@ Glass panels may reveal low-intensity system lines beneath the surface.
 - **Container**: Rounded rectangle or capsule with subtle bevel.
 - **Label**: Humanist medium weight, sentence case.
 - **Icon**: Optional, left for action category or right for continuation.
-- **Highlight**: Thin solar or glass highlight along top edge.
+- **Highlight**: Thin solar or glass highlight along top edge (the glass edge light, see [Edge and Light](#edge-and-light)).
 - **Shadow**: Soft directional depth.
 
 #### Variants
@@ -404,10 +977,10 @@ Glass panels may reveal low-intensity system lines beneath the surface.
 | Variant | Use | Visual Spec |
 |---|---|---|
 | **Primary** | Main action | Aerospace-blue fill, refined solar highlight, high-contrast label |
-| **Secondary** | Supporting action | Glass surface, aerospace-blue border, dark text |
+| **Secondary** | Supporting action | Solid surface, aerospace-blue border, dark text; a glass chip only when the button sits on imagery or moving content, with its label on a plate |
 | **Tertiary** | Low emphasis | Text or subtle glass chip |
-| **Danger** | Destructive/critical | Coral border/fill, icon required |
-| **System** | Operational control | Dense hardware glass, compact label |
+| **Danger** | Destructive/critical | Filled `action-danger` (coral-700) with the on-action label; in a dialog it is the one filled action |
+| **System** | Operational control | Solid hardware surface, compact label; dense hardware glass only on a dark instrument panel over imagery, with its label on a plate |
 
 #### States
 
@@ -418,7 +991,7 @@ Glass panels may reveal low-intensity system lines beneath the surface.
 | **Pressed** | Scale to 0.98, shadow compresses, inner depth increases |
 | **Focus** | 2px solar ring with 2px offset |
 | **Loading** | Preserve button width, show real task label when possible |
-| **Disabled** | Reduced opacity plus reason when critical |
+| **Disabled** | Neutral fill and text (`disabled-fill`, `disabled-text`), no filled colour, never reduced opacity. Stays focusable (`aria-disabled`) with its reason tied to it |
 | **Offline** | Disable action and show last-known sync context |
 
 ### Cards & Panels
@@ -439,7 +1012,7 @@ Cards are not empty containers. A Realis Aero card should communicate a system s
 - **System card**: Health state, subsystem list, maintenance context.
 - **Narrative card**: Short explanatory content with measured evidence.
 - **Control panel**: Inputs, toggles, confirmations, and safety states.
-- **Hero panel**: Large glass panel for core product proposition and live proof.
+- **Hero panel**: Large glass panel over imagery for the core proposition and live proof, with its text on plates and its internal data layer showing between them.
 
 ### Navigation
 
@@ -447,7 +1020,8 @@ Navigation should feel like an instrument panel: clear, stable, spatially consis
 
 - **Desktop**: Left side rail for persistent systems; top bar for global status and account.
 - **Mobile**: Bottom navigation for primary sections; avoid more than five items.
-- **Active state**: Aerospace-blue accent bar plus label weight change; reserve teal/cyan for live system indicators.
+- **Active state**: Aerospace-blue accent bar plus label weight change; reserve teal/cyan for live system indicators. On the dark rail (v0.3) the bar is aero-blue-300 over a pale blue tint.
+- **Desktop rail (v0.3)**: solid aero-blue-900, the L0 layer of the tonal ladder.
 - **System status**: Global sync, offline, maintenance, or alert state must be visible without opening a menu.
 - **Breadcrumbs**: Use for deep technical or settings flows.
 
@@ -489,21 +1063,224 @@ Charts should be clear first, atmospheric second.
 - **Gridlines**: Warm neutral at low opacity.
 - **Lines**: Slightly rounded caps, 2px standard stroke.
 - **Areas**: 12% to 24% opacity, never hide grid or labels.
-- **Tooltips**: Glass surface with timestamp, value, source, and confidence.
+- **Tooltips**: A reading plate with timestamp, value, source, and confidence. A tooltip floats over arbitrary chart content, so it never relies on bare glass.
 - **Forecasts**: Dotted or dashed with confidence band.
 - **Anomalies**: Annotate with reason when known.
 - **Live updates**: Animate only the changed segment, not the entire chart.
+- **Series**: Use the `chart-*` tokens, each with its own line style and a direct label at the end of the line; see [Data Visualization Colors](#data-visualization-colors).
+- **Limits and faults**: A limit is a labelled dashed line; a fault is a labelled ring. Neither is a coloured series.
+- **Text alternative**: Every chart has a title and a description that states what the chart shows, including limits crossed and faults.
+
+### Tables & Data Grids
+
+Tables are where Realis Aero's promise of "measured, not decorative" is tested hardest. The specimen's table is [`specimen/index.html#table`](specimen/index.html), rendered from a small model by [`specimen/grid.js`](specimen/grid.js); the large table is [`specimen/bigtable.js`](specimen/bigtable.js).
+
+#### Anatomy
+
+| Element | Specification |
+|---|---|
+| **Toolbar** | Above the table: **Columns**, **Reset layout** and **Discard unsaved**, and a polite status line that announces what each action did. |
+| **Header** | Inset surface, sticky, uppercase caption. A first row names the **column groups** (Identity, Output, Health, Control); the second names the columns. A group with no visible column loses its header. |
+| **Key column** | The identifying column is frozen at the inline start, stays in view when the table scrolls sideways, and always shows. It also holds the marker slot. |
+| **Marker slot** | A fixed one-mark-wide slot before the key, on every row, so names align whether or not a row has a state (see [Live Values and Data Quality](#live-values-and-data-quality)). |
+| **Rows** | One height in each density (`density-row-h`), a card-tone hairline between rows, hover on `surface-hover`. |
+| **Numbers** | Aligned to the end of the cell, tabular and isolated for right to left, with the unit in the column header rather than repeated in every cell. |
+| **Paths and IDs** | Truncated in the middle: see [Truncation](#truncation). |
+| **State** | A text label in its state colour with the mark in the slot; the row's edge is a real border only where the state has one. |
+| **Selected row** | `surface-selected` with the 3px leading bar; muted text re-points as elsewhere. |
+| **Range** | Every cell of a range has the selected fill **and** its own 1px outline, so a range inside selected rows does not vanish. |
+| **Editable cells** | Identified by structure: a surface fill with a control edge, inset in the cell, while read-only and computed cells have neither. |
+| **Footer** | Always states the limit, the selection, the unsaved edits, the sort and the range: "Showing 8 of 1,240 · 1 selected · 0 unsaved · sorted by Asset (ascending) · range 2 × 2". A status line shows the mode and position: "NAV · Heat pump 2 · Control › Limit kW". |
+
+#### Keyboard Model
+
+The grid is a single tab stop with a roving `tabindex`; focus moves inside it with the keys below. This is the WAI-ARIA grid pattern with spreadsheet conventions for editing and selecting.
+
+| Key | Navigation mode | Edit mode |
+|---|---|---|
+| Arrow keys | Move one cell. Up from the first row reaches the header. | Stay in the field |
+| Shift+Arrow keys | Extend a cell range from where it started | — |
+| Home / End | First / last cell in the row | — |
+| Ctrl+Home / Ctrl+End | First / last cell in the table | — |
+| Page Up / Page Down | Move a page of rows | — |
+| Enter or F2 | Start editing an editable cell; **sort** when on a sortable header (ascending, then descending) | Commit and move down |
+| Escape | Clear the range | Cancel and restore the value |
+| Space | Select or deselect the row | Type a space |
+| Shift+Space | Select every row from the last toggled row to the active one | Type a space |
+| Ctrl+C | Copy the range, or the active cell | Copy text in the field |
+| Ctrl+V | Open a paste preview at the active cell | Paste text into the field |
+| Tab / Shift+Tab | Leave the grid | Commit and move to the next / previous editable cell |
+
+- **Every state is announced with the cell.** An edited cell exposes "Unsaved, was 40.0" as its description; a sorted header exposes `aria-sort`; a range is exposed with `aria-selected` on each of its cells; the footer states the sort and the range in words.
+- **The active cell stays visible when focus is elsewhere**, as a dashed outline in the control tone.
+- **Unsaved means different from the layer below.** Typing the original value back clears the mark.
+- **An invalid value is refused with its reason** ("Not applied: "abc" is not a number from 0 to 100.") and nothing changes.
+- **Pointer follows the same model**: a click makes a cell active, a click on a sortable header sorts, a double click edits.
+
+#### Range Selection
+
+Shift+Arrow extends a rectangular range from the cell it started on; the active cell is the end the range last moved to. Escape or any move without Shift clears it. The footer counts it ("range 2 × 2"). Ranges are for copying and for reading a block of values: only the active cell is edited.
+
+#### Copy and Paste
+
+- **Copy** puts the range, or the active cell, on the clipboard as tab-separated text with no headers, and announces "Copied 2 × 2 cells." or "Copied 1 cell."
+- **Paste never writes at once.** It opens a **preview** below the table and moves focus into it: "Paste preview · 3 changes, 3 skipped". Each change is listed as *before → after* ("Heat pump 2 · Limit kW: 8.0 → 10.0"); each skipped value is listed with its reason ("Last service: read-only", ""abc" is not a number from 0 to 100", "Outside the table").
+- **The block is anchored at the active cell** and fills right and down. Read-only cells and invalid values are skipped, not guessed at; the rest still apply.
+- **Apply paste** writes the values as unsaved changes and announces the outcome ("Pasted 3 values as unsaved changes. 3 skipped."). **Cancel** or **Escape** changes nothing and returns focus to the cell. When every value is skipped, Apply is unavailable and says why.
+- **Pasted values are drafts.** They get the unsaved mark and the footer counts them; **Discard unsaved** restores every one.
+
+#### Columns
+
+Visibility, order and width are **view state**: they take effect at once, persist for the user, and have a **Reset layout**. This is unlike the [settings](#settings-and-personalization) that reshape the whole interface (theme, density, language), which are staged until Apply. The difference is consequence: a hidden column is one click from back; a changed theme is a change to everything.
+
+- **Show or hide** with a checkbox per column. The status line says what happened ("Location hidden. 8 of 9 columns shown.").
+- **Reorder with Up and Down**, within the column's group. At the edge of a group the move explains itself ("Today kWh is already first in Output. Columns move within their group.") instead of doing nothing. Groups stay together so their headers stay meaningful.
+- **Resize by dragging** a column edge; **double-click resets** it to the default width. Every pointer action has a keyboard alternative: **Narrower** and **Wider** change the width by 16px, between 64 and 480px, and announce the result.
+- **The key column is protected**: its controls are `aria-disabled`, so they stay focusable, and they explain why ("Asset is the key column: always shown, in place, and its width is fixed.").
+- **The layout persists** across a reload and survives edits: unsaved values stay when columns move.
+- **Reset layout** is unavailable while the layout is the default, and says so.
+- **The drag handle is not the only way**, so its small size does not make resizing pointer-only (WCAG 2.5.8 accepts an equivalent control).
+
+#### Truncation
+
+- **Identifiers and paths truncate in the middle.** The start gives way with an ellipsis and the identifying tail stays whole ("CA-DC/Roof/Array…4/INV-1-0412"). Paths and identifiers stay left to right in a mirrored page.
+- **The full text is always reachable**: it is the cell's text for assistive technology, the hover title, and, when the cell is focused, the end of the status line.
+- **Nothing that affects a decision is ever truncated**: numbers, states and limits never give way. The render check proves no such cell clips; only paths do.
+- **Domain labels** use an approved abbreviation list rather than arbitrary clipping. The specimen has none to show.
+
+#### Large Tables
+
+A table of thousands of rows cannot put them all in the page. [`specimen/bigtable.js`](specimen/bigtable.js) renders 12,408 rows with about twenty in the DOM.
+
+- **The full structure stays accessible**: `aria-rowcount` and `aria-colcount` give the true size, every rendered row carries its true `aria-rowindex`, and the table is a single tab stop whose keyboard model works across the whole range (Ctrl+End reaches row 12,408).
+- **Selection and focus survive scrolling** far away and back.
+- **The footer states the window and the total**: "Rows 5,001–5,009 of 12,408 · 21 in the page · 1 selected".
+- **Scrolling by pointer** moves the window and keeps one tab stop.
+- **The budget is measured** (see [Performance](#performance)).
+- **A virtualized table is not printed.** Only the rows in the page exist, so a printout would be a few dozen arbitrary rows. In print the table is left out and the page says "The large table has 12,408 rows and is not printed … Export it instead." Export itself is not in the specimen.
+
+#### Rules
+
+- **Limits are stated.** When a list is capped or windowed, say so ("Showing 500 of 12,408"). Never cut a list off silently, including by permission ("3 rows hidden by permission").
+- **Bulk actions preview before they apply** and report partial success (see [Copy and Paste](#copy-and-paste) and [Layered State, Undo and Offline](#layered-state-undo-and-offline)).
+- **Not yet specified**: multi-column sort, row grouping, filtering inside a column, and export. Edits in the table are discarded with **Discard unsaved**; they do not yet join the named-change **Undo** of the layers model.
 
 ### Forms & Inputs
 
 Forms should feel precise and serviceable.
 
-- **Input height**: 44px minimum.
+- **Input height**: the density's control height (36px comfortable, 28px compact, 44px touch), and never below 24px.
 - **Labels**: Always visible; placeholders are examples, not labels.
 - **Validation**: Inline and specific. Explain how to fix the issue.
 - **Focus**: Solar ring plus clear border change.
 - **Units**: Use fixed unit labels inside or adjacent to numeric inputs.
 - **Critical inputs**: Require confirmation when changing automation, safety, energy, or maintenance settings.
+
+- **Long text**: When the user writes prose, steps or notes rather than a value, use the [Ruled Sheet](#ruled-sheet-writing--reading) instead of stacked text boxes.
+
+### Ruled Sheet (Writing & Reading)
+
+A working notebook is one of the most feasible, repairable tools there is: a margin, ruled lines and an agreed order of parts let anyone write quickly and anyone else read it later. The Ruled Sheet takes that *structure*, which is what makes notebooks work, and leaves out the nostalgia. It is Feasibility Is Beauty applied to writing: the form gives way to a page that invites the amount of text the task needs. The specimen is [`specimen/sheet.html`](specimen/sheet.html), drawn by [`specimen/sheet.css`](specimen/sheet.css) and [`specimen/sheet.js`](specimen/sheet.js). It is a work log for equipment, not a school product; the pattern is the same for any long text written in parts.
+
+**Use it for**: long free text written in parts: work logs, observations, reports, maintenance and incident notes, handovers. Use the same sheet to read what was written.
+**Do not use it for**: short structured input (names, numbers, dates, choices). Those belong in controls, and in a writing task they go in the setup bar above the sheet.
+
+#### Anatomy
+
+| Element | Specification |
+|---|---|
+| **Sheet** | L2 surface (white) on the L1 canvas; card hairline, `radius-md`, `shadow-2`; 900px wide at most (about 75 characters at 15px), centred |
+| **Margin** | A label column (156px; 120px below 1100px) holding each part's name: caption size, uppercase, 0.05em tracking, muted text, aligned to the rule |
+| **Margin rule** | 1px in the card border tone, running down the whole sheet through every part with no gap between parts |
+| **Ruled lines** | 1px `border-subtle` at the foot of each 28px line, drawn *behind* the text and scrolling with it |
+| **Writing text** | 15px on a 28px line (the line pitch), primary text colour, no box, no inner border |
+| **Heading line** | The sheet's main field (the title or subject of the entry): body-lg, weight 520, a single 1px control-tone underline instead of a box |
+| **Highlighted part** | At most one per sheet, for the part its audience reads first: inset tone with a 3px `selected-edge` bar drawn as a real border |
+| **Secondary fields** | Offered on demand as a link line ("+ Add a public title", "+ Attach a file") that reveals the field and moves focus into it |
+
+The line pitch and the text size are those of a notebook, so they **do not change with the density**; the controls around the sheet do (see [Density](#density)).
+
+#### Behaviour
+
+- **Grows with the text**: parts have no inner scrollbar; the page scrolls. Each part re-fits as it is written, when the sheet's width changes (window resized or snapped) and once fonts load, always on whole lines. Minimum height follows the expected length: 1 line for short parts, 3 for typical, 4 for long ones.
+- **Lists continue**: Enter at the end of a line starting `1.`, `1)`, `-`, `*` or `•` starts the next item (`2. `, `2) `, `- `); Enter on an empty item ends the list and removes its marker. Anywhere else (the middle of a line, Shift+Enter, a line that is not a list item) Enter is a plain new line. The caret ends at the end of the new marker.
+- **Quick picks**: frequent values sit as chips above a part (for an activity type: Inspection, Repair, Calibration, Review). A chip adds its value to the text, or removes it if it is already there; the text stays free, and typing a value presses its chip. Chips are as tall as the density's control height (36px, 28px or 44px).
+- **Placeholders are questions or instructions, in italics**: "What should be true when this work is finished?", "start with “1.”". Never example content that could read as already written.
+- **Focus** is a 2px bar on the part's inner edge, in `selected-edge`, drawn as a **real border taken out of the part's padding**, so the text does not move and forced colors keeps it. The part's margin label turns `state-info-text` at the same time, so focus is shown by shape as well as colour. The **highlighted part** already has its 3px bar, so focus there is the standard 2px solar ring, inset. The writing field has no outline of its own: the bar and the ring are its focus indicator.
+- **Progress without pressure**: a single line ("3 of 6 parts filled, all optional") instead of "optional" on every part, counting only parts with writing in them; a character counter appears from 80% of a limit.
+- **Validation**: inline, under the part, in danger text; the control edge turns coral; the field is `aria-invalid` and described by its error. Submitting names every problem and moves focus to the first one in reading order: the setup bar first, then the sheet.
+
+#### Variants
+
+- **Writing**: as above, inside the [Writing Workspace](#writing-workspace).
+- **Reading (pages)**: the same sheet, one page per day or group. Each item is one **fixed-height ruled line** (56px): who and where in the margin (150px, with its rule), the subject on the line, its state at the end as a text label with a mark. The full text opens in a side pane; lines never expand in place, and selecting one never changes any line's height. The pages are a listbox: one tab stop, arrow keys across pages, Home and End, Enter or a click to select, a double click to edit. The selected line has the 3px bar and a selected tone.
+- **Print**: colour drops out (black text, hairline rules, white paper, whatever the screen theme); each item avoids page breaks; the sheet ends with a signature or approval box about 70mm by 24mm. A printed sheet must photocopy and take a signature.
+
+#### Do / Don't
+
+| Do | Don't |
+|---|---|
+| Borrow the notebook's structure: margin, lines, order of parts | Imitate paper: grain, torn edges, shadows of a binding, coffee stains |
+| Keep the system font and tokens | Use handwriting or novelty "notebook" fonts |
+| Draw the margin rule in the card border tone | Draw a red margin (coral is reserved for faults) |
+| Let parts grow and the page scroll | Fixed-height boxes with their own scrollbars |
+| Keep setup (who, when) out of the page | Mix pickers and calendars into the writing column |
+| Highlight one part at most | Colour every part differently |
+| Draw focus and highlight bars as borders | Draw them as `box-shadow`: forced colors removes them |
+| Use semantic tokens for the label, the bars and the links | Use `aero-blue-*` primitives: they are 1.45:1 in dark |
+
+#### Accessibility
+
+- Every part has a real `<label for>` (the margin label), so it is named without its placeholder.
+- Ruled lines and the margin rule are decoration, not information; they sit behind the text and never lower its contrast. The rule is 1px at the foot of a 28px line, below the descenders of a 15px face.
+- Placeholders use the muted token (4.5:1 or better); italics are a second cue that they are not content.
+- The focus indicator is a border or an outline, never a shadow, so it survives forced colors, and its colour reaches 3:1 (4.5:1 in outdoor) against what it sits on.
+- Tab moves between parts; list continuation never traps Enter (a second Enter on an empty item leaves the list).
+- Revealing a secondary field moves focus into it, so keyboard shortcuts keep working.
+- The reading pages are a listbox of options, so they are operable from the keyboard and not only the pointer.
+- The writing field ignores Enter while an input method is composing text.
+
+#### Reference CSS
+
+```css
+.sheet { max-width: 900px; margin: 0 auto; background: var(--color-surface);
+  border: 1px solid var(--color-border-card); border-radius: var(--radius-md); box-shadow: var(--shadow-2); }
+.part { --line: 28px; display: grid; grid-template-columns: 156px minmax(0, 1fr); }
+.part__label { border-inline-end: 1px solid var(--color-border-card); text-align: end;
+  font: 560 var(--text-caption) / var(--line) var(--font-sans); letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--color-text-muted); }
+.part__body { padding-inline: var(--space-5) var(--space-8); }
+
+/* Focus: a real border taken out of the padding, so the text does not move
+   and forced colors keeps it. Semantic tokens only: the primitives fail in dark. */
+.part:focus-within .part__label { color: var(--state-info-text); }
+.part:focus-within .part__body { border-inline-start: 2px solid var(--color-selected-edge);
+  padding-inline-start: calc(var(--space-5) - 2px); }
+
+.ruled { width: 100%; border: none; outline: none; resize: none; overflow: hidden; padding: 0;
+  font: 400 15px / var(--line) var(--font-sans); color: var(--color-text-primary); background-color: transparent;
+  background-image: linear-gradient(to bottom, transparent calc(var(--line) - 1px), var(--color-border-subtle) calc(var(--line) - 1px));
+  background-size: 100% var(--line); background-attachment: local; }
+.ruled::placeholder { font-style: italic; color: var(--color-text-muted); }
+
+/* The one highlighted part: a real border for the bar, and the standard ring for focus. */
+.part--highlight .part__body { background: var(--color-surface-inset); border-radius: var(--radius-sm);
+  border-inline-start: 3px solid var(--color-selected-edge); }
+.part--highlight:focus-within .part__body { outline: 2px solid var(--color-focus-ring); outline-offset: -2px; }
+```
+
+#### Measured
+
+`npm run check:render` holds the pattern to the browser, on [`specimen/sheet.html`](specimen/sheet.html):
+
+- **Contrast on real pixels.** The sheet is rendered with its text hidden and the contrast of each text colour is measured against the pixels under it: 21 areas (labels, typed text, placeholders, links and chips), with the ruled lines and the highlighted tone included. The lowest is **5.38:1 in light, 6.55:1 in dark and 9.48:1 in outdoor**, against targets of 4.5 and 7. Nothing is focused during the measurement.
+- **Geometry**: 900px and centred; 156px margin, 120px below 1100px; a continuous 1px margin rule; labels at 12px, 560, uppercase, 0.6px tracking; text at 15px on 28px; minimum heights 84, 28, 112, 112, 84 and 84px; heading line at 18px, 520, one underline, no box; exactly one highlighted part.
+- **Growth**: ten lines make a 280px part with no inner scrollbar; clearing returns it to its minimum; narrowing the window re-wraps and re-fits it on whole lines; the margin changes to 120px below 1100px.
+- **Lists and picks**: `1.`, `1)` and `-` continue; an empty item ends a list; Enter mid-line, Shift+Enter and plain lines are plain new lines; seven items make a 196px part; a chip adds, removes and follows the text.
+- **Focus** in each theme: a 2px solid border with no shadow, text that does not move, a bar at 3:1 (4.5:1 in outdoor), a label colour at 4.5:1 (7:1 in outdoor); the highlighted part keeps its 3px bar and takes the 2px ring; in forced colors every bar is still a border.
+- **Validation, secondary fields, the setup bar, the workspace, drafts, reading, print, density, right to left and 200% zoom**, as described in [Writing Workspace](#writing-workspace) and above.
+
+**Not measured**: how screen readers announce the sheet and the pages; text composed with an input method (Enter is guarded, not tested); a real printer or photocopier (print is emulated); a phone's on-screen keyboard; and file attachment, which the specimen only reveals (it uploads nothing).
 
 ### Toggles, Sliders & Controls
 
@@ -585,6 +1362,8 @@ Empty states should be useful and honest.
 | **motion-slow** | 360ms | Large layout shifts |
 | **motion-live-pulse** | 600ms | Single live data pulse |
 
+These durations are tokens (`--motion-instant` to `--motion-live-pulse`) and components use the tokens, never literal times.
+
 ### Easing
 
 ```css
@@ -599,6 +1378,7 @@ Empty states should be useful and honest.
 - Replace animated transitions with opacity or instant state changes.
 - Preserve live updates through labels, badges, and timestamps.
 - Do not remove focus or pressed-state feedback.
+- The motion tokens drop to 0ms under `prefers-reduced-motion`, so a component that uses them needs no rule of its own. Keyframe animations still need one.
 
 ## Accessibility
 
@@ -606,14 +1386,21 @@ Realis Aero must remain usable when glass, color, motion, and environmental imag
 
 ### Requirements
 
-- **Contrast**: Body text must meet WCAG 2.2 AA minimum contrast. Large text, icons, and controls must be tested on final glass backgrounds.
+- **Contrast**: Body text must meet WCAG 2.2 AA minimum contrast. Text sits on reading plates, and plates are measured on the pixels that are really behind them (see [Glass](#glass)). Every token pair of the tonal ladder and the state system is measured by `npm run check:tokens`, and the text actually painted on the specimen by `npm run check:render` (see [Verification](#verification)).
+- **Non-text contrast**: Input and checkbox edges, focus rings and the active-navigation bar reach 3:1 against their surface (WCAG 1.4.11).
 - **Glass fallback**: Provide reduced-transparency surfaces for low vision, high contrast, battery saver, or unsupported backdrop blur.
 - **Keyboard**: All interactive components must be reachable, visible, and operable by keyboard.
 - **Focus**: Focus states must be at least 2px and not rely on glow alone.
 - **Screen readers**: Metrics must include value, unit, trend, timestamp, and state when meaningful.
-- **Color independence**: All charts and statuses need secondary encoding.
+- **Color independence**: All charts and statuses need secondary encoding. Every state has a mark and a text label (see [State System](#state-system)).
+- **Forced colors**: The interface stays fully usable when the system replaces colours: state edges are borders, marks take the text colour, filled buttons become outlined.
+- **Disabled controls**: Stay focusable and state their reason; never conveyed by opacity alone.
 - **Motion sensitivity**: Respect `prefers-reduced-motion`.
-- **Touch targets**: Minimum 44px by 44px on touch devices.
+- **Touch targets**: Minimum 44px by 44px in the touch density; never below 24px (WCAG 2.5.8) in any density, and in a table the target is the whole cell.
+- **Zoom**: Test at 100%, 125%, 150% and 200%. Text, controls and charts must not overlap or clip, and the page reflows. The render check covers 200% on the specimen.
+- **Right to left**: Mirrors through logical properties, with numbers and dates isolated.
+- **Grid semantics**: Tables with editing use the grid pattern: one tab stop, `aria-sort` on sorted headers, `aria-selected` on every cell of a range, an accessible description for unsaved cells, and `aria-rowcount` and `aria-rowindex` on windowed tables.
+- **Unavailable actions**: Keep their reason as their accessible description, as well as announcing it when activated.
 - **Error recovery**: Form errors must explain what failed and how to correct it.
 
 ### Screen Reader Metric Pattern
@@ -624,163 +1411,205 @@ Use accessible labels that communicate meaning, not just visible text.
 Solar generation: 42 kilowatt-hours today, up 8 percent from yesterday. Last updated 2 minutes ago. Data source: roof array sensor.
 ```
 
+## Internationalization and Right to Left
+
+- **Every kind of text is translatable**: labels, messages, units, status words, placeholders and the text alternatives of charts.
+- **Keep a domain glossary** with one entry per term, so "stale", "queued" and "maintenance" are translated once and used everywhere.
+- **Plan for 30–40% text expansion**, more for short labels, and for the 200% zoom reflow already tested.
+- **Parse and format numbers and dates by locale** (`1,234.56` and `1.234,56`), in inputs and on paste.
+- **Fail visibly on a missing translation** in test builds; a source-language string never ships silently.
+- **Language is a setting**, and right-to-left follows from it (see [Settings and Personalization](#settings-and-personalization)).
+
+### Right to Left
+
+`dir="rtl"` on the root mirrors the layout, because the system's edges and positions are logical, not physical.
+
+- **Use logical properties**: `border-inline-start`, `inset-inline-start`, `padding-inline-start` and `text-align: end`, never `left` and `right`.
+- **These move with the direction**: the rail, the 3px selection bar, state edges, the frozen key column, and the table's column order.
+- **Numbers and dates are isolated** with `<bdi>` (`unicode-bidi: isolate`). Without it a minus sign jumps to the wrong side of its digits ("12.4−") and a date reorders ("Sep 2026 12"), because digits are weakly directional and join the reordering of the surrounding text.
+- **Numbers stay aligned to the end of the cell** and keep tabular figures.
+- **Paths and identifiers stay left to right** (`direction: ltr`, isolated), so a truncated path keeps its identifying tail on the same side in a mirrored page.
+- **Marks are not mirrored.** None of the state marks has a direction.
+- **Charts keep their own direction** (`direction: ltr`): a time axis reads left to right in every language, and a chart's text anchors are tied to its geometry. Left to follow the page's direction, the specimen's chart clipped its labels and made them collide.
+- **Digits.** The specimen's Arabic line keeps Western digits for measurements, as the rest of the page does. Whether a product uses Arabic-Indic digits is a decision to make with readers of Arabic, per product.
+- **Checked**: a mirrored copy of the specimen is rendered and measured (edges, bar, frozen column, alignment, no sideways scroll, minus sign and date order). It uses English strings with one Arabic line; it has not been reviewed by Arabic readers.
+
+## Performance
+
+The budgets below are measured by `npm run check:render` on [the large table](specimen/index.html#large), in headless Chromium on the machine that runs the check. That is a development or CI machine, **not a low-end device**, so a passing result shows the table's design is not the bottleneck; it does not show a phone will hold the budget.
+
+| Budget | Target | Measured at the time of writing |
+|---|---|---|
+| **Input latency**: a key press to the painted result, in a table of 12,408 rows | Median under 50ms (95th percentile under 100ms, to absorb runner noise) | Median 16.6ms, 95th percentile 17.6ms: one frame. The handler itself is about 4ms. |
+| **Recalculation**: selection count and footer after a commit | Under 100ms | 95th percentile 4ms |
+| **A scroll step**: re-rendering the window | Under one frame (16ms) | 95th percentile 5ms over 400 scroll steps |
+| **Rows in the page** | At most 40, whatever the dataset | 21 |
+
+- **Not measured**: frames per second while scrolling, memory, real devices, tables with many columns or heavy cells, and the cost of the real data source.
+- **Specify the largest supported dataset** for each product in rows by columns and test against it; 12,408 rows is the specimen's number, not a limit.
+- **Background work never blocks input**, reports progress, and can be cancelled.
+- **Large tables are virtualized**, and the accessible row and column structure stays in step with the rows that exist.
+- **Glass costs rendering time.** The tonal-ladder rule (glass only over moving content or imagery) is the first control; the second is that glass is never nested, so a blur is never applied to a blur, and only the glass element carries `backdrop-filter` (plates and lines do not). The third is measuring `backdrop-filter` on the lowest-supported device before adding a glass panel to a screen. This document gives no panel limit because none has been measured.
+
+## Settings and Personalization
+
+Settings are where people tune the product to their conditions, so they follow the same rules as every other surface. The specimen is [`specimen/settings.html`](specimen/settings.html), driven by [`specimen/settings.js`](specimen/settings.js).
+
+| Group | Settings in the specimen |
+|---|---|
+| **Display** | Theme (system, light, dark, outdoor), density (automatic, comfortable, compact, touch), reduced transparency |
+| **Language** | English, French, Arabic; right to left follows from the language |
+| **Workspace** | The order of the panels on the home screen |
+| **Alerts** | Notify on warnings; critical alerts notify (locked) |
+
+Offline caching, and which table columns to show by default, are settings a product would add; the specimen does not show them. Column visibility, order and width are view state, not settings (see [Columns](#columns)).
+
+- **Staged until Apply.** A change creates a staged setting with the unsaved mark and a message that says what it was and where it applies ("Unsaved · was System · applies to your profile on every device"). The page keeps its theme, density and direction until **Apply**, which says how many settings it applied. **Reset** discards the staged settings. **Revert to defaults** stages the defaults; it does not apply them.
+- **Preview before applying.** A preview shows the staged theme, density and language on real components, by putting `data-theme`, `data-density` and `dir` on a subtree. In Arabic the preview's text is Arabic and mirrored while the page stays as it was. The preview is **inert**: nothing in it can be reached or operated, because it is a picture.
+- **Locked settings stay visible** with their reason and owner: "Always on · Site policy · Owned by H. Tazi, operations lead", with **Request a change** that announces whom the request went to. A locked setting has no editable control; hiding it would hide how the system behaves.
+- **Reordering works without a pointer**: labelled Up and Down buttons, each move announced ("Readings moved to position 1.") and focus kept on the button that was used. At an edge the button explains itself.
+- **Scope is stated** on every setting: "Applies to your profile on every device" or "Applies to this device only".
+- **Find a setting** matches names, descriptions and owners; hides a group only when none of its settings match; and says how many remain ("Showing 1 of 7 settings."). A staged setting stays staged while Find hides it.
+- **The apply bar is the layers model again**: counts, Apply, Reset and a status line, with each unavailable action keeping its reason as its description.
+
+**What the specimen does not do.** It stores the applied settings in the browser, so "your profile on every device" and "this device only" are stated but not enforced; a product needs a profile store and a device store. The Arabic and French preview strings are the specimen's own; a product translates every string.
+
+## Measuring Success
+
+A feasible-future system is judged by outcomes, not first impressions. This follows from the Anti-Escapism rule: an interface that cannot show its effect on real work has not earned its optimism.
+
+- **Time on task** for the top ten workflows, measured with the people who do them.
+- **Interaction cost**: keystrokes, clicks and pointer travel per task, estimated with a keystroke-level model before building and timed after.
+- **Error rate and recovery time**: how often mistakes happen, and how long it takes to notice and undo them. Undo, Revert and the status line exist to shorten this.
+- **State comprehension**: can a person say, from the screen alone, whether a value is current, who is working on a subsystem and until when? Test it on the grayscale render.
+- **Trust in stale and offline data**: whether people act on a value that was marked stale, uncertain or queued.
+- **Shortcut adoption** over time in tables and forms.
+- **Do not optimize for** time in the product, session count or other engagement measures. Less time spent on the same work is the win.
+
 ## Implementation Specification
 
 ### CSS Custom Properties
 
+The tokens are in [`tokens/realis-aero.tokens.css`](tokens/realis-aero.tokens.css). Copy or import that file; do not retype values from the tables above. Its structure:
+
 ```css
+/* 1. Primitives and non-colour constants */
 :root {
-  --equilibrium-white-000: #fffefa;
-  --equilibrium-white-050: #faf7f0;
-  --equilibrium-white-100: #f2ebdd;
-  --equilibrium-white-200: #e3d9c7;
-
-  --aero-blue-950: #071d2b;
-  --aero-blue-900: #0d2f45;
   --aero-blue-800: #174a63;
-  --aero-blue-700: #235f7a;
-  --aero-blue-600: #2d6f8e;
-  --aero-blue-300: #9cc6d8;
-  --aero-blue-100: #d9eaf1;
-
-  --umber-900: #3a2a1e;
-  --umber-800: #4c3524;
-  --umber-700: #65462f;
-  --umber-600: #7d5a3b;
-  --umber-500: #8b6848;
-  --umber-300: #b79a78;
-  --umber-100: #efe3d2;
-
-  --solar-900: #5f3a02;
-  --solar-800: #7a4f05;
   --solar-700: #b87912;
-  --solar-600: #d79520;
-  --solar-500: #e3a72f;
-  --solar-300: #f3c766;
-  --solar-100: #fff0bf;
-
-  --teal-system-800: #0d5c5a;
-  --teal-system-700: #1b817b;
-  --teal-system-500: #35bdb2;
-  --teal-system-300: #8fe1d8;
-  --teal-system-100: #d9f4f0;
-
-  --bio-green-800: #315a3c;
-  --bio-green-600: #5e8156;
-  --bio-green-400: #9cb58d;
-  --bio-green-100: #e4ecd8;
-
-  --signal-coral-600: #b85f52;
-  --signal-coral-300: #e08a7b;
-
-  --graphite-950: #11181c;
-  --graphite-900: #172126;
-  --graphite-800: #263238;
-  --graphite-600: #58666b;
-  --graphite-500: #6f7c80;
-  --graphite-400: #a9b4b5;
-  --graphite-100: #e0e6e5;
-
-  --color-background: var(--equilibrium-white-050);
-  --color-surface: var(--equilibrium-white-000);
-  --color-surface-raised: var(--equilibrium-white-100);
-  --color-surface-material: var(--umber-100);
-  --color-text-primary: var(--graphite-950);
-  --color-text-secondary: var(--graphite-600);
-  --color-text-muted: var(--graphite-500);
-  --color-action-primary: var(--aero-blue-800);
-  --color-action-primary-hover: var(--aero-blue-900);
-  --color-focus-ring: var(--solar-700);
-  --color-energy: var(--solar-600);
-  --color-material: var(--umber-700);
-  --color-success: var(--bio-green-600);
-  --color-warning: var(--solar-700);
-  --color-danger: var(--signal-coral-600);
-  --color-info: var(--aero-blue-600);
-  --color-live-data: var(--teal-system-500);
-
-  --font-sans: "Frutiger", "Aptos", "Segoe UI", "Inter", "SF Pro Text", system-ui, sans-serif;
-
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-10: 40px;
-  --space-12: 48px;
-  --space-16: 64px;
-  --space-24: 96px;
-
-  --radius-xs: 4px;
-  --radius-sm: 8px;
-  --radius-md: 12px;
   --radius-lg: 18px;
-  --radius-xl: 24px;
-  --radius-pill: 999px;
-
-  --blur-sm: 8px;
-  --blur-md: 14px;
-  --blur-lg: 24px;
-
-  --shadow-1: 0 1px 2px rgba(7, 29, 43, 0.08);
-  --shadow-2: 0 4px 12px rgba(7, 29, 43, 0.10);
-  --shadow-3: 0 10px 28px rgba(7, 29, 43, 0.14);
-  --shadow-4: 0 20px 54px rgba(7, 29, 43, 0.18);
-
-  --ease-engineered: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --ease-press: cubic-bezier(0.3, 0, 0.2, 1);
-  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-fast: 140ms;
+  /* … */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-background: var(--aero-blue-950);
-    --color-surface: var(--aero-blue-900);
-    --color-surface-raised: var(--aero-blue-800);
-    --color-surface-material: var(--umber-900);
-    --color-text-primary: var(--equilibrium-white-000);
-    --color-text-secondary: var(--graphite-100);
-    --color-text-muted: var(--graphite-400);
-    --color-action-primary: var(--aero-blue-700);
-    --color-action-primary-hover: var(--aero-blue-600);
-    --color-focus-ring: var(--solar-300);
-    --color-energy: var(--solar-300);
-    --color-material: var(--umber-300);
-    --color-success: var(--bio-green-400);
-    --color-warning: var(--solar-300);
-    --color-danger: var(--signal-coral-300);
-    --color-info: var(--aero-blue-300);
-    --color-live-data: var(--teal-system-300);
-  }
+/* 2. Semantic tokens: light is the default */
+:root,
+[data-theme="light"] {
+  --color-background: var(--equilibrium-white-075);
+  --color-surface: var(--equilibrium-white-000);
+  --state-warning-mark: var(--solar-750);
+  --state-warning-text: var(--solar-800);
+  --chart-generation: var(--solar-700);
+  /* … */
 }
+
+/* Dark: an explicit theme, or the system preference when no theme is set.
+   Screen only, so print falls back to light. */
+@media screen {
+  [data-theme="dark"] { --color-background: var(--aero-blue-950); /* … */ }
+}
+@media screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme]) { --color-background: var(--aero-blue-950); /* … */ }
+}
+
+[data-theme="outdoor"] { --color-text-primary: var(--graphite-975); /* … */ }
+
+/* 3. Derived and component tokens, on every themed element */
+:root,
+[data-theme] {
+  --shadow-2: 0 4px 12px rgb(var(--shadow-tint) / 0.10);
+  --c-button-primary-bg: var(--color-action-primary);
+  /* … */
+}
+
+/* Density: one switch for spacing and size (comfortable is the default) */
+[data-density="compact"] { --density-control-h: 28px; --density-row-h: 32px; /* … */ }
+@media (pointer: coarse) { :root:not([data-density]) { --density-control-h: 44px; /* … */ } }
+
+/* Modes */
+@media (prefers-reduced-motion: reduce) { :root { --motion-fast: 0ms; /* … */ } }
+@media print { /* solid surfaces, no shadows */ }
+@media (forced-colors: active) { :root, [data-theme] { --color-surface: Canvas; /* … */ } }
 ```
+
+The dark values appear twice (explicit theme and system preference), and so do the touch density values (explicit and coarse pointer). `npm run check:tokens` fails if either pair of blocks differs. The faces are declared in [`fonts/realis-aero.fonts.css`](fonts/realis-aero.fonts.css), which is loaded before the token file.
 
 ### Reference Component CSS
 
 ```css
-.realis-glass-panel {
+/* Glass. The tokens become solid in outdoor, print, forced colors, reduced
+   transparency and without backdrop-filter, so this needs no fallback of its own.
+   Bare glass carries no text: put text on .realis-glass__plate. */
+.realis-glass {
+  --glass-bg: var(--glass-frosted-bg);
+  --glass-blur: var(--glass-blur-frosted);
+  --glass-line: var(--glass-border);
   position: relative;
+  isolation: isolate;
   overflow: hidden;
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3);
   border-radius: var(--radius-lg);
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 254, 250, 0.76),
-      rgba(242, 235, 221, 0.60)
-    );
-  border: 1px solid rgba(255, 254, 250, 0.38);
-  box-shadow:
-    var(--shadow-3),
-    inset 0 1px 0 rgba(255, 254, 250, 0.44),
-    inset 0 -1px 0 rgba(7, 29, 43, 0.10);
-  backdrop-filter: blur(var(--blur-md)) saturate(1.12);
+  border: 1px solid var(--glass-line);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--shadow-3),
+    inset 0 1px 0 var(--glass-edge-light),
+    inset 0 -1px 0 var(--glass-edge-shade);
+}
+.realis-glass[data-variant="clear"] { --glass-bg: var(--glass-clear-bg); --glass-blur: var(--glass-blur-clear); }
+.realis-glass[data-variant="dense"] { --glass-bg: var(--glass-dense-bg); --glass-blur: var(--glass-blur-dense); --glass-line: var(--glass-dense-border); }
+.realis-glass[data-variant="alert"] { --glass-bg: var(--glass-alert-bg); --glass-blur: var(--glass-blur-alert); }
+
+.realis-glass__plate {
+  position: relative;
+  z-index: 3;
+  padding: var(--space-3);
+  color: var(--color-text-primary);
+  background: var(--glass-plate-bg);
+  border: 1px solid var(--glass-plate-edge);
+  border-radius: var(--radius-sm);
+}
+
+/* The internal data layer: decoration under the plates, hidden from assistive technology. */
+.realis-glass__streams { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; pointer-events: none; }
+.realis-glass__streams path { fill: none; stroke: var(--glass-stream-color); stroke-width: 2; stroke-linecap: round; vector-effect: non-scaling-stroke; opacity: var(--glass-stream-idle); }
+.realis-glass__streams path.is-fresh { animation: realis-glass-pulse var(--motion-live-pulse) var(--ease-settle) 1; }
+@keyframes realis-glass-pulse { from { opacity: var(--glass-stream-live); } to { opacity: var(--glass-stream-idle); } }
+
+/* State: each cue repeats one the state system gives. */
+.realis-glass[data-state="stale"] .realis-glass__streams path { opacity: var(--glass-stream-stale); animation: none; }
+.realis-glass[data-state="maintenance"] { border-inline-start: var(--stroke-state) solid var(--state-maintenance-mark); }
+.realis-glass[data-state="warning"] { border-inline-start: var(--stroke-state) solid var(--state-warning-mark); }
+.realis-glass[data-state="error"] { border-inline-start: var(--stroke-state) solid var(--state-error-mark); }
+.realis-glass[data-state="offline"] {
+  background: var(--color-surface-inset);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+  border-color: var(--color-border-card);
+}
+.realis-glass[data-state="offline"] .realis-glass__streams { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .realis-glass__streams path.is-fresh { animation: none; }
 }
 
 .realis-button-primary {
-  min-height: 44px;
-  padding: 0 var(--space-5);
+  min-height: var(--density-control-h);
+  padding: 0 calc(var(--density-pad-x) + var(--space-2));
   border: 1px solid rgba(255, 254, 250, 0.28);
   border-radius: var(--radius-pill);
   background:
@@ -791,9 +1620,9 @@ Solar generation: 42 kilowatt-hours today, up 8 percent from yesterday. Last upd
   font-weight: 560;
   box-shadow: var(--shadow-2), inset 0 -1px 0 rgba(7, 29, 43, 0.22);
   transition:
-    transform 80ms var(--ease-press),
-    box-shadow 140ms var(--ease-engineered),
-    background-color 140ms var(--ease-engineered);
+    transform var(--motion-instant) var(--ease-press),
+    box-shadow var(--motion-fast) var(--ease-engineered),
+    background-color var(--motion-fast) var(--ease-engineered);
 }
 
 .realis-button-primary:hover {
@@ -812,16 +1641,16 @@ Solar generation: 42 kilowatt-hours today, up 8 percent from yesterday. Last upd
   outline-offset: 2px;
 }
 
-html[data-reduced-transparency="true"] .realis-glass-panel {
-  background: var(--color-surface);
-  backdrop-filter: none;
+.realis-button-primary[aria-disabled="true"] {
+  background: var(--c-button-disabled-bg);
+  color: var(--c-button-disabled-fg);
+  border-color: var(--color-border-card);
+  box-shadow: none;
+  cursor: not-allowed;
 }
 
-@media (prefers-reduced-transparency: reduce) {
-  .realis-glass-panel {
-    background: var(--color-surface);
-    backdrop-filter: none;
-  }
+@media (forced-colors: active) {
+  .realis-button-primary { border: 3px solid ButtonText; }
 }
 ```
 
@@ -853,7 +1682,7 @@ src/
   components/
     primitives/
       RealisButton.vue
-      RealisGlassPanel.vue
+      RealisGlass.vue
       RealisMetric.vue
       RealisStatusTag.vue
     patterns/
@@ -877,7 +1706,7 @@ src/
 
 #### Token Strategy
 
-- **Keep tokens global**: Put primitive and semantic variables in `src/styles/tokens.css`.
+- **Keep tokens global**: `src/styles/tokens.css` is a copy of [`tokens/realis-aero.tokens.css`](tokens/realis-aero.tokens.css); change tokens there, not in components.
 - **Keep material recipes reusable**: Put glass, hardware, and alert material classes in `src/styles/materials.css`.
 - **Keep component specifics scoped**: Component layout and state styling should live inside each `.vue` file.
 - **Avoid hardcoded colors**: Vue components should reference semantic variables such as `--color-action-primary`, not raw hex values.
@@ -935,7 +1764,10 @@ const accessibleLabel = computed(() => {
 </script>
 
 <template>
-  <article class="realis-metric realis-glass-panel" :data-state="state" :aria-label="accessibleLabel">
+  <!-- Use the glass wrapper only over imagery or moving content; over a flat canvas the metric is a solid card.
+       Its text sits on a plate, never on bare glass. -->
+  <article class="realis-metric realis-glass" data-variant="frosted" :data-state="state" :aria-label="accessibleLabel">
+    <div class="realis-glass__plate">
     <div class="realis-metric__header">
       <span class="realis-metric__label">{{ label }}</span>
       <span class="realis-metric__state">{{ state }}</span>
@@ -950,6 +1782,7 @@ const accessibleLabel = computed(() => {
       <span>{{ updatedAt }}</span>
       <span v-if="trendLabel">{{ trendLabel }}</span>
     </footer>
+    </div>
   </article>
 </template>
 
@@ -1003,15 +1836,24 @@ const accessibleLabel = computed(() => {
   font-size: 12px;
 }
 
-.realis-metric[data-state="degraded"],
+/* State edges are real borders, only on the states that have one. */
+.realis-metric[data-state="degraded"] {
+  border-inline-start: var(--stroke-state) solid var(--state-warning-mark);
+}
+
 .realis-metric[data-state="maintenance"] {
-  border-color: rgba(184, 121, 18, 0.52);
-  border-color: color-mix(in srgb, var(--color-warning) 52%, transparent);
+  border-inline-start: var(--stroke-state) solid var(--state-maintenance-mark);
+}
+
+.realis-metric[data-state="stale"] {
+  border-style: dashed;
+  border-color: var(--color-border-control);
 }
 
 .realis-metric[data-state="offline"] {
-  background: var(--color-surface);
+  background: var(--color-surface-inset);
   backdrop-filter: none;
+  box-shadow: none;
 }
 </style>
 ```
@@ -1068,8 +1910,27 @@ createApp(App).mount("#app");
 - **Variants are limited**: Prefer `variant="primary | secondary | system | danger"` over open-ended visual customization.
 - **Theming stays semantic**: A component should not know whether the app is in light or dark mode; it should consume semantic tokens.
 
+### Token Export
+
+The token file is the only source. `npm run build:tokens` writes [`tokens/dist/`](tokens/dist/), and nobody edits those files by hand: the export check fails if they differ from what the exporter produces from the CSS.
+
+| Target | File | Use |
+|---|---|---|
+| **DTCG JSON** (Figma tooling, Style Dictionary) | `tokens/dist/dtcg/*.json` | Eight sets: `core` (primitives and mode-independent tokens), `light`, `dark`, `outdoor`, three densities and `reduced-motion`; `sets.json` lists them in load order. Semantic tokens are aliases such as `{primitive.aero-blue.800}`, so the link to the primitive survives. Load `core` + one theme + one density. |
+| **Tailwind v3** | `tokens/dist/tailwind.preset.cjs` | `presets: [require('./tokens/dist/tailwind.preset.cjs')]`. Every colour is `var(--…)`, so `bg-surface` follows `data-theme` and `data-density` at run time with no rebuild. Import `tokens/realis-aero.tokens.css` once. |
+| **React Native** | `tokens/dist/realis-aero.native.js` and `.d.ts` | Colours as strings, lengths and durations as numbers, shadows as style objects, one `themes` entry per theme. |
+
+**Decisions and limits, stated.**
+- **The Tailwind palette is replaced, not extended**, so `bg-white` or `text-gray-500` do not exist: an off-system colour should not be one class away. Colour utilities cannot take opacity modifiers (`bg-surface/50`), because the values are variables.
+- **Tailwind v4 is not covered**; the preset is for v3.
+- **Native shadows are approximations**: `shadowRadius` is half the CSS blur and `elevation` follows the vertical offset. Native has no `backdrop-filter`; `glassBlur` gives radii as a starting point for a blur view, and the plates and solid fallbacks carry the contrast.
+- **Native fonts**: the faces are bundled as WOFF2 for the web. React Native needs TTF or OTF files of the same faces, which are not bundled here.
+- **Figma was not opened.** The DTCG files are built to the format's rules and are read by an independent consumer (Style Dictionary) in the checks, but importing them into Figma, with Tokens Studio or another plugin, is untested. Check the first import by eye.
+- **React Native was not run** on a device or simulator; the module is checked as data.
+
 ### Figma Handoff Guidance
 
+- Import `tokens/dist/dtcg/` through a DTCG-aware plugin (the import itself is untested here), one collection per set, with `core` shared and `light`, `dark` and `outdoor` as modes.
 - Create token collections for color primitives, semantic colors, spacing, radius, elevation, blur, typography, and motion.
 - Separate light and dark semantic variables from primitives.
 - Build components with variants for state, density, platform, and theme.
@@ -1078,7 +1939,7 @@ createApp(App).mount("#app");
 
 ### Tailwind Mapping Guidance
 
-- Map primitives into `theme.extend.colors`.
+- Use the generated preset (see [Token Export](#token-export)); the primitives are `aero-blue-800` and so on, and the semantic groups are `surface`, `ink`, `edge`, `action`, `state`, `chart` and `glass`.
 - Map spacing to the 4px/8px scale rather than arbitrary values.
 - Create utility classes for glass materials only after validating contrast.
 - Keep motion tokens centralized and respect `motion-reduce`.
@@ -1107,6 +1968,18 @@ createApp(App).mount("#app");
 - **Navigation**: Bottom nav with no more than five destinations.
 - **Cards**: Stack vertically; avoid dense multi-chart layouts.
 - **Live updates**: Use badges and timestamps instead of constant animation.
+
+### Writing Workspace
+
+For tasks whose value is the text the user writes (work logs, reports, maintenance notes). The specimen's panel opens from [`specimen/sheet.html`](specimen/sheet.html).
+
+- **A side panel over a scrim**: wide (up to about 1240px) against the inline end of the screen, over the current screen; the canvas shows around the sheet. It is a modal in the accessibility sense (`role="dialog"`, `aria-modal`, named by its title): the screen behind it is inert, Tab wraps inside it, Shift+Tab wraps the other way, and focus starts on the subject.
+- **Setup bar**: everything that is a choice (who, what, when, how long) fits one row of compact controls above the sheet. Pickers open as menus. The **asset menu** is a list grouped by site, with a filter that takes focus when there are more than eight; Enter picks the first match. The **date menu** is a month grid that opens on the date's month with the date focused; the arrow keys move a day or a week and turn the month at its edges; a day that already holds an entry for the chosen asset is marked, and the mark is described in words. **Escape closes a menu before the panel**, and focus returns to the button; a click outside closes it. Status stays in the header as a radio group that the arrow keys move through.
+- **The page**: a [Ruled Sheet](#ruled-sheet-writing--reading) takes the rest of the height and scrolls.
+- **Footer**: one filled action (Create / Save), Cancel, the keyboard shortcuts and the progress line.
+- **Keys**: Ctrl+S or Ctrl+Enter saves; Escape closes; Ctrl+P is held back, because printing the form itself would make no sense. **Keys typed in the panel never reach the screen below**: the screen's "n" shortcut opens a new entry, and typing an "n" in the panel does not.
+- **Drafts**: an unfinished new entry is written to the device as it is written (after 300ms) and offered back with a banner and a "Start over" that empties the sheet and the stored draft. Closing a dirty new entry keeps its draft and says so, without asking. Closing a **changed existing entry** asks first, in a dialog that starts on the safest answer ("Keep editing"), where Tab wraps and Escape means keep editing; closing an unchanged one asks nothing.
+- **After saving**, focus goes to the line that was written, which is selected and shown in the pane, and the result is announced ("Entry created.", "Entry saved.").
 
 ### Hardware / Kiosk UI
 
@@ -1140,6 +2013,26 @@ createApp(App).mount("#app");
 - **Avoid**: `The future is effortlessly sustainable.`
 - **Avoid**: `Unlimited clean energy at your fingertips.`
 
+## Verification
+
+The claims in the token, state, theme, table, layer and type sections are measured by five scripts. `npm run check` runs all five, and the workflow in `.github/workflows/checks.yml` runs them on every change to the tokens, the specimen or the tools.
+
+| Check | Command | What it enforces |
+|---|---|---|
+| **Contrast** | `npm run check:tokens` | **Glass:** every tint's alpha is its token; over pure black and pure white every text role reaches 4.5:1 and every state mark 3:1 on a plate, for every variant in light and dark; every fallback (outdoor, reduced transparency, print, forced colors, no backdrop-filter) makes glass solid; and the envelope of bare glass is printed. **Tokens:** 144 token pairs in each of light, dark and outdoor: layers at least 1.12:1 from their neighbour; text at least 4.5:1 on every surface it can sit on; marks, control edges and focus rings at least 3:1; 7:1 and 4.5:1 in outdoor. Translucent tokens are composited over their surface. Also that the two dark blocks are identical. |
+| **Colour vision** | `npm run check:cvd` | The five family chart series stay at least 0.07 apart in OKLab under simulated protanopia, deuteranopia and tritanopia (Machado 2009), in every theme. |
+| **Rendering** | `npm run check:render` | In a real browser, on [`specimen/index.html`](specimen/index.html). **In each theme:** every state is drawn with a mark and a text label, and no two states share a mark; every run of painted text meets its target against the surface actually behind it; every control shows a focus ring of at least 2px and meets the density's height; disabled controls are focusable, explained and not faded; a dark panel inside another theme resolves its own tokens; pausing changes mark and text. **Density:** the three densities measure 36/28/44px controls and 40/32/48px rows, compact never drops below 24px, type size and rows are identical in all three, rows keep one height, a coarse pointer gets touch. **Table:** the keyboard model key by key (single tab stop, arrows, Home and End, Ctrl+Home and End, paging, header reach, sort, row selection, edit, cancel, commit, Tab while editing, unsaved marks and counts, restoring a value, leaving the grid, frozen key column). **Table, continued:** range selection, copy to the clipboard, paste preview with its skips and cancel, discard; columns (show, hide, reorder within a group, widths, drag and double click, the protected key column, persistence, reset); truncation (the start is cut, the tail stays, no decision value clips, the full text is reachable). **Large table:** 12,408 rows with about twenty in the page, true `aria-rowindex`, Ctrl+End to the last row, selection across scrolling, and the performance budget. **Layers:** every action, enabled and disabled, with the status it announces; offline queueing, partial sync, a conflict and its resolution. **Ruled sheet:** 21 areas of text measured on real pixels in light, dark and outdoor (lowest 5.38, 6.55 and 9.48:1); the geometry of the spec; growth, re-fit and the 120px margin; list continuation, quick picks and focus (a real border, no shadow, text that does not move, bar and label contrast, forced colors); validation and counters; the setup bar and both menus; the modal workspace, its focus trap and keys; drafts and the discard dialog; reading lines (56px, one tab stop, selection never changes a height); print (colour drops out, a signature box); density, right to left and 200% zoom. **Glass:** the glass page rendered with its text hidden, and the contrast of every plate text colour measured against the real pixels behind it, in light, dark, outdoor and reduced transparency (79 plate runs each) and over eight scroll positions of a moving list; the stress backdrops must make bare glass fail (15 of 32 bare runs in light, 19 in dark); no glass inside glass, no text on bare glass outside the stress samples; streams within 10% to 28% and 1px to 2px, eight categories with eight line styles, hidden from assistive technology; each layer switch removes its layer; a fresh reading pulses once on its own line and not under reduced motion; live, stale, offline and maintenance panels behave as specified; reduced transparency, outdoor, forced colors and print make every panel solid; and the page reflows and mirrors. **Settings:** staged until Apply, an inert preview, Reset, Apply and persistence, Revert to defaults, a locked setting with its owner, reordering with announcements, Find, scope, painted contrast and target sizes. **Type:** the bundled faces load, digits are tabular, the four weights differ. **Right to left:** edges, bar, frozen column, alignment, minus sign and date order, and chart text kept inside its frame. **Modes:** glass is solid in outdoor and with reduced transparency; the system preference picks the theme; forced-colors edges, buttons and marks; reduced motion; print is light, leaves out the large table and its controls, and stays under 20,000px tall; at 200% zoom nothing clips. |
+| **Export** | `npm run check:export` | The files in `tokens/dist/` are what the exporter produces from the CSS now. **DTCG:** every leaf typed, every alias resolves with no cycle, the eight sets hold all 240 tokens once each, and, in Chromium, every token in light, dark and outdoor, the compact and touch densities and reduced motion equals what the browser computes from the CSS. **Tailwind:** a real v3 build from the preset, rendered in a browser: 30 utilities equal their CSS variable in each theme, the same class changes colour with the theme and height with the density without a rebuild, the default palette is gone, and every variable the preset names exists. **Style Dictionary:** builds each theme with all 240 tokens resolved, and refuses a broken alias. **React Native:** type declarations for every export, shapes, every colour and state equal to the CSS, text contrast read back from the exported numbers, and the lengths, durations and densities. |
+| **Glyphs** | `npm run check:glyphs` | Every character the specimen, the settings page, the glass page and the ruled sheet draw, in each theme and in French and Arabic, is covered by the bundled face that draws it, read from the WOFF2 character maps. Nothing depends on a system font. |
+
+- **Lowest measured contrast at the time of writing**: text 4.58 (light), 4.50 (dark), 7.37 (outdoor); marks and edges 3.06 (light), 3.29 (dark), 4.69 (outdoor); layers 1.16 (light), 1.13 (dark), 1.18 (outdoor).
+- **Counts at the time of writing**: 464 contrast checks, 12 colour-vision checks, 2,195 render checks, 621 characters checked for coverage, 80 export checks.
+- **The render check can reproduce another machine's rendering**: `RA_CHROMIUM_ARGS=--font-render-hinting=full npm run check:render` gives the pixel-snapped glyph widths of the CI runner. The suite passes in both modes.
+- **The checks were tested against the defects they target**: a plate thinned to 45% or a stray text run on bare glass fails the glass checks, a focus bar drawn as `box-shadow`, the primitive `aero-blue-800` for the focus label, a list that rebuilds on selection, a 26px chip or a panel that stops trapping focus fails the sheet checks, a token edited without re-exporting, an alias pointing nowhere or a hand-edited exported colour fails the export checks, and re-introducing an overflowing field, a state edge drawn with `box-shadow`, a paler muted text, a component token declared on the root alone, or a character missing from the bundled face makes them fail.
+- **Review renders** are written to [`specimen/screenshots/`](specimen/screenshots/): each theme, grayscale, forced colors, print and 200% zoom. Grayscale is reviewed by eye.
+
+**What the checks cannot tell us.** Text on glass is now measured on real pixels, but only over procedural stress backdrops, not photographs, video or maps. Real sunlight on a real screen, colour perception by people rather than a simulation, how screen readers actually announce the grid and the status lines (the checks read the attributes, not the speech), whether Arabic readers find the mirrored layout right, performance on large tables and low-end devices, and a real sync conflict, the Ruled Sheet with a screen reader, an input method or a printer, and a real clipboard (paste is tested with a dispatched paste event carrying text) all need people and devices. The keyboard model is tested in Chromium only.
+
 ## Acceptance Criteria
 
 A design qualifies as Realis Aero if it meets these standards:
@@ -1157,17 +2050,27 @@ A design qualifies as Realis Aero if it meets these standards:
 ### Visual QA
 
 - **Light source**: Shadows and highlights are consistent.
-- **Glass**: Transparency supports meaning and does not reduce readability.
-- **Palette**: Accents are purposeful and not oversaturated.
+- **Glass**: Transparency supports meaning and does not reduce readability. Remove the backdrop: if the panel reads the same, it should be solid.
+- **Glass text**: No text on bare glass; every text run sits on a plate, and plates are measured on real pixels.
+- **Glass nesting and fallbacks**: No glass inside glass; reduced transparency, outdoor, print, forced colors and a browser without `backdrop-filter` all give a solid panel.
+- **Palette**: Accents are purposeful and not oversaturated. Family accents are not used as text; charts use the series tokens.
 - **Depth**: Layering communicates hierarchy.
 - **Imperfections**: Wear, scratches, or condensation have a contextual reason.
 
 ### UX QA
 
-- **States**: Live, stale, offline, degraded, maintenance, success, and uncertainty states are defined.
+- **States**: Live, stale, offline, degraded, maintenance, success, and uncertainty states are defined, each with its mark, label and edge from the State System.
+- **Data quality**: Stale values show their age, uncertain values their reason, and a bad value is replaced, never shown as current.
+- **Unsaved and queued**: Marked with the ink dot, never solar.
+- **Layers**: Apply, Reset, Revert and Undo are available only when they can act, and say why when they cannot. Offline is stated by text and mark.
+- **Tables**: One tab stop; the footer states the limit, selection, unsaved edits, sort and range; rows keep one height; numbers are aligned and isolated; paths truncate in the middle and nothing that affects a decision is truncated.
+- **Paste and columns**: Paste previews before it writes and lists what it skips; every pointer action on a column has a keyboard alternative; the key column is protected and says why.
+- **Large tables**: The page holds a few dozen rows, the accessible structure keeps the true counts, and the table is left out of print.
+- **Settings**: Nothing takes effect until Apply; the preview is inert; locked settings show their owner; scope is stated.
 - **Metrics**: Units, timestamps, and confidence are shown where needed.
 - **Navigation**: Current location and system status are visible.
 - **Forms**: Errors are specific and recoverable.
+- **Writing**: Long text is written on a Ruled Sheet: parts grow with their text (no inner scrollbar, also after a window resize), lists continue on Enter, placeholders are questions in italics, setup sits in one bar above the page.
 - **Loading**: Progress is honest and does not hide failure.
 
 ### Accessibility QA
@@ -1177,28 +2080,78 @@ A design qualifies as Realis Aero if it meets these standards:
 - **Screen reader**: Metrics and charts have meaningful alternatives.
 - **Reduced motion**: No essential information depends on animation.
 - **Reduced transparency**: Glass panels have solid-surface fallbacks.
+- **Grayscale and forced colors**: Every state can still be told apart; state edges are borders, not shadows.
+- **Themes**: The screen has been checked in light, dark and outdoor, and `npm run check` passes.
+- **Density and direction**: The screen holds in compact and touch density and mirrored right to left, with nothing clipped.
+- **Type**: Only bundled faces draw text, digits are tabular and no character falls back to a system font.
+- **Disabled**: Disabled controls are focusable and state their reason.
+- **Ruled Sheet**: Every part has a visible label tied to its field; focus shows as a bar, not colour alone; ruled lines never reduce text contrast.
 
 ## Visual Examples
 
-![Realis Aero Desktop Wallpaper](attachments/Generated Image.jpg)  
-*Early foundational wallpaper: integrated sustainable landscape with glass UI overlays.*
+These are renders of the working specimen, written by `npm run check:render`.
 
-![Mobile Sustainability Dashboard](attachments/Generated Image.jpg)  
-*Mobile dashboard concept: live metrics, glass cards, maintenance-aware data visualizations.*
+![Realis Aero specimen, light theme](specimen/screenshots/light.png)  
+*Light: product states, data quality, editing states, selection, chart series and the tonal ladder.*
 
-![Component Library Showcase](attachments/Generated Image.jpg)  
-*Atomic components: buttons, cards, gauges, icons, navigation, and system states.*
+![Realis Aero specimen, dark theme](specimen/screenshots/dark.png)  
+*Dark: the measured dark ladder, with the rail as the darkest layer.*
 
-## Recommended v0.3 Next Steps
+![Realis Aero specimen, outdoor theme](specimen/screenshots/outdoor.png)  
+*Outdoor: AAA contrast, strong edges, solid surfaces.*
 
+![Realis Aero specimen, forced colors](specimen/screenshots/forced-colors.png)  
+*Forced colors: every state carried by marks, borders and text.*
+
+![Realis Aero specimen, compact density](specimen/screenshots/density-compact.png)  
+*Compact density: the same rows, states and type size in less space.*
+
+![Realis Aero specimen, right to left](specimen/screenshots/rtl.png)  
+*Right to left: rail, bars, edges and the frozen column move; numbers and dates keep their order.*
+
+![Realis Aero glass, light](specimen/screenshots/glass.png)  
+*Glass in light: anatomy, the legibility matrix over four stress backdrops, what the glass reveals, a moving list, states and fallbacks.*
+
+![Realis Aero glass, dark](specimen/screenshots/glass-dark.png)  
+*Glass in dark.*
+
+![Realis Aero glass, outdoor](specimen/screenshots/glass-outdoor.png)  
+*Glass in outdoor: every panel solid.*
+
+![Realis Aero ruled sheet, writing](specimen/screenshots/sheet-write.png)
+*The Writing Workspace: setup in one bar, the ruled sheet as the page, focus on Findings, one highlighted part, one filled action.*
+
+![Realis Aero ruled sheet, writing in dark](specimen/screenshots/sheet-write-dark.png)
+*The sheet in dark, where the original focus colours measured 1.45:1.*
+
+![Realis Aero ruled sheet, reading](specimen/screenshots/sheet-read.png)
+*Reading: one page per day, fixed-height ruled lines, the full entry in the pane.*
+
+![Realis Aero settings](specimen/screenshots/settings.png)  
+*Settings: staged until Apply, an inert preview, and a locked setting with its owner.*
+
+![Realis Aero settings, dark and right to left](specimen/screenshots/settings-dark-rtl.png)  
+*The applied settings in dark, compact and Arabic.*
+
+## Recommended v0.6 Next Steps
+
+- **Done in v0.3 and v0.3.1**: tonal ladder, domain semantics, the Ruled Sheet and Writing Workspace.
+- **Done in v0.4**: state system, live values and data quality, three-tier tokens, dark and outdoor themes, forced colors, print, specimen and checks.
+- **Done in v0.5**: the token export, density, the table model (keyboard, range, copy and paste, columns, truncation, large tables), layered state and offline, bundled typography, right to left, settings, performance budgets, glass, the Ruled Sheet and Writing Workspace, and the smaller sections.
+- **Ruled Sheet, continued**: file attachment with upload and quota (the specimen only reveals the field), a screen-reader pass over the sheet and the reading pages, input-method composition, and a real print and photocopy test.
+- **Tables, continued**: multi-column sort, row grouping, filters inside a column, export (the large table points to it), and bringing table edits into the named-change Undo of the layers model.
+- **Measure on a device**: run the large-table budget on a low-end phone and a low-end laptop, and add frames per second while scrolling, which the check cannot see.
+- **Pseudo-localization**: a test build that expands every string by 40% and marks missing translations, to test the expansion rule.
+- **Settings, continued**: a profile store and a device store so that scope is enforced, offline caching, and default table columns.
+- **Glass on real imagery**: run the glass pixel measurement over real photographs, video and map styles, and over a product's own backdrops, and add the measured plate alpha for each known backdrop.
+- **Glass cost**: measure `backdrop-filter` on a low-end phone and laptop and set a panel limit; none is claimed today.
+- **Glass, continued**: build fingerprints, condensation and dust where a product has the surface that justifies them, and test the haze and seam with people.
+- **Automation**: provenance on values, staged changes, and the rule that the product works with automation off.
 - **Component specs**: Produce Figma variants for every component listed in this document.
-- **Icon library**: Define a 24px icon grid with engineering-natural hybrid motifs.
-- **Motion prototypes**: Create reduced-motion and standard-motion examples for live updates.
-- **Contrast testing**: Validate final palette on real glass backgrounds and imagery.
-- **Design examples**: Build one landing page, one dashboard, one mobile flow, and one maintenance flow.
-- **Token export**: Generate JSON tokens for Figma, CSS, Tailwind, and React Native.
+- **Icon library**: Extend the 16px state marks into a 24px icon grid with engineering-natural hybrid motifs.
+- **Token export, continued**: import the DTCG sets into Figma and check them by eye, run the native module on a device with TTF faces, and a Tailwind v4 theme.
 - **Content model**: Define standard data fields for metrics, timestamps, confidence, and source attribution.
 
 ---
 
-**Realis Aero v0.2 is a feasible-future system: optimistic because it is measurable, beautiful because it is honest, and calm because it is built to be maintained.**
+**Realis Aero v0.5 is a feasible-future system: optimistic because it is measurable, beautiful because it is honest, and calm because it is built to be maintained.**

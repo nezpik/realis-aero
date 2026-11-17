@@ -1,0 +1,824 @@
+/* Realis Aero design tokens, v0.5
+ *
+ * Three tiers:
+ *   1. Primitives   --<family>-<step>     raw ramps; never used by components
+ *   2. Semantic     --color-*, --state-*, --chart-*, --glass-*   meaning; themes re-point these
+ *   3. Component    --c-*                 named slots, mapped to semantic tokens
+ *
+ * Themes: light (default), dark, outdoor. Set data-theme on any element, so one
+ * panel can be shown in another theme. With no data-theme the system preference
+ * decides between light and dark. Forced colors, print, reduced motion and
+ * reduced transparency are handled at the end of the file.
+ *
+ * Every pair these tokens can form is measured by tools/check-tokens.mjs.
+ */
+
+/* ---------- 1. Primitives ---------- */
+:root {
+  --equilibrium-white-000: #fffefa;
+  --equilibrium-white-050: #faf7f0;
+  --equilibrium-white-075: #f3ede1;
+  --equilibrium-white-100: #f2ebdd;
+  --equilibrium-white-200: #e3d9c7;
+  --equilibrium-white-300: #d9cdb6;
+  --mineral-500: #8f8574;
+  --mineral-600: #6d6454;   /* v0.4: outdoor card edge */
+  --mineral-700: #5f574a;   /* v0.4: outdoor control edge */
+
+  --aero-blue-975: #030e16; /* v0.4: dark rail */
+  --aero-blue-950: #071d2b;
+  --aero-blue-925: #092437; /* v0.4: dark inset */
+  --aero-blue-900: #0d2f45;
+  --aero-blue-875: #123a53; /* v0.4: dark hover and row divider */
+  --aero-blue-800: #174a63;
+  --aero-blue-750: #2a546c; /* v0.4: dark card edge */
+  --aero-blue-700: #235f7a;
+  --aero-blue-600: #2d6f8e;
+  --aero-blue-450: #6f93a6; /* v0.4: dark control edge */
+  --aero-blue-300: #9cc6d8;
+  --aero-blue-100: #d9eaf1;
+
+  --umber-900: #3a2a1e;
+  --umber-800: #4c3524;
+  --umber-700: #65462f;
+  --umber-600: #7d5a3b;
+  --umber-500: #8b6848;
+  --umber-300: #b79a78;
+  --umber-200: #c6af93;     /* v0.4: maintenance text on dark */
+  --umber-100: #efe3d2;
+
+  --solar-900: #5f3a02;
+  --solar-800: #7a4f05;
+  --solar-750: #a86e10;     /* v0.4: warning mark and focus ring, 3:1 on selected */
+  --solar-700: #b87912;
+  --solar-600: #d79520;
+  --solar-500: #e3a72f;
+  --solar-300: #f3c766;
+  --solar-100: #fff0bf;
+
+  --teal-system-900: #0b514f; /* v0.4: live text, outdoor */
+  --teal-system-800: #0d5c5a;
+  --teal-system-700: #1b817b;
+  --teal-system-500: #35bdb2;
+  --teal-system-300: #8fe1d8;
+  --teal-system-100: #d9f4f0;
+
+  --bio-green-900: #2c5035; /* v0.4: success text, outdoor */
+  --bio-green-800: #315a3c;
+  --bio-green-600: #5e8156;
+  --bio-green-400: #9cb58d;
+  --bio-green-300: #a2b994; /* v0.4: success text on dark */
+  --bio-green-100: #e4ecd8;
+
+  --signal-coral-950: #5a2a1e; /* v0.4: outdoor destructive hover */
+  --signal-coral-900: #723728; /* v0.4: danger text, outdoor */
+  --signal-coral-800: #85402f;
+  --signal-coral-700: #9a4a3d;
+  --signal-coral-600: #b85f52;
+  --signal-coral-300: #e08a7b;
+  --signal-coral-200: #e6a194; /* v0.4: danger text on dark */
+  --signal-coral-100: #f6e3dd; /* v0.4: error tint */
+
+  --graphite-975: #0a1014;  /* v0.4: outdoor text */
+  --graphite-950: #11181c;
+  --graphite-900: #172126;
+  --graphite-800: #263238;
+  --graphite-700: #3b474c;  /* v0.4: outdoor muted text */
+  --graphite-600: #58666b;
+  --graphite-550: #5f6c70;
+  --graphite-500: #6f7c80;
+  --graphite-400: #a9b4b5;
+  --graphite-100: #e0e6e5;
+
+  /* Non-colour constants */
+  /* Bundled faces first (fonts/realis-aero.fonts.css), so every device renders
+     the same letters. The Arabic face only ever serves Arabic code points. */
+  --font-sans: "Source Sans 3", "Noto Sans Arabic", "Segoe UI", "Inter", system-ui, sans-serif;
+  --font-mono: "Source Code Pro", "Noto Sans Arabic", ui-monospace, "JetBrains Mono", monospace;
+
+  --text-display-xl: 64px;
+  --text-display-lg: 48px;
+  --text-heading-xl: 36px;
+  --text-heading-lg: 28px;
+  --text-heading-md: 22px;
+  --text-body-lg: 18px;
+  --text-body-md: 16px;
+  --text-body-sm: 14px;
+  --text-metric-lg: 40px;
+  --text-metric-md: 28px;
+  --text-label-md: 13px;
+  --text-caption: 12px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+
+  --blur-sm: 8px;
+  --blur-md: 14px;
+  --blur-lg: 24px;
+
+  /* The alpha of each glass tint. check-tokens fails if a --glass-*-bg alpha differs from its token. */
+  --opacity-glass-clear: 0.58;
+  --opacity-glass-frosted: 0.72;
+  --opacity-glass-dense: 0.72;
+  --opacity-glass-alert: 0.78;
+  --opacity-glass-plate-light: 0.92;
+  --opacity-glass-plate-dark: 0.88;
+
+  /* Internal data layer: how visible the system lines are (spec: 10% to 28%). */
+  --glass-stream-idle: 0.20;
+  --glass-stream-live: 0.28;
+  --glass-stream-stale: 0.10;
+  --opacity-disabled: 0.42; /* imagery and illustrations only; controls use disabled-fill and disabled-text */
+
+  --stroke-hairline: 0.5px;
+  --stroke-sm: 1px;
+  --stroke-md: 1.5px;
+  --stroke-lg: 2px;
+  --stroke-state: 3px;      /* leading edge of selected, error and maintenance */
+
+
+  --ease-engineered: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-press: cubic-bezier(0.3, 0, 0.2, 1);
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --motion-instant: 80ms;
+  --motion-fast: 140ms;
+  --motion-standard: 220ms;
+  --motion-slow: 360ms;
+  --motion-live-pulse: 600ms;
+}
+
+/* ---------- Density ----------
+ * One switch for spacing and size. A density never changes type size,
+ * content or capability. With no data-density, a coarse pointer gets touch.
+ * The two touch blocks must stay identical; check-tokens fails otherwise. */
+:root,
+[data-density="comfortable"] {
+  --density-control-h: 36px;
+  --density-row-h: 40px;
+  --density-gap-intra: 8px;
+  --density-gap-inter: 16px;
+  --density-pad-x: 12px;
+}
+[data-density="compact"] {
+  --density-control-h: 28px;
+  --density-row-h: 32px;
+  --density-gap-intra: 4px;
+  --density-gap-inter: 12px;
+  --density-pad-x: 8px;
+}
+[data-density="touch"] {
+  --density-control-h: 44px;
+  --density-row-h: 48px;
+  --density-gap-intra: 8px;
+  --density-gap-inter: 16px;
+  --density-pad-x: 16px;
+}
+@media (pointer: coarse) {
+  :root:not([data-density]) {
+    --density-control-h: 44px;
+    --density-row-h: 48px;
+    --density-gap-intra: 8px;
+    --density-gap-inter: 16px;
+    --density-pad-x: 16px;
+  }
+}
+
+/* ---------- 2. Semantic: light (default) ---------- */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* Tonal ladder: L0 rail, L1 canvas, L2 surface, L3 inset, L4 overlay */
+  --color-background: var(--equilibrium-white-075);
+  --color-surface: var(--equilibrium-white-000);
+  --color-surface-hover: var(--equilibrium-white-050);
+  --color-surface-inset: var(--equilibrium-white-100);
+  --color-surface-raised: var(--equilibrium-white-100);
+  --color-surface-material: var(--umber-100);
+  --color-surface-selected: var(--aero-blue-100);
+  --color-border-subtle: var(--equilibrium-white-100);
+  --color-border-card: var(--equilibrium-white-300);
+  --color-border-control: var(--mineral-500);
+  --color-scrim: rgba(7, 29, 43, 0.40);
+  --color-disabled-fill: var(--equilibrium-white-100);
+  --color-disabled-text: var(--graphite-600);
+  --color-text-primary: var(--graphite-950);
+  --color-text-secondary: var(--graphite-600);
+  --color-text-muted: var(--graphite-550);
+  --color-text-muted-on-selected: var(--graphite-600);
+  --color-text-on-action: var(--equilibrium-white-000);
+  --color-danger-text: var(--signal-coral-700);
+
+  --color-rail: var(--aero-blue-900);
+  --color-rail-text: var(--graphite-100);
+  --color-rail-text-strong: var(--equilibrium-white-000);
+  --color-rail-muted: var(--graphite-400);
+  --color-rail-hover: rgba(255, 254, 250, 0.06);
+  --color-rail-active: rgba(156, 198, 216, 0.18);
+  --color-rail-accent: var(--aero-blue-300);
+  --color-rail-divider: rgba(255, 254, 250, 0.10);
+  --color-rail-focus: var(--solar-300);
+
+  --color-action-primary: var(--aero-blue-800);
+  --color-action-primary-hover: var(--aero-blue-900);
+  --color-action-danger: var(--signal-coral-700);
+  --color-action-danger-hover: var(--signal-coral-800);
+  --color-focus-ring: var(--solar-700);
+  --color-focus-ring-on-selected: var(--solar-750);
+  --color-selected-edge: var(--aero-blue-800);
+
+  /* Family accents: icons, edges and fills, never text */
+  --color-energy: var(--solar-600);
+  --color-material: var(--umber-700);
+  --color-success: var(--bio-green-600);
+  --color-warning: var(--solar-700);
+  --color-danger: var(--signal-coral-600);
+  --color-info: var(--aero-blue-600);
+  --color-live-data: var(--teal-system-500);
+
+  /* State system: mark (non-text, 3:1), text (4.5:1), tint (fill behind text) */
+  --state-live-mark: var(--teal-system-700);
+  --state-live-text: var(--teal-system-800);
+  --state-success-mark: var(--bio-green-600);
+  --state-success-text: var(--bio-green-800);
+  --state-success-tint: var(--bio-green-100);
+  --state-warning-mark: var(--solar-750);
+  --state-warning-text: var(--solar-800);
+  --state-warning-tint: var(--solar-100);
+  --state-error-mark: var(--signal-coral-600);
+  --state-error-text: var(--signal-coral-700);
+  --state-error-tint: var(--signal-coral-100);
+  --state-maintenance-mark: var(--umber-600);
+  --state-maintenance-text: var(--umber-700);
+  --state-maintenance-tint: var(--umber-100);
+  --state-info-mark: var(--aero-blue-600);
+  --state-info-text: var(--aero-blue-700);
+  --state-neutral-mark: var(--graphite-600);
+
+  /* Chart series: checked for 3:1 and for separation under colour-vision simulation */
+  --chart-generation: var(--solar-700);
+  --chart-storage: var(--aero-blue-900);
+  --chart-flow: var(--teal-system-700);
+  --chart-eco: #3c6443;
+  --chart-material: var(--umber-800);
+  --chart-forecast: var(--graphite-600);
+  --chart-grid: rgba(88, 102, 107, 0.18);
+
+  /* Glass: four tints for the frame, one reading plate for text, and the
+     small parts (edge, streams, haze, seam, wear). Bare glass never carries
+     text; the plate does (see the Glass section of the document). */
+  --glass-clear-bg: rgba(255, 254, 250, 0.58);
+  --glass-frosted-bg: rgba(242, 235, 221, 0.72);
+  --glass-dense-bg: rgba(7, 29, 43, 0.72);
+  --glass-alert-bg: rgba(255, 254, 250, 0.78);
+  --glass-border: rgba(255, 254, 250, 0.42);
+  --glass-dense-border: rgba(156, 198, 216, 0.28);
+  --glass-edge-light: rgba(255, 254, 250, 0.42);
+  --glass-edge-shade: rgba(7, 29, 43, 0.10);
+  --glass-blur-clear: blur(var(--blur-sm));
+  --glass-blur-frosted: blur(var(--blur-md)) saturate(1.12);
+  --glass-blur-dense: blur(18px) saturate(1.12);
+  --glass-blur-alert: blur(12px);
+  --glass-plate-bg: rgba(255, 254, 250, 0.92);
+  --glass-plate-edge: rgba(217, 205, 182, 0.55);
+  --glass-stream-color: var(--teal-system-700);
+  --glass-haze: rgba(243, 237, 225, 0.38);
+  --glass-seam: var(--umber-600);
+  --glass-scratch: rgba(17, 24, 28, 0.05);
+  --shadow-tint: 7 29 43;
+}
+
+/* ---------- 2. Semantic: dark ----------
+ * Designed, not inverted: higher layers are lighter, the inset is recessed
+ * darker, the rail is the darkest layer, and state colours are lighter.
+ * The two blocks below must stay identical; check-tokens fails otherwise. */
+@media screen {
+  [data-theme="dark"] {
+    color-scheme: dark;
+    --color-background: var(--aero-blue-950);
+    --color-surface: var(--aero-blue-900);
+    --color-surface-hover: var(--aero-blue-875);
+    --color-surface-inset: var(--aero-blue-925);
+    --color-surface-raised: var(--aero-blue-800);
+    --color-surface-material: var(--umber-900);
+    --color-surface-selected: var(--aero-blue-800);
+    --color-border-subtle: var(--aero-blue-875);
+    --color-border-card: var(--aero-blue-750);
+    --color-border-control: var(--aero-blue-450);
+    --color-scrim: rgba(0, 0, 0, 0.55);
+    --color-disabled-fill: var(--aero-blue-875);
+    --color-disabled-text: var(--graphite-400);
+    --color-text-primary: var(--equilibrium-white-000);
+    --color-text-secondary: var(--graphite-100);
+    --color-text-muted: var(--graphite-400);
+    --color-text-muted-on-selected: var(--graphite-100);
+    --color-danger-text: var(--signal-coral-200);
+
+    --color-rail: var(--aero-blue-975);
+
+    --color-action-primary: var(--aero-blue-700);
+    --color-action-primary-hover: var(--aero-blue-600);
+    --color-action-danger: var(--signal-coral-700);
+    --color-action-danger-hover: var(--signal-coral-800);
+    --color-focus-ring: var(--solar-300);
+    --color-focus-ring-on-selected: var(--solar-300);
+    --color-selected-edge: var(--aero-blue-300);
+
+    --color-energy: var(--solar-300);
+    --color-material: var(--umber-300);
+    --color-success: var(--bio-green-400);
+    --color-warning: var(--solar-300);
+    --color-danger: var(--signal-coral-300);
+    --color-info: var(--aero-blue-300);
+    --color-live-data: var(--teal-system-300);
+
+    --state-live-mark: var(--teal-system-500);
+    --state-live-text: var(--teal-system-300);
+    --state-success-mark: var(--bio-green-400);
+    --state-success-text: var(--bio-green-300);
+    --state-success-tint: rgba(156, 181, 141, 0.16);
+    --state-warning-mark: var(--solar-500);
+    --state-warning-text: var(--solar-300);
+    --state-warning-tint: rgba(243, 199, 102, 0.14);
+    --state-error-mark: var(--signal-coral-300);
+    --state-error-text: var(--signal-coral-200);
+    --state-error-tint: rgba(224, 138, 123, 0.16);
+    --state-maintenance-mark: var(--umber-300);
+    --state-maintenance-text: var(--umber-200);
+    --state-maintenance-tint: rgba(183, 154, 120, 0.16);
+    --state-info-mark: var(--aero-blue-300);
+    --state-info-text: var(--aero-blue-300);
+    --state-neutral-mark: var(--graphite-400);
+    --state-neutral-text: var(--graphite-100);
+
+    --chart-generation: var(--solar-600);
+    --chart-storage: #659bb3;
+    --chart-flow: var(--teal-system-100);
+    --chart-eco: var(--bio-green-300);
+    --chart-material: #967554;
+    --chart-forecast: var(--graphite-400);
+    --chart-grid: rgba(255, 254, 250, 0.10);
+
+    --glass-clear-bg: rgba(13, 47, 69, 0.58);
+    --glass-frosted-bg: rgba(13, 47, 69, 0.72);
+    --glass-dense-bg: rgba(3, 14, 22, 0.72);
+    --glass-alert-bg: rgba(13, 47, 69, 0.78);
+    --glass-border: rgba(156, 198, 216, 0.28);
+    --glass-dense-border: rgba(156, 198, 216, 0.28);
+    --glass-edge-light: rgba(156, 198, 216, 0.24);
+    --glass-edge-shade: rgba(0, 0, 0, 0.30);
+    --glass-plate-bg: rgba(13, 47, 69, 0.88);
+    --glass-plate-edge: rgba(42, 84, 108, 0.70);
+    --glass-stream-color: var(--teal-system-300);
+    --glass-haze: rgba(156, 198, 216, 0.14);
+    --glass-seam: var(--umber-300);
+    --glass-scratch: rgba(255, 254, 250, 0.06);
+    --shadow-tint: 0 0 0;
+  }
+}
+@media screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --color-background: var(--aero-blue-950);
+    --color-surface: var(--aero-blue-900);
+    --color-surface-hover: var(--aero-blue-875);
+    --color-surface-inset: var(--aero-blue-925);
+    --color-surface-raised: var(--aero-blue-800);
+    --color-surface-material: var(--umber-900);
+    --color-surface-selected: var(--aero-blue-800);
+    --color-border-subtle: var(--aero-blue-875);
+    --color-border-card: var(--aero-blue-750);
+    --color-border-control: var(--aero-blue-450);
+    --color-scrim: rgba(0, 0, 0, 0.55);
+    --color-disabled-fill: var(--aero-blue-875);
+    --color-disabled-text: var(--graphite-400);
+    --color-text-primary: var(--equilibrium-white-000);
+    --color-text-secondary: var(--graphite-100);
+    --color-text-muted: var(--graphite-400);
+    --color-text-muted-on-selected: var(--graphite-100);
+    --color-danger-text: var(--signal-coral-200);
+
+    --color-rail: var(--aero-blue-975);
+
+    --color-action-primary: var(--aero-blue-700);
+    --color-action-primary-hover: var(--aero-blue-600);
+    --color-action-danger: var(--signal-coral-700);
+    --color-action-danger-hover: var(--signal-coral-800);
+    --color-focus-ring: var(--solar-300);
+    --color-focus-ring-on-selected: var(--solar-300);
+    --color-selected-edge: var(--aero-blue-300);
+
+    --color-energy: var(--solar-300);
+    --color-material: var(--umber-300);
+    --color-success: var(--bio-green-400);
+    --color-warning: var(--solar-300);
+    --color-danger: var(--signal-coral-300);
+    --color-info: var(--aero-blue-300);
+    --color-live-data: var(--teal-system-300);
+
+    --state-live-mark: var(--teal-system-500);
+    --state-live-text: var(--teal-system-300);
+    --state-success-mark: var(--bio-green-400);
+    --state-success-text: var(--bio-green-300);
+    --state-success-tint: rgba(156, 181, 141, 0.16);
+    --state-warning-mark: var(--solar-500);
+    --state-warning-text: var(--solar-300);
+    --state-warning-tint: rgba(243, 199, 102, 0.14);
+    --state-error-mark: var(--signal-coral-300);
+    --state-error-text: var(--signal-coral-200);
+    --state-error-tint: rgba(224, 138, 123, 0.16);
+    --state-maintenance-mark: var(--umber-300);
+    --state-maintenance-text: var(--umber-200);
+    --state-maintenance-tint: rgba(183, 154, 120, 0.16);
+    --state-info-mark: var(--aero-blue-300);
+    --state-info-text: var(--aero-blue-300);
+    --state-neutral-mark: var(--graphite-400);
+    --state-neutral-text: var(--graphite-100);
+
+    --chart-generation: var(--solar-600);
+    --chart-storage: #659bb3;
+    --chart-flow: var(--teal-system-100);
+    --chart-eco: var(--bio-green-300);
+    --chart-material: #967554;
+    --chart-forecast: var(--graphite-400);
+    --chart-grid: rgba(255, 254, 250, 0.10);
+
+    --glass-clear-bg: rgba(13, 47, 69, 0.58);
+    --glass-frosted-bg: rgba(13, 47, 69, 0.72);
+    --glass-dense-bg: rgba(3, 14, 22, 0.72);
+    --glass-alert-bg: rgba(13, 47, 69, 0.78);
+    --glass-border: rgba(156, 198, 216, 0.28);
+    --glass-dense-border: rgba(156, 198, 216, 0.28);
+    --glass-edge-light: rgba(156, 198, 216, 0.24);
+    --glass-edge-shade: rgba(0, 0, 0, 0.30);
+    --glass-plate-bg: rgba(13, 47, 69, 0.88);
+    --glass-plate-edge: rgba(42, 84, 108, 0.70);
+    --glass-stream-color: var(--teal-system-300);
+    --glass-haze: rgba(156, 198, 216, 0.14);
+    --glass-seam: var(--umber-300);
+    --glass-scratch: rgba(255, 254, 250, 0.06);
+    --shadow-tint: 0 0 0;
+  }
+}
+
+/* ---------- 2. Semantic: outdoor ----------
+ * Direct sunlight and field work. Held to WCAG AAA: 7:1 for text, 4.5:1 for
+ * marks and control edges. Layers are separated by strong edges, and glass is
+ * replaced by solid surfaces. */
+[data-theme="outdoor"] {
+  color-scheme: light;
+  --color-background: var(--equilibrium-white-100);
+  --color-surface: var(--equilibrium-white-000);
+  --color-surface-hover: var(--equilibrium-white-050);
+  --color-surface-inset: var(--equilibrium-white-100);
+  --color-surface-raised: var(--equilibrium-white-100);
+  --color-surface-material: var(--umber-100);
+  --color-surface-selected: var(--aero-blue-100);
+  --color-border-subtle: var(--equilibrium-white-300);
+  --color-border-card: var(--mineral-600);
+  --color-border-control: var(--mineral-700);
+  --color-scrim: rgba(7, 29, 43, 0.55);
+  --color-disabled-fill: var(--equilibrium-white-100);
+  --color-disabled-text: var(--graphite-700);
+  --color-text-primary: var(--graphite-975);
+  --color-text-secondary: var(--graphite-800);
+  --color-text-muted: var(--graphite-700);
+  --color-text-muted-on-selected: var(--graphite-700);
+  --color-text-on-action: var(--equilibrium-white-000);
+  --color-danger-text: var(--signal-coral-900);
+
+  --color-rail: var(--aero-blue-950);
+  --color-rail-text: var(--equilibrium-white-000);
+  --color-rail-muted: var(--graphite-100);
+
+  --color-action-primary: var(--aero-blue-900);
+  --color-action-primary-hover: var(--aero-blue-950);
+  --color-action-danger: var(--signal-coral-900);
+  --color-action-danger-hover: var(--signal-coral-950);
+  --color-focus-ring: var(--solar-800);
+  --color-focus-ring-on-selected: var(--solar-800);
+  --color-selected-edge: var(--aero-blue-900);
+
+  --color-energy: var(--solar-800);
+  --color-material: var(--umber-800);
+  --color-success: var(--bio-green-800);
+  --color-warning: var(--solar-800);
+  --color-danger: var(--signal-coral-800);
+  --color-info: var(--aero-blue-700);
+  --color-live-data: var(--teal-system-800);
+
+  --state-live-mark: var(--teal-system-800);
+  --state-live-text: var(--teal-system-900);
+  --state-success-mark: var(--bio-green-800);
+  --state-success-text: var(--bio-green-900);
+  --state-success-tint: var(--bio-green-100);
+  --state-warning-mark: var(--solar-800);
+  --state-warning-text: var(--solar-900);
+  --state-warning-tint: var(--solar-100);
+  --state-error-mark: var(--signal-coral-800);
+  --state-error-text: var(--signal-coral-900);
+  --state-error-tint: var(--signal-coral-100);
+  --state-maintenance-mark: var(--umber-700);
+  --state-maintenance-text: var(--umber-800);
+  --state-maintenance-tint: var(--umber-100);
+  --state-info-mark: var(--aero-blue-700);
+  --state-info-text: var(--aero-blue-800);
+  --state-neutral-mark: var(--graphite-700);
+  --state-neutral-text: var(--graphite-800);
+
+  --chart-generation: #734a04;
+  --chart-storage: var(--aero-blue-600);
+  --chart-flow: var(--teal-system-800);
+  --chart-eco: #223f2a;
+  --chart-material: #291d15;
+  --chart-forecast: var(--graphite-700);
+  --chart-grid: rgba(10, 16, 20, 0.22);
+
+  --glass-clear-bg: var(--color-surface);
+  --glass-frosted-bg: var(--color-surface);
+  --glass-dense-bg: var(--color-surface);
+  --glass-alert-bg: var(--color-surface);
+  --glass-border: var(--color-border-card);
+  --glass-dense-border: var(--color-border-card);
+  --glass-edge-light: transparent;
+  --glass-edge-shade: transparent;
+  --glass-blur-clear: none;
+  --glass-blur-frosted: none;
+  --glass-blur-dense: none;
+  --glass-blur-alert: none;
+  --glass-plate-bg: var(--color-surface);
+  --glass-plate-edge: var(--color-border-card);
+  --glass-haze: transparent;
+  --glass-scratch: transparent;
+  --glass-stream-idle: 0;
+  --glass-stream-live: 0;
+  --glass-stream-stale: 0;
+}
+
+/* ---------- Derived tokens ----------
+ * These point at semantic tokens, so they are declared on every themed
+ * element; declared on :root alone they would keep the root theme's values
+ * inside a subtree that sets another theme. */
+:root,
+[data-theme] {
+  --state-neutral-text: var(--color-text-secondary);
+  --state-dirty-mark: var(--color-text-primary);
+  --chart-threshold: var(--state-warning-mark);
+  --chart-fault: var(--state-error-mark);
+  --chart-selected: var(--color-selected-edge);
+
+  --shadow-1: 0 1px 2px rgb(var(--shadow-tint) / 0.08);
+  --shadow-2: 0 4px 12px rgb(var(--shadow-tint) / 0.10);
+  --shadow-3: 0 10px 28px rgb(var(--shadow-tint) / 0.14);
+  --shadow-4: 0 20px 54px rgb(var(--shadow-tint) / 0.18);
+  --inner-highlight: inset 0 1px 0 rgba(255, 254, 250, 0.42);
+  --inner-depth: inset 0 -1px 0 rgba(7, 29, 43, 0.10);
+
+  /* ---------- 3. Component ---------- */
+  --c-card-bg: var(--color-surface);
+  --c-card-border: var(--color-border-card);
+  --c-field-bg: var(--color-surface);
+  --c-field-border: var(--color-border-control);
+  --c-field-placeholder: var(--color-text-muted);
+  --c-button-primary-bg: var(--color-action-primary);
+  --c-button-primary-bg-hover: var(--color-action-primary-hover);
+  --c-button-primary-fg: var(--color-text-on-action);
+  --c-button-danger-bg: var(--color-action-danger);
+  --c-button-danger-bg-hover: var(--color-action-danger-hover);
+  --c-button-disabled-bg: var(--color-disabled-fill);
+  --c-button-disabled-fg: var(--color-disabled-text);
+  --c-row-selected-bg: var(--color-surface-selected);
+  --c-row-selected-edge: var(--color-selected-edge);
+  --c-mark-size: 16px;
+}
+
+/* ---------- Reduced transparency: glass becomes a solid surface ---------- */
+[data-reduced-transparency="true"],
+[data-reduced-transparency="true"] [data-theme] {
+  --glass-clear-bg: var(--color-surface);
+  --glass-frosted-bg: var(--color-surface);
+  --glass-dense-bg: var(--color-surface);
+  --glass-alert-bg: var(--color-surface);
+  --glass-border: var(--color-border-card);
+  --glass-dense-border: var(--color-border-card);
+  --glass-edge-light: transparent;
+  --glass-edge-shade: transparent;
+  --glass-blur-clear: none;
+  --glass-blur-frosted: none;
+  --glass-blur-dense: none;
+  --glass-blur-alert: none;
+  --glass-plate-bg: var(--color-surface);
+  --glass-plate-edge: var(--color-border-card);
+  --glass-haze: transparent;
+  --glass-scratch: transparent;
+  --glass-stream-idle: 0;
+  --glass-stream-live: 0;
+  --glass-stream-stale: 0;
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root,
+  [data-theme] {
+    --glass-clear-bg: var(--color-surface);
+    --glass-frosted-bg: var(--color-surface);
+    --glass-dense-bg: var(--color-surface);
+    --glass-alert-bg: var(--color-surface);
+    --glass-border: var(--color-border-card);
+    --glass-dense-border: var(--color-border-card);
+    --glass-edge-light: transparent;
+    --glass-edge-shade: transparent;
+    --glass-blur-clear: none;
+    --glass-blur-frosted: none;
+    --glass-blur-dense: none;
+    --glass-blur-alert: none;
+    --glass-plate-bg: var(--color-surface);
+    --glass-plate-edge: var(--color-border-card);
+    --glass-haze: transparent;
+    --glass-scratch: transparent;
+    --glass-stream-idle: 0;
+    --glass-stream-live: 0;
+    --glass-stream-stale: 0;
+  }
+}
+
+/* ---------- No backdrop-filter: without the blur, glass is a solid surface ----------
+ * A browser that cannot blur would show the backdrop sharp behind the tint,
+ * which is not the material this system describes. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root,
+  [data-theme] {
+    --glass-clear-bg: var(--color-surface);
+    --glass-frosted-bg: var(--color-surface);
+    --glass-dense-bg: var(--color-surface);
+    --glass-alert-bg: var(--color-surface);
+    --glass-border: var(--color-border-card);
+    --glass-dense-border: var(--color-border-card);
+    --glass-edge-light: transparent;
+    --glass-edge-shade: transparent;
+    --glass-blur-clear: none;
+    --glass-blur-frosted: none;
+    --glass-blur-dense: none;
+    --glass-blur-alert: none;
+    --glass-plate-bg: var(--color-surface);
+    --glass-plate-edge: var(--color-border-card);
+    --glass-haze: transparent;
+    --glass-scratch: transparent;
+    --glass-stream-idle: 0;
+    --glass-stream-live: 0;
+    --glass-stream-stale: 0;
+  }
+}
+
+/* ---------- Reduced motion: state changes are instant, feedback stays ---------- */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-instant: 0ms;
+    --motion-fast: 0ms;
+    --motion-standard: 0ms;
+    --motion-slow: 0ms;
+    --motion-live-pulse: 0ms;
+  }
+}
+
+/* ---------- Print: always light, no glass, no shadows ----------
+ * Dark values are declared for screen only, so a printed page falls back to
+ * the light theme whatever the screen showed. */
+@media print {
+  :root,
+  [data-theme] {
+    --glass-clear-bg: var(--color-surface);
+    --glass-frosted-bg: var(--color-surface);
+    --glass-dense-bg: var(--color-surface);
+    --glass-alert-bg: var(--color-surface);
+    --glass-border: var(--color-border-control);
+    --glass-dense-border: var(--color-border-control);
+    --glass-edge-light: transparent;
+    --glass-edge-shade: transparent;
+    --glass-blur-clear: none;
+    --glass-blur-frosted: none;
+    --glass-blur-dense: none;
+    --glass-blur-alert: none;
+    --glass-plate-bg: var(--color-surface);
+    --glass-plate-edge: var(--color-border-control);
+    --glass-haze: transparent;
+    --glass-scratch: transparent;
+    --glass-stream-idle: 0;
+    --glass-stream-live: 0;
+    --glass-stream-stale: 0;
+    --shadow-1: none;
+    --shadow-2: none;
+    --shadow-3: none;
+    --shadow-4: none;
+    --color-background: var(--equilibrium-white-000);
+    --color-border-card: var(--color-border-control);
+  }
+}
+
+/* ---------- Forced colors (Windows High Contrast and similar) ----------
+ * The system replaces backgrounds and drops shadows and background images, so
+ * every state must already be carried by a real border, a mark or text. */
+@media (forced-colors: active) {
+  :root,
+  [data-theme] {
+    --color-background: Canvas;
+    --color-surface: Canvas;
+    --color-surface-hover: Canvas;
+    --color-surface-inset: Canvas;
+    --color-surface-raised: Canvas;
+    --color-surface-material: Canvas;
+    --color-surface-selected: Highlight;
+    --color-border-subtle: CanvasText;
+    --color-border-card: CanvasText;
+    --color-border-control: ButtonBorder;
+    --color-disabled-fill: Canvas;
+    --color-disabled-text: GrayText;
+    --color-text-primary: CanvasText;
+    --color-text-secondary: CanvasText;
+    --color-text-muted: CanvasText;
+    --color-text-muted-on-selected: HighlightText;
+    --color-text-on-action: ButtonText;
+    --color-danger-text: CanvasText;
+    --color-rail: Canvas;
+    --color-rail-text: CanvasText;
+    --color-rail-text-strong: CanvasText;
+    --color-rail-muted: CanvasText;
+    --color-rail-hover: Canvas;
+    --color-rail-active: Highlight;
+    --color-rail-accent: Highlight;
+    --color-rail-divider: CanvasText;
+    --color-rail-focus: Highlight;
+    --color-action-primary: ButtonFace;
+    --color-action-primary-hover: ButtonFace;
+    --color-action-danger: ButtonFace;
+    --color-action-danger-hover: ButtonFace;
+    --color-focus-ring: Highlight;
+    --color-focus-ring-on-selected: CanvasText;
+    --color-selected-edge: Highlight;
+    --state-live-mark: CanvasText;
+    --state-live-text: CanvasText;
+    --state-success-mark: CanvasText;
+    --state-success-text: CanvasText;
+    --state-success-tint: Canvas;
+    --state-warning-mark: CanvasText;
+    --state-warning-text: CanvasText;
+    --state-warning-tint: Canvas;
+    --state-error-mark: CanvasText;
+    --state-error-text: CanvasText;
+    --state-error-tint: Canvas;
+    --state-maintenance-mark: CanvasText;
+    --state-maintenance-text: CanvasText;
+    --state-maintenance-tint: Canvas;
+    --state-info-mark: CanvasText;
+    --state-info-text: CanvasText;
+    --state-neutral-mark: CanvasText;
+    --state-neutral-text: CanvasText;
+    --state-dirty-mark: CanvasText;
+    --chart-generation: CanvasText;
+    --chart-storage: CanvasText;
+    --chart-flow: CanvasText;
+    --chart-eco: CanvasText;
+    --chart-material: CanvasText;
+    --chart-forecast: CanvasText;
+    --chart-grid: CanvasText;
+    --chart-threshold: CanvasText;
+    --chart-fault: CanvasText;
+    --chart-selected: Highlight;
+    --glass-clear-bg: Canvas;
+    --glass-frosted-bg: Canvas;
+    --glass-dense-bg: Canvas;
+    --glass-alert-bg: Canvas;
+    --glass-border: CanvasText;
+    --glass-dense-border: CanvasText;
+    --glass-edge-light: transparent;
+    --glass-edge-shade: transparent;
+    --glass-blur-clear: none;
+    --glass-blur-frosted: none;
+    --glass-blur-dense: none;
+    --glass-blur-alert: none;
+    --glass-plate-bg: Canvas;
+    --glass-plate-edge: CanvasText;
+    --glass-haze: transparent;
+    --glass-scratch: transparent;
+    --glass-stream-idle: 0;
+    --glass-stream-live: 0;
+    --glass-stream-stale: 0;
+    --glass-seam: CanvasText;
+    --glass-stream-color: CanvasText;
+  }
+}

@@ -1,0 +1,28 @@
+name: Design system checks
+
+on:
+  push:
+    paths: ['tokens/**', 'specimen/**', 'fonts/**', 'tools/**', 'package.json', '.github/workflows/checks.yml']
+  pull_request:
+    paths: ['tokens/**', 'specimen/**', 'fonts/**', 'tools/**', 'package.json', '.github/workflows/checks.yml']
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Contrast (WCAG) for every token pair, per theme
+        run: npm run check:tokens
+      - name: Chart series under simulated colour-vision deficiency
+        run: npm run check:cvd
+      - name: Install Playwright Chromium
+        run: npm install --no-package-lock && npx playwright install --with-deps chromium
+      - name: Render checks (states, density, table keyboard, layers, type, right to left, modes)
+        run: npm run check:render -- --no-screenshots
+      - name: Glyph coverage (every drawn character is in a bundled face)
+        run: npm run check:glyphs
+      - name: Token export (fresh, valid DTCG, same values as the CSS, real Tailwind and Style Dictionary builds)
+        run: npm run check:export
