@@ -1,14 +1,15 @@
 ---
 name: Realis Pale
-version: 0.1.0
+version: 0.2.0
 type: design-direction
 status: draft
 author: Naji Zouiti
 derived-from: Ednocte v0.2 (nezpik/realis-aero, pull request 1)
 summary: >-
-  A dusk-native design direction for learning alone. Studying and making effort
-  outdoors in the evening, unsupervised, unhurried and unwatched, by a light
-  that is dim but not going out. Hope here is small, steady and earned.
+  A dusk-native design direction for learning alone, late. Solitude, resilience
+  and dim hope: knowing more at your own pace, in dim light that follows the
+  hour, with ideas that spark, knowledge that is allowed to be a mess, and room
+  to contemplate yourself and what you know.
 tags: [edtech, dusk-ui, design-system, brand-philosophy, realis]
 tokens:
   color:
@@ -25,6 +26,7 @@ tokens:
     lichen: "#A5BFA0"
     rose: "#E0A3A0"
     wisp: "#B9ACDC"
+    spark: "#F4DDA6"
   typography:
     display: "Source Sans 3"
     reading: "Source Serif 4"
@@ -49,7 +51,7 @@ tokens:
     ease: cubic-bezier(0.25, 0.6, 0.3, 1)
 ---
 
-# REALIS PALE: Design Direction v0.1
+# REALIS PALE: Design Direction v0.2
 
 > *6:40 PM, late in the year. The light has mostly gone from the sky but not
 > all of it: a pale band stays along the roofline. On the steps outside the
@@ -58,6 +60,29 @@ tokens:
 > waiting for an answer. The page is slow going, and they are still on it.*
 >
 > *That is Realis Pale.*
+>
+> *1:15 AM, the same person, inside now. The room is lit by one lamp turned low.
+> The notebook is a mess of arrows and half sentences, and in the middle of it
+> two ideas that had nothing to do with each other have just touched. There is a
+> small, brief light where they met. Then it is dim again, and they go on
+> reading.*
+
+**The vision, in four movements.** *Solitude*: it is done alone, with nobody
+watching. *Resilience*: it is done again after a bad night, and again after a
+gap. *Dim hope*: the light is low, and it is enough to see the next line.
+*Contemplation*: the point is also to deal with yourself, to look at who you are
+and what you know. The interface carries all four: dim light that follows the
+hour, sparks when ideas meet, knowledge that is allowed to be chaos at the
+person's own pace, and a place to be still.
+
+| The vision says | The interface does |
+|---|---|
+| Late, in dim light, at the right time | Three hours of light, **Dusk, Late and Deep**, that dim with the evening if the person asks (section 3.6) |
+| The sparkling of ideas | A **Spark**: one brief point of light where the person connects two things (section 11.1) |
+| Chaos in knowledge, at your own pace | The **Field**: knowledge laid out unordered, with the dark as its default and no required sequence (section 11.2) |
+| Dealing with yourself, contemplating yourself and your knowledge | **Still**: a private page for the person's own words, then and now, with no scoring and no inference (section 11.3) |
+| Resilience | The **Wick** marks returns, not streaks; every difficulty state leaves a way back (sections 10 and 14) |
+| Solitude | Unobserved by default (section 14) |
 
 Realis Pale is the quiet sibling of [Realis Aero](realis-aero.md). Realis Aero
 is for systems that are measured and maintained in daylight. Realis Pale is for
@@ -123,15 +148,15 @@ them differently.
 
 | | Ednocte | Realis Pale |
 |---|---|---|
-| **Hour** | After midnight: 11:47 PM, 2 AM | The evening: blue hour into early night. The pale band is still on the roofline. |
+| **Hour** | After midnight: 11:47 PM, 2 AM | Dusk into the small hours. Three hours of light, Dusk, Late and Deep, that dim as the night goes on, at the person's choice. |
 | **Place** | Park bench, diner booth, wet city street | Library steps, bus shelter, a balcony, a park path, a school wall. Quiet edges of a town, lit by one lamp. |
 | **Attitude** | Rogue, rebellious, off-map | Unobserved, unhurried, unpressured. Persistence, not rebellion. |
 | **Light** | Neon: cyan, magenta, violet, 6 accents, glows to 64px | Lamp and afterglow: pale amber and cool sky, 3 working accents plus 2 quiet ones, glow capped low |
 | **Surfaces** | Near-black night blue (`#070A12` and up) | A dim dusk blue-grey (`#161B25` and up): lighter, softer, never black |
-| **Hope** | Energy and ignition | A small steady flame: *Kindle*, not *ignite* |
-| **Effort** | Ambition at midnight | Slow, honest effort: progress shown as what is lit, never as what is missing |
+| **Hope** | Energy and ignition | A small steady flame: *Kindle*, not *ignite*. Ideas arrive as brief sparks. |
+| **Effort** | Ambition at midnight | Slow, honest effort: progress shown as what is lit, never as what is missing. Knowledge is a Field that may be a mess. |
 | **Motion** | Light sweeps, neon flicker | Slower and gentler: kindling, a slow breath, a path drawing itself |
-| **Reward** | Lamplight streak that fades | A *Wick* that dims and never goes out, with no loss messaging |
+| **Reward** | Lamplight streak that fades | A *Wick* that marks returns, dims and never goes out, with no loss messaging. A *Spark* belongs to the idea, not to a score. |
 | **Voice** | Late-night, a little rogue | Evening, plain and kind, a little tired, never cheerful on command |
 | **Typography** | Space Grotesk, Inter, Source Serif 4, JetBrains Mono | Source Sans 3, Source Serif 4, Source Code Pro (the first and last are already bundled in this repository) |
 | **Kept as it was** | Anonymity as a premise, depth as light and not shadow, one accent per region, serif for reading and sans for the interface, nothing glows for decoration, an exit that is always visible, no gamification spam, accessibility as a hard gate | |
@@ -152,7 +177,7 @@ A design direction for people who study and work at something alone, outdoors,
 in the evening, with no one supervising and no deadline pressing, and who keep
 going anyway.
 
-### The eight beliefs
+### The ten beliefs
 
 **1. No one is watching, and that is a gift.**
 
@@ -162,14 +187,16 @@ is that it is on their side of the table. What they read, how slowly they read
 it and what they get wrong are not reported to anyone. Where a product must
 share something, it says so plainly, asks first and makes the default private.
 
-**2. The evening is the person's own hour.**
+**2. The late hours are the person's own.**
 
 The day was borrowed: work, school, errands, other people's calendars. When it
-ends there is a short stretch, the light low and the obligations done, that is
-finally theirs. It is not midnight and it is not glamorous. It is the walk home
-that goes the long way, the bench near the station, the table by the window. Realis
-Pale is built for that hour, and it does not ask the person to stay up late to
-earn it.
+ends there is a stretch, the light low and the obligations done, that is
+finally theirs. It begins at dusk and can run into the small hours. It is not
+glamorous. It is the walk home that goes the long way, the bench near the
+station, the table by the window, the lamp left on after everyone has gone to
+bed. Realis Pale is built for those hours, and the light should follow them: the
+later it gets, the dimmer the screen, so that it never competes with the night.
+It does not ask the person to stay up to earn anything.
 
 **3. Your pace is the pace.**
 
@@ -185,41 +212,63 @@ shows the next line, the next problem, the next step of the path. The interface
 is honest that the light is low and does not pretend it is dawn. Every screen
 has one thing lit, and that one thing is true.
 
-**5. Effort is worth seeing, not grading.**
+**5. Learning is also a way of facing yourself.**
+
+To study alone late is also to spend time with yourself: your doubts, your
+patience, what you do not yet understand and what you are surprised to know. The
+product leaves room for that. It offers a quiet page for the person's own words
+and lets them look at where they were and where they are, without a score
+between them. It does not read their mood from their behaviour, and it does not
+tell them what they feel.
+
+**6. Effort is worth seeing, not grading.**
 
 Trying hard alone is lonely work with little feedback. The product's job is to
 make real effort visible to the person who is making it, as a path that is
 lit as far as they have walked, and nothing else. It does not rank, compare or
 reward. It notices.
 
-**6. Struggle is part of the material.**
+**7. Knowledge is allowed to be a mess.**
+
+Nobody learns in the order the syllabus is written. Understanding arrives in
+scraps: a half-grasped idea, a gap, a sudden link back to something read months
+ago. The product does not insist on a staircase. It lets the person lay what they
+know out as they like, leave parts dark, and tidy only if they want to. The mess
+is theirs, and so is the pace at which it settles into sense.
+
+**8. Struggle is part of the material.**
 
 Confusion, tiredness and a second attempt are not errors to be designed away
 or cheered through. A hard page is a hard page. The product leaves room for
 it: no timers counting down, no forced encouragement, no "you've got this!" that
 the person has not asked to hear. When it speaks, it speaks plainly.
 
-**7. Light that means something.**
+**9. Light that means something.**
 
 The dusk is mostly dim and a few things glow. Each glow is a decision: this is
 where you are, this is what you can act on, this is what you have done. Nothing
 glows for decoration. The interface does not decorate with light; it *means*
 with it.
 
-**8. Personal before scalable.**
+**10. Personal before scalable.**
 
 This direction is for one person, one bench, one evening. It does not try to be
 tolerable to everyone. It is unmistakable to the few who know exactly what it is
 to reread a paragraph under a lamp when no one would ever know if they gave up.
 
-### Compressed: the five working principles
+### Compressed: the seven working principles
 
 1. **Unobserved by default.** Nothing about a person's learning is reported,
    ranked or shown to anyone without their say.
-2. **Their pace, their hour.** No deadlines the person did not set, no "behind".
+2. **Their pace, their hour.** No deadlines the person did not set, no "behind";
+   the light follows the hour only if they ask it to.
 3. **One lamp on.** One lit thing per region; hope is the smallest true light.
-4. **Effort is noticed, not graded.** Progress is shown as what is lit.
-5. **Plain and kind.** The evening voice: no cheering on command, no alarm, no guilt.
+4. **Sparks belong to ideas.** A brief light where the person made a link, never
+   for a score or for time spent.
+5. **Chaos with craft.** Knowledge may be scattered and dark in places; the chrome
+   around it stays steady.
+6. **Effort is noticed, not graded.** Progress is shown as what is lit.
+7. **Plain and kind.** The late voice: no cheering on command, no alarm, no guilt.
 
 ### Product vocabulary (use these names in the product)
 
@@ -230,7 +279,11 @@ to reread a paragraph under a lamp when no one would ever know if they gave up.
 | **Glimmer** | A notification: a faint, brief light, off by default | Signal |
 | **Bench** | Focus and reading mode: the lamp over the door and nothing else | Booth |
 | **Pane** | A dashboard card: one lit window in a quiet building | Window |
-| **Wick** | Consistency: a small flame that dims when you are away and is still there when you return | Lamplight |
+| **Wick** | Coming back: a small flame that marks returns, dims when you are away and is still there when you return | Lamplight |
+| **Spark** | The moment two ideas meet: one brief point of light on the link the person made | (new) |
+| **Field** | Knowledge laid out unordered, dark by default, lit where the person has been | (new) |
+| **Still** | A private page for the person's own words, then and now | (new) |
+| **Hour** | How dim the light is: Dusk, Late or Deep | (new) |
 
 ---
 
@@ -293,7 +346,8 @@ The accents are lamps. Fewer than in Ednocte, and softer.
 
 - **60-30-10, adapted**: 60% dusk surfaces, 30% text and structure, 10% light.
 - **One lit thing per region.** Usually `lantern` or `skyline`; the rest is
-  punctuation. A screen with three bright things has no light, only noise.
+  punctuation. The one exception is the Spark (section 11.1): a brief light the
+  person's own action causes, which passes and does not count as a lit thing. A screen with three bright things has no light, only noise.
 - **Accents are never body text colour.** They mark action, state and life.
 - **Meaning never rests on colour alone**: pair every accent with a shape, a
   label or a position. `rose` and `lichen` must never be the only difference
@@ -338,6 +392,59 @@ Same accents' roles, same soul.
   9.60:1.
 - Layers are 1.09:1 (`parchment` over `linen`) and 1.27:1 (`stone` over
   `parchment`), so edges and light, not lightness, separate them here too.
+
+### 3.6 Dimming by the hour
+
+Dusk (sections 3.1 to 3.3) is the default. Two dimmer hours follow it. Each lowers
+the luminance of surfaces, text and light together, so the screen gets quieter as
+the night goes on, and each is held to the same contrast gates. They are values
+for the same token names; a component does not know which hour it is in.
+
+| Token | Dusk | Late | Deep |
+|---|---|---|---|
+| `evening` | `#161B25` | `#12161F` | `#0E1219` |
+| `shade` | `#1D2431` | `#181E29` | `#131822` |
+| `overcast` | `#262E3D` | `#202735` | `#1A202C` |
+| `fog` | `#313B4C` | `#2A3341` | `#232B38` |
+| `mist` | `#6C7992` | `#677690` | `#65728C` |
+| `paper` | `#E8E4DA` | `#DDD9CF` | `#CBC7BE` |
+| `ash` | `#B9BDC6` | `#AEB3BE` | `#9EA3AE` |
+| `haze` | `#A0A8B6` | `#98A0AF` | `#8B93A2` |
+| `lantern` | `#E9C783` | `#E2BE79` | `#D2AE6A` |
+| `skyline` | `#9DBAD6` | `#93B0CB` | `#8AA6C0` |
+| `lichen` | `#A5BFA0` | `#9DB798` | `#93AD8F` |
+| `rose` | `#E0A3A0` | `#D69C99` | `#CC928F` |
+| `wisp` | `#B9ACDC` | `#B0A4D2` | `#A69BC7` |
+
+Contrast, computed from these values (lowest in each group):
+
+| Pair | Dusk | Late | Deep |
+|---|---|---|---|
+| `paper` on `evening`, `shade`, `overcast`, `fog` | 8.89 | 9.04 | 8.45 |
+| `ash`, lowest on those four surfaces | 6.00 | 6.06 | 5.63 |
+| `haze`, lowest on those four surfaces | 4.71 | 4.84 | 4.61 |
+| `lantern`, `skyline`, `lichen`, `rose`, `wisp`, lowest on `evening`, `shade`, `overcast` | 6.44 | 6.48 | 6.28 |
+| `mist` on `evening`, `shade`, `overcast` (non-text, 3:1) | 3.93, 3.55, 3.11 | 3.94, 3.64, 3.26 | 3.88, 3.67, 3.37 |
+| `evening` on `lantern` (filled Lantern label) | 10.65 | 10.23 | 8.94 |
+
+- **The light gets dimmer, the text stays readable.** Text never drops below 4.5:1
+  at any hour; the figures above are the floor. Dimming is not allowed to buy
+  atmosphere with legibility.
+- **Surface steps are even subtler**: the layers differ by 1.06 to 1.17:1 at Late
+  and Deep, so edges and light, not lightness, separate them, as before.
+- **The glow scales with the hour**: glow alphas are multiplied by 1.0, 0.8 and
+  0.6 at Dusk, Late and Deep, and motion durations by 1.0, 1.25 and 1.5. The later
+  it is, the fewer and slower the lights.
+- **How the hour is chosen.** The person chooses it by hand, from the Hour control,
+  and that is the default. A person can also turn on *Follow my evening* and set
+  the times (suggested: Late from 21:00, Deep from 23:30), and the product then
+  moves to the next hour with a 20-minute cross-fade, never a jump. It uses the
+  device clock and the person's own choices. It does not claim to know how bright
+  the room is: a web page generally cannot read an ambient light sensor, and
+  brightness belongs to the device.
+- **Hours are not a lock.** Any hour can be set at any time of day; a person who
+  studies in a bright room at noon is not corrected.
+- **Last Light** (section 3.5) is the daytime variant, not an hour.
 
 ---
 
@@ -424,6 +531,7 @@ Three mechanisms, in order:
 | `glow-2` | `0 0 24px rgba(233, 199, 131, 0.20)` | The Lantern at rest, an active Pane |
 | `glow-3` | `0 0 40px rgba(233, 199, 131, 0.26)` | The one moment of arrival: a path finished |
 | `glow-sky` | `0 0 12px rgba(157, 186, 214, 0.16)` | Focus on informational parts |
+| `glow-spark` | `0 0 16px rgba(244, 221, 166, 0.30)` | The Spark only (section 11.1) |
 
 - **Focus rings**: `2px solid` accent plus `glow-1`. Focus is never removed; in a
   dim interface, focus is the light.
@@ -479,6 +587,11 @@ rest.
 - **Dusk change**: switching between Pale and Last Light cross-fades surfaces over
   `slow`; it never flashes.
 
+- **Spark**: see section 11.1. It is the one fast, small light in the system, and it
+  is always caused by the person.
+
+At the later hours the durations in this table are multiplied (section 3.6).
+
 Under `prefers-reduced-motion`, kindle and path draw become a 100ms opacity
 change, and breath stops: the Lantern stays at full opacity. The evening is still
 there; it just stops moving.
@@ -512,6 +625,9 @@ there; it just stops moving.
   for the one item that is in progress. Never more than one per list.
 
 ### Path (progress)
+- One of three ways to look at knowledge (Path, Field and List, section 11.2). It is
+  optional and built by the person or offered as a suggestion; nothing is locked
+  behind it.
 - A dotted line (2px dots, 8px gap, `mist`), with a lamp-post node at every
   milestone.
 - Walked nodes: filled `lantern` with `glow-1`. The current node: `skyline`, with
@@ -519,16 +635,18 @@ there; it just stops moving.
   has walked, and no further.** There is no count of what is left, no percentage
   by default and no estimate of time behind them.
 
-### Wick (consistency)
-- A small flame mark and a seven-night strip. A night with effort is warm
+### Wick (coming back)
+- A small flame mark and a strip of recent nights. A night with effort is warm
   (`lantern`, opacity 0.9); a quiet night is dimmer (0.4). It dims, it never
   shatters, and the dimmest state is still visible.
-- The Wick **never** says what was lost. Returning after a gap shows the flame
-  where it was: *"Still here."*
+- **It counts returns, not consecutive days.** Resilience is coming back after a
+  bad night or a gap, so the Wick shows *that the person returned*, in private,
+  and nothing about how long they were away. It never says what was lost.
+  Returning shows the flame where it was: *"Still here."*
 
 ### Glimmer (notification)
-- **Off by default.** No badges, no red dots, no sound, and nothing after local
-  20:00 unless the person has asked for it.
+- **Off by default.** No badges, no red dots, no sound, and nothing at all in the
+  hours the person has marked as theirs unless they ask for it.
 - When allowed: a faint `glow-1` on the nav icon, one slow pulse, then rest. The
   content appears in an `overcast` sheet, radius `xl`, sliding up over 400ms.
 - No Glimmer ever says "you're falling behind", nor counts days.
@@ -557,7 +675,92 @@ there; it just stops moving.
 
 ---
 
-## 11. Imagery and Art Direction
+## 11. Ideas, Chaos and Contemplation
+
+The three things that make this direction about *knowing more*, and not only about
+reading alone. Each is a rule for light, arrangement and silence.
+
+### 11.1 Spark: the sparkling of ideas
+
+An idea arrives as a small bright point, and the interface lets it. A **Spark** is
+a brief light on the link the person has just made.
+
+- **When it happens**: only when the *person* does something that is an idea
+  meeting an idea: links two notes, restates something in their own words, marks
+  "I see it now", or reopens an old note and ties it to a new one. It is never
+  triggered by an answer being correct, by time spent, by a count or by the
+  system's own guess.
+- **How it looks**: a point of `spark` (`#F4DDA6`, 6 to 10px) that rises over 600ms
+  and fades over 1400ms with `glow-spark`
+  (`0 0 16px rgba(244, 221, 166, 0.30)`), and a hairline in `lantern` at 50%
+  between the two ideas that stays. The flash passes, the link remains.
+- **One at a time.** At most one Spark is visible. It does not stack, repeat or
+  cascade, so that it stays rare enough to be felt.
+- **No score.** Sparks are not counted, ranked, summarised or shown to anyone. There
+  is no "ideas this week". The link is the record, and it belongs to the person.
+- **No sound and no vibration by default.**
+- **Reduced motion and assistive technology.** Under `prefers-reduced-motion` the
+  Spark is a static small mark that stays on the link, without the rise and fade.
+  The link has a text label (*"Linked: A and B"*), announced politely, so the
+  moment is not carried by light alone.
+- **The product never schedules a Spark.** Ideas follow the person; the product
+  cannot promise one, and does not fake one.
+
+### 11.2 Field: chaos in knowledge, at your own pace
+
+Knowledge is not a staircase. The **Field** lays out what the person knows, wonders
+and has noted, as lamps and points on a quiet plane, in whatever arrangement they
+like.
+
+- **Dark is the default.** Unexplored areas are simply dark. They are not
+  "incomplete", "locked" or "behind". Light is where the person has been, and a
+  Field mostly dark is not a failing one.
+- **No required order.** Nothing is locked unless the person set a prerequisite. No
+  completeness percentage, no "x of y", no red marks for gaps.
+- **Chaos with craft.** The content may scatter, overlap and drift; the chrome around
+  it, the grid, controls and navigation, stays steady, so the mess has a calm frame.
+  The person can *tidy*, which gathers related lamps and keeps every link, and
+  *undo* it.
+- **Three views of one thing**: **Field** (scattered), **Path** (a sequence, built by
+  the person or suggested) and **List** (flat, sortable by recent and by links).
+  The same items appear in all three. **List is mandatory** and is the accessible
+  route: a spatial plane is hard to use with a keyboard or a screen reader, so the
+  List carries the same content, the same links and the same actions. That
+  equivalence is a requirement here and has not been built or tested.
+- **Pace is the person's.** Nothing decays or expires and nothing is rearranged
+  without their say. A node untouched for a year looks exactly as it did.
+- **Links are drawn, not inferred.** The product does not invent connections between
+  the person's notes and present them as the person's own insight. A suggestion, if
+  offered, is marked as one and can be dismissed.
+
+### 11.3 Still: contemplating yourself and what you know
+
+**Still** is a private page for the person's own words. It is the place to deal with
+yourself.
+
+- **What is on it**: a blank page with the person's writing, margin notes, and an
+  optional set of open questions that appear only when the person opens them, such
+  as *"What stayed with you?"*, *"What still doesn't fit?"* and *"What are you
+  carrying tonight?"*. Blank is a valid way to use it.
+- **Then and now**: the person can place an earlier note beside a later one, to see
+  how their own understanding or their own mood changed. There is no score, grade
+  or arrow between them.
+- **Their names for how they feel.** The person may tag a page with words of their
+  own (*stuck*, *tired*, *lost*, *quiet*). The tags are theirs, stay on their pages
+  and are not analysed.
+- **No inference.** The product does not guess a mood from behaviour, typing speed or
+  hours, does not run sentiment analysis on what is written, and does not adapt its
+  voice to a guess about how the person feels. Reading someone's feelings from their
+  behaviour is surveillance, and it contradicts the rest of this document.
+- **The quietest surface.** In Still the Bench is at its dimmest, there is one lit
+  thing (the page), motion is at its slowest, and there is nothing to dismiss. It is
+  never interrupted by a Glimmer.
+- **Private by construction.** Still is not shared, exported or summarised by default.
+  Where a product offers export, it is the person's own action.
+
+---
+
+## 12. Imagery and Art Direction
 
 - **Photography**: the evening outdoors: blue hour, a single lamp, lit stairwells,
   library steps, a bus shelter, a balcony with a book, rain on a window with a lamp
@@ -574,7 +777,7 @@ there; it just stops moving.
 
 ---
 
-## 12. Voice and Tone
+## 13. Voice and Tone
 
 Second person, evening, plain and kind. Short sentences. The product is the one
 quiet person still up at the next table: warm, a little tired, never a
@@ -596,7 +799,7 @@ offers a next step and lets the person feel what they feel.
 
 ---
 
-## 13. Pressure-free rules
+## 14. Pressure-free rules
 
 These are the behavioural counterpart of the colour rules, and they are hard
 gates in the same way:
@@ -615,10 +818,17 @@ gates in the same way:
    information. A result is not a grade and is not stored for anyone else.
 5. **Leave and return freely.** Closing mid-page saves the place. Coming back
    never opens with a reminder of how long it has been.
-6. **Quiet by default.** Glimmers off, sound off, nothing after 20:00 unless
-   asked, and one switch turns all of it off.
+6. **Quiet by default.** Glimmers off, sound off, nothing in the person's own hours
+   unless asked, and one switch turns all of it off.
 7. **The exit is always visible.** Every focus view, sheet and flow can be left,
    and leaving never costs anything.
+8. **No reading of feelings.** No mood inferred from behaviour, typing or hours, no
+   sentiment analysis of what a person writes, and no adapting of the product's
+   voice to a guess about how they feel. What a person says they feel is theirs.
+9. **No imposed order.** Nothing is locked or hidden behind a sequence the person did
+   not choose, and the product never presents a gap in what they know as a failing.
+10. **Dimming is the person's.** The light follows the hour only when the person turns
+    that on, and they can override it at any time.
 
 These are product commitments, not visual properties. They can only be shown to
 hold by testing a real product with real accounts; nothing in this document
@@ -626,7 +836,7 @@ verifies them.
 
 ---
 
-## 14. Accessibility (non-negotiable)
+## 15. Accessibility (non-negotiable)
 
 Dim palettes fail accessibly by default. These rules are hard gates:
 
@@ -651,6 +861,10 @@ Dim palettes fail accessibly by default. These rules are hard gates:
   figures shown there.
 - Semantic HTML, real labels, and screen-reader text for any meaningful light.
   Atmosphere layers are hidden from assistive technology.
+- **Sparks and the Field** carry their meaning in text: the link's label for a Spark,
+  and the mandatory List for the Field (section 11.2). A change of hour is a
+  cross-fade over 20 minutes, with no flash, and under reduced motion it is a single
+  step the person is not surprised by.
 - **Dim interfaces and brightness**: outdoors in the evening, an uncomfortably
   bright screen is the main failure. Pale supports a **lower-brightness mode**
   (all light tokens at 85% alpha, surfaces unchanged), which must still reach
@@ -658,7 +872,7 @@ Dim palettes fail accessibly by default. These rules are hard gates:
 
 ---
 
-## 15. Anti-patterns: what Realis Pale is NOT
+## 16. Anti-patterns: what Realis Pale is NOT
 
 1. ❌ A white or primary-colour classroom.
 2. ❌ Neon, cyberpunk, glitch, scanlines: that is Ednocte's night, not this dusk.
@@ -671,10 +885,17 @@ Dim palettes fail accessibly by default. These rules are hard gates:
 9. ❌ Surveillance dressed as care: progress shared with anyone by default,
    "your teacher can see", activity feeds.
 10. ❌ Noise for its own sake: grain and glow you can *see* as grain and glow.
+11. ❌ Sparks as rewards: a Spark for a correct answer, for time spent, or one that is
+    counted, repeated or shown to anyone.
+12. ❌ A forced staircase: locked nodes, mandatory order, completeness bars, and red
+    marks on what is not yet known.
+13. ❌ Mood surveillance: guessing, scoring or displaying how the person feels.
+14. ❌ Dimming by stealth: changing the light by the clock without the person having
+    asked for it.
 
 ---
 
-## 16. Design tokens: implementation
+## 17. Design tokens: implementation
 
 ### CSS custom properties
 
@@ -696,11 +917,13 @@ Dim palettes fail accessibly by default. These rules are hard gates:
   --rp-lichen: #A5BFA0;
   --rp-rose: #E0A3A0;
   --rp-wisp: #B9ACDC;
+  --rp-spark: #F4DDA6;
   /* glow */
   --rp-glow-1: 0 0 12px rgba(233, 199, 131, 0.14);
   --rp-glow-2: 0 0 24px rgba(233, 199, 131, 0.20);
   --rp-glow-3: 0 0 40px rgba(233, 199, 131, 0.26);
   --rp-glow-sky: 0 0 12px rgba(157, 186, 214, 0.16);
+  --rp-glow-spark: 0 0 16px rgba(244, 221, 166, 0.30);
   --rp-edge-light: inset 0 1px 0 rgba(232, 228, 218, 0.05);
   /* type */
   --rp-font-ui: "Source Sans 3", "Noto Sans Arabic", system-ui, sans-serif;
@@ -713,6 +936,22 @@ Dim palettes fail accessibly by default. These rules are hard gates:
   /* motion */
   --rp-ease: cubic-bezier(0.25, 0.6, 0.3, 1);
   --rp-fast: 200ms; --rp-base: 400ms; --rp-slow: 800ms; --rp-drift: 1400ms;
+}
+
+/* The hour: same names, dimmer values (section 3.6). Dusk is the default above. */
+:root[data-hour="late"] {
+  --rp-evening: #12161F; --rp-shade: #181E29; --rp-overcast: #202735; --rp-fog: #2A3341; --rp-mist: #677690;
+  --rp-paper: #DDD9CF; --rp-ash: #AEB3BE; --rp-haze: #98A0AF;
+  --rp-lantern: #E2BE79; --rp-skyline: #93B0CB; --rp-lichen: #9DB798; --rp-rose: #D69C99; --rp-wisp: #B0A4D2;
+  --rp-glow-1: 0 0 12px rgba(226, 190, 121, 0.11);
+  --rp-fast: 250ms; --rp-base: 500ms; --rp-slow: 1000ms; --rp-drift: 1750ms;
+}
+:root[data-hour="deep"] {
+  --rp-evening: #0E1219; --rp-shade: #131822; --rp-overcast: #1A202C; --rp-fog: #232B38; --rp-mist: #65728C;
+  --rp-paper: #CBC7BE; --rp-ash: #9EA3AE; --rp-haze: #8B93A2;
+  --rp-lantern: #D2AE6A; --rp-skyline: #8AA6C0; --rp-lichen: #93AD8F; --rp-rose: #CC928F; --rp-wisp: #A69BC7;
+  --rp-glow-1: 0 0 12px rgba(210, 174, 106, 0.08);
+  --rp-fast: 300ms; --rp-base: 600ms; --rp-slow: 1200ms; --rp-drift: 2100ms;
 }
 
 :root[data-theme="last-light"] {
@@ -734,7 +973,8 @@ Dim palettes fail accessibly by default. These rules are hard gates:
 }
 ```
 
-In Last Light the role names stay and the values change, so a component written
+The other glow tokens are scaled the same way in a product's implementation: 0.8 at
+Late and 0.6 at Deep (`--rp-glow-1` is written out above as the example). In Last Light the role names stay and the values change, so a component written
 against `--rp-evening`, `--rp-paper` and `--rp-lantern` follows the theme. A
 filled Lantern in Last Light uses the pale amber fill `#E9C783` with the `ink`
 label (9.60:1), which is a component token and not one of the semantic ones
@@ -759,11 +999,11 @@ through the same exporter; that has not been done.
 
 ---
 
-## 17. Status, verification and limits
+## 18. Status, verification and limits
 
-What was done in drafting v0.1:
+What was done in drafting v0.1 and v0.2:
 
-- **Contrast**: every pair in sections 3.2, 3.3 and 3.5 was computed from its hex
+- **Contrast**: every pair in sections 3.2, 3.3, 3.5 and 3.6 (the three hours) was computed from its hex
   values with the WCAG relative-luminance formula, using `tools/lib/color.mjs` in
   this repository. The figures in the tables are those results.
 
@@ -782,15 +1022,28 @@ What has **not** been done, and should not be assumed:
   deuteranopia and protanopia has not been measured.
 - **The Source Serif 4 face is not bundled** in this repository, so a reading
   surface falls back to Georgia until it is.
-- **The pressure-free rules (section 13) are commitments.** They can be verified
+- **The pressure-free rules (section 14) are commitments.** They can be verified
   only in a product, with real accounts, by checking what is sent and shown.
+- **The hours are computed, not seen.** Dusk, Late and Deep pass the contrast gates
+  on paper. Whether the steps between them feel like the same light getting
+  quieter, whether 20 minutes is the right cross-fade, and whether the suggested
+  times of 21:00 and 23:30 suit anyone, are untested.
+- **The Spark is a design, not a behaviour.** Whether a point of light that rises
+  over 600ms and fades over 1400ms reads as an idea meeting an idea, or as a
+  notification, or as nothing, has not been tried. The trigger (the person's own
+  link) also has to exist in a product.
+- **The Field and the List are unbuilt.** The claim that the two carry the same
+  content, links and actions is a requirement, with no keyboard or screen-reader
+  testing behind it.
+- **Still is a commitment.** Whether people want a private page like this, and
+  whether its open questions help or intrude, needs the people.
 - **The dim hope mood itself is untested with people.** Whether the palette,
   motion and voice read as hope and not as sadness is a design hypothesis. It
   needs interviews with people who actually study this way.
 
 ---
 
-## 18. Implementation checklist
+## 19. Implementation checklist
 
 - [ ] Fonts loaded: Source Sans 3 and Source Code Pro (bundled), Source Serif 4 (to
       bundle, SIL Open Font License)
@@ -807,9 +1060,17 @@ What has **not** been done, and should not be assumed:
 - [ ] Lower-brightness mode: contrast computed and passing before release
 - [ ] Colour-vision simulation run on `lantern`, `skyline`, `lichen`, `rose`, `wisp`
 - [ ] The pressure-free rules written as acceptance tests for the product
-- [ ] Interviews with people who study alone in the evening, before v0.2
+- [ ] Hour control and *Follow my evening*, with the 20-minute cross-fade and a manual
+      override
+- [ ] Contrast computed in CI for Dusk, Late, Deep and Last Light, from the token file
+- [ ] Spark: triggered only by the person's own link, one at a time, static under
+      reduced motion, labelled for assistive technology
+- [ ] Field with a mandatory List view carrying the same content, links and actions,
+      tested with a keyboard and a screen reader
+- [ ] Still: private by default, no inference, no sentiment analysis, no summary
+- [ ] Interviews with people who study alone late, before v0.3
 
 ---
 
-*Realis Pale v0.1: a small light, kept on. Derived from Ednocte v0.2. Vision
+*Realis Pale v0.2: a small light, kept on. Derived from Ednocte v0.2. Vision
 holder and author: Naji Zouiti.*

@@ -9,7 +9,7 @@ By Naji Zouiti.
 | Path | What it is |
 |---|---|
 | [`realis-aero.md`](realis-aero.md) | The document (v0.5): principles, tokens, tonal ladder, state system, density, tables, layered state and offline, themes, typography, components, implementation, verification |
-| [`realis-pale.md`](realis-pale.md) | Realis Pale (v0.1, draft): a dusk-native design direction for learning alone outdoors in the evening, derived from Ednocte (pull request 1); contrast computed, nothing rendered yet |
+| [`realis-pale.md`](realis-pale.md) | Realis Pale (v0.2, draft): a dusk-native design direction for learning alone, late: dim light that follows the hour, sparks of ideas, an unordered field of knowledge and a private page to be still; derived from Ednocte (pull request 1); contrast computed, nothing rendered yet |
 | [`tokens/realis-aero.tokens.css`](tokens/realis-aero.tokens.css) | Design tokens in three tiers (primitive, semantic, component) for light, dark and outdoor, with forced colors, print, reduced motion and reduced transparency |
 | [`tokens/dist/`](tokens/dist/) | Generated, not edited: DTCG JSON sets for Figma tooling and Style Dictionary, a Tailwind v3 preset and a React Native module, all from the token file |
 | [`docs/realis-aero.pdf`](docs/realis-aero.pdf) | The whole document as a PDF, with a cover, a summary and the review renders; rebuilt with `npm run build:pdf` |
