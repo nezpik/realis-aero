@@ -2,9 +2,9 @@ name: Design system checks
 
 on:
   push:
-    paths: ['tokens/**', 'specimen/**', 'fonts/**', 'tools/**', 'package.json', '.github/workflows/checks.yml']
+    paths: ['tokens/**', 'specimen/**', 'fonts/**', 'tools/**', 'realis-pale.md', 'package.json', '.github/workflows/checks.yml']
   pull_request:
-    paths: ['tokens/**', 'specimen/**', 'fonts/**', 'tools/**', 'package.json', '.github/workflows/checks.yml']
+    paths: ['tokens/**', 'specimen/**', 'fonts/**', 'tools/**', 'realis-pale.md', 'package.json', '.github/workflows/checks.yml']
 
 jobs:
   check:
@@ -26,3 +26,5 @@ jobs:
         run: npm run check:glyphs
       - name: Token export (fresh, valid DTCG, same values as the CSS, real Tailwind and Style Dictionary builds)
         run: npm run check:export
+      - name: Realis Pale (token contrast per hour, and the specimen in a real browser)
+        run: npm run check:pale

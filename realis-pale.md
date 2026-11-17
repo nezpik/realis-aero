@@ -1,6 +1,6 @@
 ---
 name: Realis Pale
-version: 0.2.0
+version: 0.2.1
 type: design-direction
 status: draft
 author: Naji Zouiti
@@ -158,7 +158,7 @@ them differently.
 | **Motion** | Light sweeps, neon flicker | Slower and gentler: kindling, a slow breath, a path drawing itself |
 | **Reward** | Lamplight streak that fades | A *Wick* that marks returns, dims and never goes out, with no loss messaging. A *Spark* belongs to the idea, not to a score. |
 | **Voice** | Late-night, a little rogue | Evening, plain and kind, a little tired, never cheerful on command |
-| **Typography** | Space Grotesk, Inter, Source Serif 4, JetBrains Mono | Source Sans 3, Source Serif 4, Source Code Pro (the first and last are already bundled in this repository) |
+| **Typography** | Space Grotesk, Inter, Source Serif 4, JetBrains Mono | Source Sans 3, Source Serif 4, Source Code Pro (all three are bundled in this repository) |
 | **Kept as it was** | Anonymity as a premise, depth as light and not shadow, one accent per region, serif for reading and sans for the interface, nothing glows for decoration, an exit that is always visible, no gamification spam, accessibility as a hard gate | |
 
 What is dropped on purpose: neon, cyberpunk cues, wet pavement and glitch,
@@ -373,6 +373,7 @@ Same accents' roles, same soul.
 | `sky` | `#2C5780` | Interactive text and marks |
 | `moss` | `#3F6A3F` | Done |
 | `clay` | `#8A3F3B` | Difficulty and errors |
+| `wisp` | `#5B4B8A` | Generative or assistive features |
 | `edge` | `#767E90` | Borders and control edges |
 
 | Pair | `linen` | `parchment` | `stone` |
@@ -384,6 +385,7 @@ Same accents' roles, same soul.
 | `sky` | 6.17 | 6.75 | 5.31 |
 | `moss` | 5.13 | 5.61 | 4.42 |
 | `clay` | 6.02 | 6.58 | 5.17 |
+| `wisp` | 6.09 | 6.66 | 5.24 |
 | `edge` | 3.33 | 3.64 | 2.86 |
 
 - **Rules from the table**: `stone` carries only `ink`, `ink-soft`, `amber`,
@@ -423,7 +425,7 @@ Contrast, computed from these values (lowest in each group):
 | `paper` on `evening`, `shade`, `overcast`, `fog` | 8.89 | 9.04 | 8.45 |
 | `ash`, lowest on those four surfaces | 6.00 | 6.06 | 5.63 |
 | `haze`, lowest on those four surfaces | 4.71 | 4.84 | 4.61 |
-| `lantern`, `skyline`, `lichen`, `rose`, `wisp`, lowest on `evening`, `shade`, `overcast` | 6.44 | 6.48 | 6.28 |
+| `lantern`, `skyline`, `lichen`, `rose`, `wisp`, lowest on `evening`, `shade`, `overcast` | 6.44 | 6.47 | 6.28 |
 | `mist` on `evening`, `shade`, `overcast` (non-text, 3:1) | 3.93, 3.55, 3.11 | 3.94, 3.64, 3.26 | 3.88, 3.67, 3.37 |
 | `evening` on `lantern` (filled Lantern label) | 10.65 | 10.23 | 8.94 |
 
@@ -455,7 +457,7 @@ Quiet, readable and warm. The system speaks in three voices:
 | Role | Font | Where | Why |
 |---|---|---|---|
 | **Interface and display** | Source Sans 3 | Headings, controls, labels, numbers | A humanist sans: plain and unhurried. Already bundled in `fonts/` under the SIL Open Font License. |
-| **Reading** | Source Serif 4 | Lessons, articles, long text | The book voice. Same designer family as Source Sans 3. Open licence, **not yet bundled** in this repository. |
+| **Reading** | Source Serif 4 | Lessons, articles, long text | The book voice. Same designer family as Source Sans 3. Bundled in `fonts/` (Latin subset, variable weight, SIL Open Font License), declared in `fonts/realis-pale.fonts.css`. |
 | **Code and IDs** | Source Code Pro | Code, shortcuts, timestamps | Bundled; digits share one width and confusable characters differ. |
 
 **The rule**: *the interface is the path (sans), the knowledge is the lit page
@@ -1001,42 +1003,54 @@ through the same exporter; that has not been done.
 
 ## 18. Status, verification and limits
 
-What was done in drafting v0.1 and v0.2:
+What was done:
 
-- **Contrast**: every pair in sections 3.2, 3.3, 3.5 and 3.6 (the three hours) was computed from its hex
-  values with the WCAG relative-luminance formula, using `tools/lib/color.mjs` in
-  this repository. The figures in the tables are those results.
+- **Contrast**: every pair in sections 3.2, 3.3, 3.5 and 3.6 is computed from the
+  token file, `tokens/realis-pale.tokens.css`, by `tools/check-pale.mjs`, and the
+  figures printed in section 3.6 are checked against that computation, so the
+  document and the tokens cannot drift apart without the check failing.
+- **A specimen**, [`specimen/pale.html`](specimen/pale.html), built from the
+  tokens: the three hours and Last Light, Follow my evening, the hero scene, the
+  parts (Lantern, Pane, Wick, Glimmer, Path), the Bench, the Field with its Path and
+  List views, the Spark, Tidy and Undo, and Still. Illustrations are drawn in code
+  from the tokens ([`specimen/pale-art.html`](specimen/pale-art.html)).
+- **129 checks in a real browser** (`npm run check:pale`), described in section 20.
+  They were tested against defects: a text colour dimmed below 4.5:1, Sparks that
+  stack, a second Lantern, a count written next to a link, and a removed focus ring
+  each make them fail. The check also found a wrong figure in this document (6.48
+  where the computed value is 6.47), which is corrected.
 
 What has **not** been done, and should not be assumed:
 
-- **No specimen and no render checks.** Nothing here has been drawn in a browser,
-  so layering, glow visibility, focus rings, grain, the afterglow band and the
-  forced-colour and print behaviour are design intent, not measured results.
-- **No automated check.** The contrast numbers will not update if a token changes;
-  there is no script tying this file to a token file.
+- **Chromium only.** The specimen and its checks run in one browser engine, on a
+  desktop and at a phone width, not on real phones, in Safari or Firefox, with a
+  screen reader, or with a physical switch or keyboard other than the emulated one.
 - **Dim readability outdoors is untested.** The numbers say a screen *can* be
   read; they say nothing about reading it in real evening light, at low
   brightness, with tired eyes. That needs people and devices.
 - **Colour-vision simulation has not been run** on the accents. The accents are
   never the only carrier of meaning by rule, but their separability under
   deuteranopia and protanopia has not been measured.
-- **The Source Serif 4 face is not bundled** in this repository, so a reading
-  surface falls back to Georgia until it is.
 - **The pressure-free rules (section 14) are commitments.** They can be verified
   only in a product, with real accounts, by checking what is sent and shown.
-- **The hours are computed, not seen.** Dusk, Late and Deep pass the contrast gates
-  on paper. Whether the steps between them feel like the same light getting
-  quieter, whether 20 minutes is the right cross-fade, and whether the suggested
-  times of 21:00 and 23:30 suit anyone, are untested.
-- **The Spark is a design, not a behaviour.** Whether a point of light that rises
-  over 600ms and fades over 1400ms reads as an idea meeting an idea, or as a
-  notification, or as nothing, has not been tried. The trigger (the person's own
-  link) also has to exist in a product.
-- **The Field and the List are unbuilt.** The claim that the two carry the same
-  content, links and actions is a requirement, with no keyboard or screen-reader
-  testing behind it.
-- **Still is a commitment.** Whether people want a private page like this, and
-  whether its open questions help or intrude, needs the people.
+- **The hours are built and checked, not judged.** Dusk, Late and Deep pass the
+  contrast gates and the specimen cross-fades between them, but whether the steps
+  feel like the same light getting quieter, whether 20 minutes is the right
+  cross-fade, and whether 21:00 and 23:30 suit anyone, are untested. The specimen's
+  clock demo uses a 2.5 second fade so that it can be watched; the 20 minutes is
+  only in the setting, and was checked by reading it, not by waiting.
+- **The Spark is built, not proven.** It appears only on a link the person makes,
+  one at a time, with words, and stays still under reduced motion. Whether a point
+  of light that rises over 600ms and fades over 1400ms reads as an idea meeting an
+  idea, or as a notification, or as nothing, has not been tried on anyone. In a
+  real product the trigger (the person's own link) has to exist.
+- **The Field and the List are built and keyboard-tested, not screen-reader
+  tested.** They carry the same nine items, links and lit state, and an item can
+  be opened and linked with a keyboard alone. How they are announced by a real
+  screen reader has not been listened to.
+- **Still stores nothing off the device**, which the checks confirm for the
+  specimen (no request leaves the browser). Whether people want a private page
+  like this, and whether its open questions help or intrude, needs the people.
 - **The dim hope mood itself is untested with people.** Whether the palette,
   motion and voice read as hope and not as sadness is a design hypothesis. It
   needs interviews with people who actually study this way.
@@ -1045,30 +1059,64 @@ What has **not** been done, and should not be assumed:
 
 ## 19. Implementation checklist
 
-- [ ] Fonts loaded: Source Sans 3 and Source Code Pro (bundled), Source Serif 4 (to
-      bundle, SIL Open Font License)
+- [x] Fonts loaded: Source Sans 3, Source Code Pro and Source Serif 4, all bundled
+      (SIL Open Font License)
 - [ ] Token layer shipped as CSS variables plus DTCG JSON; Tailwind theme generated
       from the tokens, as Realis Aero does
 - [ ] Atmosphere as a single reusable layer, `aria-hidden`, off under reduced
       transparency
 - [ ] Glow tokens mapped to one utility; grey `box-shadow` banned by lint
 - [ ] One Lantern per view enforced in the component (a development warning)
-- [ ] Focus ring component mandatory; automated accessibility checks in CI, zero
-      critical violations
-- [ ] Reduced-motion variants for kindle, breath and path draw
-- [ ] Last Light passes the same contrast gates in a computed check, in CI
+- [x] A 2px focus ring on every kind of control, checked in a browser (an automated
+      accessibility scan with a third-party engine has not been added)
+- [x] Reduced-motion variants: no breath, a still Spark, transitions of 100ms or less
+- [x] Last Light passes the same contrast gates in a computed check, in CI
 - [ ] Lower-brightness mode: contrast computed and passing before release
 - [ ] Colour-vision simulation run on `lantern`, `skyline`, `lichen`, `rose`, `wisp`
 - [ ] The pressure-free rules written as acceptance tests for the product
-- [ ] Hour control and *Follow my evening*, with the 20-minute cross-fade and a manual
-      override
-- [ ] Contrast computed in CI for Dusk, Late, Deep and Last Light, from the token file
-- [ ] Spark: triggered only by the person's own link, one at a time, static under
-      reduced motion, labelled for assistive technology
-- [ ] Field with a mandatory List view carrying the same content, links and actions,
-      tested with a keyboard and a screen reader
-- [ ] Still: private by default, no inference, no sentiment analysis, no summary
+- [x] Hour control and *Follow my evening*, with the 20-minute cross-fade and a manual
+      override (checked with a controlled clock)
+- [x] Contrast computed in CI for Dusk, Late, Deep and Last Light, from the token file
+- [x] Spark: triggered only by the person's own link, one at a time, static under
+      reduced motion, with a text label
+- [ ] Field with a mandatory List view carrying the same content, links and actions:
+      built and keyboard-tested; a screen reader test is still to do
+- [x] Still: private by default, no inference, no sentiment analysis, no summary (in
+      the specimen; a product has to keep it so)
 - [ ] Interviews with people who study alone late, before v0.3
+
+---
+
+## 20. Specimen
+
+Open [`specimen/pale.html`](specimen/pale.html) in a browser. The Hour control in the
+header switches Dusk, Late and Deep; Last Light is the daytime variant; *Follow my
+evening* moves the light with the clock (use the demo clock to watch it). The
+illustrations are on [`specimen/pale-art.html`](specimen/pale-art.html). Everything a
+person types stays in the browser.
+
+`npm run check:pale` runs **129 checks**: the contrast of every token pair in every
+hour; that the figures printed in section 3.6 are the computed ones; 4.5:1 for every
+run of text against the colour painted behind it, in each hour and in Last Light; one
+Lantern; a focus ring of at least 2px on every kind of control; targets of at least
+44px; no horizontal scroll at a phone width; the hours and the cross-fade; Follow my
+evening with a controlled clock (Late at 21:15, Deep at 23:45, off once the person
+chooses); the Field opening mostly dark, with no lock, percentage or "behind"; keys
+and dragging; positions surviving a reload; Tidy and Undo; one Spark, announced in
+words; the same items in the Field, Path and List; reduced motion; forced colours;
+the Bench; Still staying on the device with no network request; and no score, mood,
+streak or badge anywhere.
+
+Review renders are in [`specimen/pale/screenshots/`](specimen/pale/screenshots/):
+`hero-` and `page-` for each hour and Last Light, `illustrations-` for each,
+`field-spark-late`, `field-after-late`, `field-list-late`, `bench-deep`, `still-late`
+and two phone renders. They are regenerated by `node tools/capture-pale.mjs`.
+
+![Realis Pale, Dusk](specimen/pale/screenshots/hero-dusk.png)
+
+![Realis Pale, Deep](specimen/pale/screenshots/hero-deep.png)
+
+![The Spark in the Field, Late](specimen/pale/screenshots/field-spark-late.png)
 
 ---
 

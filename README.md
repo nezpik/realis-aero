@@ -9,7 +9,9 @@ By Naji Zouiti.
 | Path | What it is |
 |---|---|
 | [`realis-aero.md`](realis-aero.md) | The document (v0.5): principles, tokens, tonal ladder, state system, density, tables, layered state and offline, themes, typography, components, implementation, verification |
-| [`realis-pale.md`](realis-pale.md) | Realis Pale (v0.2, draft): a dusk-native design direction for learning alone, late: dim light that follows the hour, sparks of ideas, an unordered field of knowledge and a private page to be still; derived from Ednocte (pull request 1); contrast computed, nothing rendered yet |
+| [`realis-pale.md`](realis-pale.md) | Realis Pale (v0.2, draft): a dusk-native design direction for learning alone, late: dim light that follows the hour, sparks of ideas, an unordered field of knowledge and a private page to be still; derived from Ednocte (pull request 1). Contrast computed from its tokens; a working specimen, checked in a browser |
+| [`tokens/realis-pale.tokens.css`](tokens/realis-pale.tokens.css) | Realis Pale tokens: Dusk, Late and Deep hours and the Last Light variant |
+| [`specimen/pale.html`](specimen/pale.html) | Realis Pale specimen (the hours, the Field, the Spark, Still) and [`specimen/pale-art.html`](specimen/pale-art.html), its illustrations; renders in `specimen/pale/screenshots/` |
 | [`tokens/realis-aero.tokens.css`](tokens/realis-aero.tokens.css) | Design tokens in three tiers (primitive, semantic, component) for light, dark and outdoor, with forced colors, print, reduced motion and reduced transparency |
 | [`tokens/dist/`](tokens/dist/) | Generated, not edited: DTCG JSON sets for Figma tooling and Style Dictionary, a Tailwind v3 preset and a React Native module, all from the token file |
 | [`docs/realis-aero.pdf`](docs/realis-aero.pdf) | The whole document as a PDF, with a cover, a summary and the review renders; rebuilt with `npm run build:pdf` |
@@ -30,6 +32,8 @@ npm install && npx playwright install chromium
 npm run check:render   # browser checks on the specimen, settings, glass and ruled-sheet pages; writes the screenshots
 npm run check:glyphs   # every drawn character, in French and Arabic too, is in a bundled face
 npm run build:tokens   # regenerate tokens/dist (DTCG JSON, Tailwind preset, React Native module)
+npm run check:pale     # Realis Pale: token contrast in every hour, and the specimen in a real browser
+npm run capture:pale   # review renders of the Realis Pale specimen and illustrations
 npm run check:export   # the export is fresh, valid, and equal to the CSS in a browser; real Tailwind and Style Dictionary builds
 # Reproduce another machine's rendering, e.g. the CI runner's pixel-snapped glyph advances:
 RA_CHROMIUM_ARGS=--font-render-hinting=full npm run check:render
