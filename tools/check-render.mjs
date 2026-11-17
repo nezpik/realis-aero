@@ -121,11 +121,11 @@ for (const theme of THEMES) {
   // Keyboard: every focusable control shows a ring at least 2px wide; targets meet the density's height.
   const focus = await page.evaluate(async () => {
     const out = [];
-    for (const el of document.querySelectorAll('a[href], button, input, [tabindex="0"]:not(td):not(th)')) {
+    for (const el of [...document.querySelectorAll('a[href], button, input, [tabindex="0"]:not(td):not(th)')].filter(e => !e.closest('[hidden]'))) {
       el.focus({ focusVisible: true });
       const ringed = el.closest('.field__control') ?? el;
       const cs = getComputedStyle(ringed);
-      const r = el.closest('.field__control')?.getBoundingClientRect() ?? el.getBoundingClientRect();
+      const r = (el.closest('.field__control') ?? el.closest('label.choice') ?? el).getBoundingClientRect();
       out.push({ name: (el.textContent.trim() || el.id).slice(0, 30), width: parseFloat(cs.outlineWidth), style: cs.outlineStyle, h: r.height, w: r.width });
     }
     document.activeElement.blur();
@@ -193,7 +193,7 @@ console.log('density');
       const h = s => document.querySelector(s).getBoundingClientRect().height;
       return {
         btn: h('#l-apply'), field: h('#l-setpoint'), control: h('.field__control'), row: h('#assets tbody tr'), cell: h('#assets td[data-editable] .cell-edit'),
-        smallest: Math.min(...[...document.querySelectorAll('a[href], button, .field__control, #assets tbody td')].map(e => e.getBoundingClientRect().height)),
+        smallest: Math.min(...[...document.querySelectorAll('a[href], button, .field__control, #assets tbody td')].filter(e => !e.closest('[hidden]')).map(e => e.getBoundingClientRect().height)),
         font: getComputedStyle(document.querySelector('#assets td')).fontSize, rows: document.querySelectorAll('#assets tbody tr').length,
         rowHeights: new Set([...document.querySelectorAll('#assets tbody tr')].map(r => Math.round(r.getBoundingClientRect().height))).size,
         sideways: document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -228,55 +228,241 @@ console.log('table keyboard');
       inGrid: !!a.closest('#assets'), tag: a.tagName, text: cell?.textContent.trim(), col: cell ? [...row.cells].indexOf(cell) : -1,
       row: row && row.parentElement.tagName === 'TBODY' ? [...row.parentElement.rows].indexOf(row) : -1,
       status: document.getElementById('grid-status').textContent, counts: document.getElementById('grid-counts').textContent,
-      stops: document.querySelectorAll('#assets [tabindex="0"]').length,
+      stops: document.querySelectorAll('#assets [tabindex="0"]').length, say: document.getElementById('grid-say').textContent,
     };
   });
   const press = async (...keys) => { for (const k of keys) await page.keyboard.press(k); return st(); };
+  const names = () => page.evaluate(() => [...document.querySelectorAll('#assets tbody tr')].map(r => r.cells[0].textContent.trim()));
   await page.focus('#assets tbody td');
   let s = await st();
   check(s.stops === 1, 'the grid is a single tab stop', String(s.stops));
   check(s.row === 0 && s.col === 0 && s.status.startsWith('NAV'), 'focus starts on the first cell in NAV mode', JSON.stringify(s));
   s = await press('ArrowRight', 'ArrowDown'); check(s.row === 1 && s.col === 1, 'arrow keys move one cell', JSON.stringify(s));
-  s = await press('End'); check(s.col === 6, 'End goes to the last cell in the row', String(s.col));
+  s = await press('End'); check(s.col === 8, 'End goes to the last cell in the row', String(s.col));
   s = await press('Home'); check(s.col === 0, 'Home goes to the first cell in the row', String(s.col));
-  s = await press('Control+End'); check(s.row === 7 && s.col === 6, 'Ctrl+End goes to the last cell', JSON.stringify(s));
+  s = await press('Control+End'); check(s.row === 7 && s.col === 8, 'Ctrl+End goes to the last cell', JSON.stringify(s));
   s = await press('Control+Home'); check(s.row === 0 && s.col === 0, 'Ctrl+Home goes to the first cell', JSON.stringify(s));
   s = await press('PageDown'); check(s.row === 5, 'Page Down moves a page of rows', String(s.row));
   s = await press('PageUp'); check(s.row === 0, 'Page Up moves back', String(s.row));
   s = await press('ArrowUp'); check(s.row === -1 && s.tag === 'TH', 'Arrow Up from the first row reaches the header', JSON.stringify(s));
-  // Sort from the keyboard.
+  check(!s.counts.includes('sorted'), 'the table starts unsorted, and says nothing about a sort', s.counts);
+  // Sort from the keyboard, ascending then descending.
   s = await press('Enter');
-  let sort = await page.evaluate(() => ({ dir: document.querySelector('#assets th.key[aria-sort]').getAttribute('aria-sort'), first: document.querySelector('#assets tbody tr td').textContent.trim() }));
-  check(sort.dir === 'descending' && sort.first === 'Weather mast', 'Enter on a sortable header sorts and sets aria-sort', JSON.stringify(sort));
-  check(s.counts.includes('sorted by Asset (descending)'), 'the footer states the sort', s.counts);
+  let n = await names();
+  check(n[0] === 'Battery rack 1' && s.counts.includes('sorted by Asset (ascending)'), 'Enter on a sortable header sorts ascending and the footer says so', `${n[0]} | ${s.counts}`);
+  check(s.tag === 'TH', 'focus stays on the header after sorting', s.tag);
+  s = await press('Enter'); n = await names();
+  check(n[0] === 'Weather mast' && s.counts.includes('sorted by Asset (descending)'), 'Enter again sorts descending', `${n[0]} | ${s.counts}`);
+  check(await page.evaluate(() => document.querySelector('#assets th[data-col="asset"]').getAttribute('aria-sort')) === 'descending', 'aria-sort follows the sort');
+  s = await press('Enter');
   check(s.counts.startsWith('Showing 8 of 1,240'), 'the footer states the limit', s.counts);
-  s = await press('Enter');
   // Select a row.
-  s = await press('ArrowDown', 'Space');
+  s = await press('ArrowDown', 'ArrowDown', 'Space');
   const selected = await page.evaluate(() => document.querySelectorAll('#assets tbody tr[aria-selected="true"]').length);
   check(selected === 2 && s.counts.includes('2 selected'), 'Space selects the row and the count follows', `${selected} ${s.counts}`);
   await press('Space');
   // Edit: Enter starts, Escape cancels, Enter commits and moves down, Tab commits and moves on.
-  s = await press('End'); check(s.status.includes('Control › Limit kW'), 'the status names the column group and column', s.status);
+  s = await press('End', 'ArrowLeft'); check(s.status.includes('Control › Limit kW'), 'the status names the column group and column', s.status);
   s = await press('Enter'); check(s.tag === 'INPUT' && s.status.startsWith('EDIT'), 'Enter starts editing', JSON.stringify(s));
   await page.keyboard.type('99'); s = await press('Escape');
-  check(s.tag === 'TD' && s.text === '30.0' && s.status.startsWith('NAV'), 'Escape cancels and restores the value', JSON.stringify(s));
+  check(s.tag === 'TD' && s.text === '40.0' && s.status.startsWith('NAV'), 'Escape cancels and restores the value', JSON.stringify(s));
   await press('F2'); await page.keyboard.type('45.5'); s = await press('Enter');
-  const edited = await page.evaluate(() => { const c = document.querySelector('#assets tbody tr td[data-editable]'); return { text: c.textContent.trim(), state: c.dataset.state, dot: !c.querySelector('.mark').hidden, desc: c.getAttribute('aria-description') }; });
+  const edited = await page.evaluate(() => { const c = document.querySelector('#assets tbody tr[data-id="flow3"] td[data-col="limit"]'); return { text: c.textContent.trim(), state: c.dataset.state, dot: !c.querySelector('.mark').hidden, desc: c.getAttribute('aria-description') }; });
   check(edited.text === '45.5' && edited.state === 'dirty' && edited.dot, 'Enter commits; the cell is marked unsaved with the ink dot', JSON.stringify(edited));
-  check(edited.desc === 'Unsaved, was 30.0', 'the unsaved state is announced with the previous value', edited.desc);
-  check(s.row === 1 && s.col === 6 && s.counts.includes('1 unsaved'), 'focus moves down and the footer counts the edit', JSON.stringify(s));
+  check(edited.desc === 'Unsaved, was 40.0', 'the unsaved state is announced with the previous value', edited.desc);
+  check(s.row === 2 && s.col === 7 && s.counts.includes('1 unsaved'), 'focus moves down and the footer counts the edit', JSON.stringify(s));
   await press('Enter'); await page.keyboard.type('12'); s = await press('Tab');
-  check(s.tag === 'INPUT' && s.row === 2 && s.counts.includes('2 unsaved'), 'Tab while editing commits and edits the next editable cell', JSON.stringify(s));
+  check(s.tag === 'INPUT' && s.row === 2 && s.col === 8 && s.counts.includes('2 unsaved'), 'Tab while editing commits and edits the next editable cell', JSON.stringify(s));
   await press('Escape');
-  // Typing the original value back clears the mark.
-  await press('ArrowUp', 'ArrowUp', 'Enter'); await page.keyboard.type('30.0'); s = await press('Enter');
+  await press('ArrowUp'); s = await press('ArrowLeft'); await press('Enter'); await page.keyboard.type('40.0'); s = await press('Enter');
   check(s.counts.includes('1 unsaved'), 'restoring the original value clears the unsaved mark', s.counts);
+  await press('Enter'); await page.keyboard.type('abc'); s = await press('Enter');
+  check(s.say.startsWith('Not applied') && s.counts.includes('1 unsaved'), 'an invalid value is refused with a reason and nothing changes', JSON.stringify([s.say, s.counts]));
   // Tab leaves the grid.
   s = await press('Tab'); check(!s.inGrid, 'Tab leaves the grid', s.tag);
   // The key column stays in view when the table scrolls sideways.
   const frozen = await page.evaluate(() => { const w = document.querySelector('.table-wrap'); w.style.width = '480px'; w.scrollLeft = 200; const k = document.querySelector('#assets tbody .key').getBoundingClientRect(), b = w.getBoundingClientRect(); return Math.round(k.left - b.left); });
   check(frozen === 0, 'the key column stays frozen on horizontal scroll', String(frozen));
+  await page.context().close();
+}
+
+// Table: range selection, copy, and paste with a preview.
+console.log('table range, copy and paste');
+{
+  const page = await open('?theme=light');
+  await page.evaluate(() => { window.__copied = null; document.addEventListener('copy', e => { window.__copied = e.clipboardData.getData('text/plain'); }); });
+  const st = () => page.evaluate(() => ({
+    range: [...document.querySelectorAll('#assets td.in-range')].length, selectedCells: [...document.querySelectorAll('#assets td[aria-selected="true"]')].length,
+    counts: document.getElementById('grid-counts').textContent, say: document.getElementById('grid-say').textContent, copied: window.__copied,
+    tag: document.activeElement.tagName, previewOpen: !document.getElementById('paste').hidden, title: document.getElementById('paste-title').textContent,
+    items: [...document.querySelectorAll('#paste-list li')].map(li => li.textContent.trim()),
+    cell: (r, c) => null,
+  }));
+  const press = async (...keys) => { for (const k of keys) await page.keyboard.press(k); return st(); };
+  const cellText = (id, col) => page.evaluate(([i, c]) => document.querySelector(`#assets tr[data-id="${i}"] td[data-col="${c}"]`).textContent.trim(), [id, col]);
+  await page.focus('#assets tbody td');
+  let s = await press('ArrowRight', 'ArrowRight', 'ArrowRight');   // Roof array A, Now kW
+  s = await press('Shift+ArrowRight', 'Shift+ArrowDown');
+  check(s.range === 4 && s.selectedCells === 4 && s.counts.includes('range 2 × 2'), 'Shift+Arrows select a 2 × 2 range, exposed with aria-selected and counted', JSON.stringify(s));
+  const ring = await page.evaluate(() => { const c = document.querySelector('#assets td.in-range'), cs = getComputedStyle(c); return { w: parseFloat(cs.outlineWidth), style: cs.outlineStyle }; });
+  check(ring.w >= 1 && ring.style === 'solid', 'every cell of a range carries its own outline, so a range inside selected rows stays visible', JSON.stringify(ring));
+  s = await press('Control+c');
+  check(s.copied === '42.6\t212.4\n38.1\t190.2' && s.say === 'Copied 2 × 2 cells.', 'Ctrl+C copies the range as tab-separated text', JSON.stringify([s.copied, s.say]));
+  s = await press('Escape'); check(s.range === 0 && !s.counts.includes('range'), 'Escape clears the range', JSON.stringify(s));
+  s = await press('Control+c'); check(s.copied === '190.2' && s.say === 'Copied 1 cell.', 'with no range, Ctrl+C copies the active cell (the one the range ended on)', JSON.stringify([s.copied, s.say]));
+  // Shift+Space extends the row selection from the last toggled row.
+  await press('Control+Home', 'ArrowDown'); await press('Space'); s = await press('ArrowDown', 'ArrowDown', 'Shift+Space');
+  const rows = await page.evaluate(() => [...document.querySelectorAll('#assets tbody tr[aria-selected="true"]')].map(r => r.dataset.id));
+  check(['roofb', 'heat2', 'inv2'].every(id => rows.includes(id)), 'Shift+Space extends the row selection to the active row', rows.join(','));
+  await press('Space');
+  // Paste: a preview first, nothing changes until Apply.
+  const paste = (text) => page.evaluate(t => { const dt = new DataTransfer(); dt.setData('text/plain', t); document.activeElement.dispatchEvent(new ClipboardEvent('paste', { clipboardData: dt, bubbles: true, cancelable: true })); }, text);
+  await press('Control+Home', 'ArrowDown', 'ArrowDown', 'ArrowRight', 'ArrowRight', 'ArrowRight', 'ArrowRight', 'ArrowRight', 'ArrowRight');   // Heat pump 2, Last service
+  const before = await cellText('heat2', 'limit');
+  await paste('n/a\t10\t11\nx\t12\tabc'); s = await st();
+  check(s.previewOpen && s.tag === 'BUTTON', 'paste opens a preview and moves focus into it', JSON.stringify([s.previewOpen, s.tag]));
+  check(s.title === 'Paste preview · 3 changes, 3 skipped', 'the preview counts changes and skips', s.title);
+  check(s.items.some(t => t.includes('Heat pump 2 · Limit kW: 8.0 → 10.0')) && s.items.filter(t => t.startsWith('Skipped')).length === 3, 'the preview lists each change as before → after and each skip with its reason', s.items.join(' | '));
+  check(s.items.some(t => t.includes('Last service: read-only')) && s.items.some(t => t.includes('"abc" is not a number')), 'skips name read-only cells and invalid values', s.items.join(' | '));
+  check(await cellText('heat2', 'limit') === before, 'nothing changes until Apply', before);
+  s = await press('Escape'); check(!s.previewOpen && s.say === 'Paste cancelled. Nothing changed.' && s.tag === 'TD', 'Escape cancels the paste and returns focus to the cell', JSON.stringify(s));
+  await paste('n/a\t10\t11\nx\t12\tabc'); await page.click('#paste-apply'); s = await st();
+  check(await cellText('heat2', 'limit') === '10.0' && await cellText('heat2', 'reserve') === '11.0' && await cellText('inv2', 'limit') === '12.0', 'Apply writes the values', 'heat2 / inv2');
+  check(s.counts.includes('3 unsaved') && s.say === 'Pasted 3 values as unsaved changes. 3 skipped.', 'pasted values are unsaved changes, and the result is announced', JSON.stringify([s.counts, s.say]));
+  await page.click('#grid-discard'); s = await st();
+  check(s.counts.includes('0 unsaved') && s.say === 'Discarded 3 unsaved edits.', 'Discard unsaved restores every pasted value', JSON.stringify([s.counts, s.say]));
+  await page.evaluate(() => document.querySelector('#assets td[tabindex="0"]').focus());
+  await paste('abc'); s = await st();
+  check(s.previewOpen && await page.evaluate(() => document.getElementById('paste-apply').getAttribute('aria-disabled')) === 'true', 'when every value is skipped, Apply is unavailable and says why', s.title);
+  await page.context().close();
+}
+
+// Table: columns, resize, truncation and persistence.
+console.log('table columns');
+{
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const page = await ctx.newPage(); await page.goto(page_url('?theme=light')); await page.evaluate(() => document.fonts.ready);
+  const heads = () => page.evaluate(() => [...document.querySelectorAll('#assets thead tr:nth-child(2) th')].map(t => t.firstChild.textContent.trim()));
+  const groups = () => page.evaluate(() => [...document.querySelectorAll('#assets thead tr:first-child th')].map(t => t.textContent.trim() + ':' + t.colSpan));
+  const say = () => page.evaluate(() => document.getElementById('grid-say').textContent);
+  const width = col => page.evaluate(c => Math.round(document.querySelector(`#assets th[data-col="${c}"]`).getBoundingClientRect().width), col);
+  const act = async (col, a) => { await page.evaluate(([c, x]) => document.querySelector(`#cols-list [data-col="${c}"] [data-act="${x}"]`).click(), [col, a]); };
+
+  // Truncation: the start of a path gives way, the identifying tail stays, the full text is reachable.
+  const tr = await page.evaluate(() => {
+    const cell = document.querySelector('#assets tbody tr td[data-col="path"]'), a = cell.querySelector('.mid__a'), b = cell.querySelector('.mid__b');
+    const decisive = [...document.querySelectorAll('#assets tbody td')].filter(td => !td.querySelector('.mid')).filter(td => td.scrollWidth > td.clientWidth + 1).map(td => td.textContent.trim());
+    return { cut: a.scrollWidth > a.clientWidth, tailWhole: b.scrollWidth <= b.clientWidth + 1, ellipsis: getComputedStyle(a).textOverflow, full: cell.dataset.full, title: cell.querySelector('.mid').title, text: cell.textContent.trim(), tail: b.textContent, decisive };
+  });
+  check(tr.cut && tr.ellipsis === 'ellipsis' && tr.tailWhole, 'a path truncates in the middle: the start is cut with an ellipsis and the tail stays whole', JSON.stringify(tr));
+  check(tr.text === tr.full && tr.title === tr.full, 'the full path is the cell text and the hover title', JSON.stringify(tr));
+  check(tr.decisive.length === 0, 'no value, state or number is truncated; only paths give way', tr.decisive.join(' | '));
+  await page.focus('#assets tbody td'); for (let i = 0; i < 2; i++) await page.keyboard.press('ArrowRight');
+  check((await page.evaluate(() => document.getElementById('grid-status').textContent)).endsWith('CA-DC/Roof/Array-A/String-04/INV-1-0412'), 'focusing a truncated cell shows its full text in the status line');
+
+  // Panel: open, key column protected, disabled with a reason.
+  await page.click('#cols-btn');
+  check(await page.evaluate(() => !document.getElementById('cols-panel').hidden && document.getElementById('cols-btn').getAttribute('aria-expanded') === 'true'), 'the Columns button opens the panel and exposes aria-expanded');
+  await act('asset', 'up');
+  check((await say()).startsWith('Asset is the key column'), 'the key column explains why it cannot move', await say());
+  check(await page.evaluate(() => ['up', 'down', 'narrow', 'wide'].every(a => document.querySelector(`#cols-list [data-col="asset"] [data-act="${a}"]`).getAttribute('aria-disabled') === 'true') && document.querySelector('#cols-list [data-col="asset"] input').getAttribute('aria-disabled') === 'true'), 'every key-column control is aria-disabled, so it stays focusable');
+  // Hide, reorder within a group, edges, width.
+  await page.evaluate(() => document.querySelector('#cols-list [data-col="path"] input').click());
+  check((await heads()).length === 8 && !(await heads()).includes('Location') && (await say()) === 'Location hidden. 8 of 9 columns shown.', 'hiding a column removes it and says so', `${(await heads()).join(',')} | ${await say()}`);
+  await page.evaluate(() => document.querySelector('#cols-list [data-col="site"] input').click());
+  check(!(await groups()).some(g => g.startsWith('Identity')), 'a group with no visible columns loses its header', (await groups()).join(','));
+  await act('today', 'up');
+  let h = await heads(); check(h.indexOf('Today kWh') < h.indexOf('Now kW') && (await say()) === 'Today kWh moved before Now kW.', 'a column moves within its group', `${h.join(',')} | ${await say()}`);
+  await act('today', 'up'); check((await say()).includes('already first in Output'), 'at the edge of a group, a move explains itself', await say());
+  const w0 = await width('limit'); await act('limit', 'wide');
+  check(await width('limit') === w0 + 16 && (await say()) === 'Limit kW widened to ' + (w0 + 16) + 'px.', 'Wider adds 16px and announces it', `${w0} -> ${await width('limit')} | ${await say()}`);
+  await act('limit', 'narrow'); check(await width('limit') === w0, 'Narrower takes it back', String(await width('limit')));
+  // The pointer: drag a column edge, double-click to reset.
+  await page.evaluate(() => { document.getElementById('cols-panel').hidden = true; });
+  const edge = await page.evaluate(() => { const r = document.querySelector('#assets th[data-col="now"] .resize').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
+  const nowW = await width('now');
+  await page.mouse.move(edge.x, edge.y); await page.mouse.down(); await page.mouse.move(edge.x + 30, edge.y, { steps: 4 }); await page.mouse.up();
+  check(await width('now') === nowW + 30 && (await say()) === 'Now kW resized to ' + (nowW + 30) + 'px.', 'dragging a column edge resizes it', `${nowW} -> ${await width('now')} | ${await say()}`);
+  const edge2 = await page.evaluate(() => { const r = document.querySelector('#assets th[data-col="now"] .resize').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
+  await page.mouse.dblclick(edge2.x, edge2.y);
+  check(await width('now') === nowW, 'double-clicking the edge resets the width', `${await width('now')} vs ${nowW}`);
+  // Persistence and reset.
+  await act('today', 'down'); await page.evaluate(() => { document.getElementById('cols-panel').hidden = true; });
+  const kept = await heads();
+  await page.reload(); await page.evaluate(() => document.fonts.ready);
+  check(JSON.stringify(await heads()) === JSON.stringify(kept), 'the layout persists across a reload', `${(await heads()).join(',')} vs ${kept.join(',')}`);
+  check(await page.evaluate(() => document.getElementById('grid-reset-layout').getAttribute('aria-disabled')) === 'false', 'Reset layout is available once the layout differs');
+  await page.evaluate(() => document.getElementById('grid-reset-layout').click());
+  check((await heads()).length === 9 && (await heads())[2] === 'Location' && (await say()) === 'Layout reset to the default.', 'Reset layout restores the default', `${(await heads()).join(',')} | ${await say()}`);
+  check(await page.evaluate(() => document.getElementById('grid-reset-layout').getAttribute('aria-disabled')) === 'true', 'with the default layout, Reset layout is unavailable');
+  // Edits survive a layout change.
+  await page.focus('#assets tbody td'); await page.keyboard.press('End'); await page.keyboard.press('ArrowLeft'); await page.keyboard.press('Enter'); await page.keyboard.type('33'); await page.keyboard.press('Enter');
+  await page.click('#cols-btn'); await act('today', 'down');
+  check((await page.evaluate(() => document.getElementById('grid-counts').textContent)).includes('1 unsaved'), 'unsaved edits survive a layout change');
+  await ctx.close();
+}
+
+// Large table: virtualized, with the full structure and a measured budget.
+console.log('large table');
+{
+  const page = await open('?theme=light');
+  const st = () => page.evaluate(() => {
+    const a = document.activeElement, tr = a.closest('tr'), tbl = document.getElementById('big');
+    return { in: !!a.closest('#big'), rowIndex: tr ? +tr.getAttribute('aria-rowindex') : -1, col: a.closest('td') ? +a.closest('td').dataset.c : -1, rendered: tbl.tBodies[0].querySelectorAll('tr[data-i]').length,
+      counts: document.getElementById('big-counts').textContent, status: document.getElementById('big-status').textContent, stops: tbl.querySelectorAll('[tabindex="0"]').length,
+      rowcount: tbl.getAttribute('aria-rowcount'), colcount: tbl.getAttribute('aria-colcount'), top: document.getElementById('big-wrap').scrollTop };
+  });
+  const press = async (...keys) => { for (const k of keys) await page.keyboard.press(k); return st(); };
+  let s = await st();
+  check(s.rowcount === '12409' && s.colcount === '4', 'the accessible structure keeps the full counts', JSON.stringify([s.rowcount, s.colcount]));
+  check(s.rendered > 0 && s.rendered <= 40, 'only a few dozen of the 12,408 rows are in the page', String(s.rendered));
+  check(s.stops === 1, 'the table is a single tab stop', String(s.stops));
+  const idx = await page.evaluate(() => [...document.querySelectorAll('#big tbody tr[data-i]')].every(tr => +tr.getAttribute('aria-rowindex') === +tr.dataset.i + 2));
+  check(idx, 'every rendered row carries its true aria-rowindex');
+  await page.focus('#big tbody td'); s = await st();
+  check(s.rowIndex === 2 && s.col === 0 && s.status.startsWith('NAV · Row 1 '), 'focus starts on the first row', JSON.stringify(s));
+  s = await press('Control+End');
+  check(s.rowIndex === 12409 && s.col === 3 && s.status.startsWith('NAV · Row 12,408 ') && s.rendered <= 40, 'Ctrl+End reaches the last row of 12,408 and the page stays small', JSON.stringify(s));
+  check(s.counts.includes('of 12,408'), 'the footer states the window and the total', s.counts);
+  s = await press('Control+Home'); check(s.rowIndex === 2 && s.col === 0 && s.top === 0, 'Ctrl+Home returns to the top', JSON.stringify(s));
+  s = await press('PageDown', 'PageDown'); check(s.rowIndex > 14 && s.in, 'Page Down moves a page and keeps focus in the table', JSON.stringify(s));
+  s = await press('ArrowDown', 'ArrowRight'); check(s.in && s.col === 1, 'arrows keep working after paging', JSON.stringify(s));
+  s = await press('Space'); check(s.counts.includes('1 selected') && s.in, 'Space selects a row without losing focus', s.counts);
+  s = await press('Control+End', 'ArrowUp'); check(s.rowIndex === 12408, 'selection and focus survive scrolling far away and back', JSON.stringify(s));
+  // Wheel scrolling moves the window and keeps a tab stop.
+  await page.evaluate(() => { document.getElementById('big-wrap').scrollTop = 5000 * 40; });
+  await page.waitForTimeout(60); s = await st();
+  check(s.stops === 1 && s.rendered <= 40 && s.counts.startsWith('Rows 5,001–'), 'scrolling by pointer moves the window and keeps one tab stop', JSON.stringify(s));
+
+  // Budget: measured here, in headless Chromium on this machine, which is not a low-end device.
+  await page.evaluate(() => { const w = document.getElementById('big-wrap'); w.scrollTop = 0; });
+  await page.focus('#big tbody td');
+  const lat = await page.evaluate(async () => {
+    const tbl = document.getElementById('big'), frame = () => new Promise(r => requestAnimationFrame(() => setTimeout(r, 0)));   // next frame, then after it has been painted
+    const press = async (key, opts = {}) => {
+      const t0 = performance.now();
+      document.activeElement.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...opts }));
+      const afterHandler = performance.now() - t0;
+      await frame();
+      return { handler: afterHandler, visible: performance.now() - t0 };
+    };
+    const steps = [];
+    for (let i = 0; i < 40; i++) steps.push(await press('ArrowDown'));
+    for (let i = 0; i < 10; i++) steps.push(await press('PageDown'));
+    const recalcs = [];
+    for (let i = 0; i < 20; i++) { const t0 = performance.now(); document.activeElement.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true })); recalcs.push(performance.now() - t0 + 0 * document.getElementById('big-counts').textContent.length); await frame(); }
+    const wrap = document.getElementById('big-wrap'); tbl.__stats.length = 0;
+    for (let y = 0; y < 400; y++) { wrap.scrollTop = y * 997 % (12408 * 40); wrap.dispatchEvent(new Event('scroll')); }
+    return { handler: steps.map(s => s.handler), visible: steps.map(s => s.visible), recalcs, renders: tbl.__stats.slice(), rows: tbl.tBodies[0].querySelectorAll('tr[data-i]').length };
+  });
+  const q = (a, p) => [...a].sort((x, y) => x - y)[Math.min(a.length - 1, Math.floor(a.length * p))];
+  console.log(`  input latency (key to frame): median ${q(lat.visible, 0.5).toFixed(1)}ms, p95 ${q(lat.visible, 0.95).toFixed(1)}ms; handler p95 ${q(lat.handler, 0.95).toFixed(1)}ms; recalculation p95 ${q(lat.recalcs, 0.95).toFixed(1)}ms; window render p95 ${q(lat.renders, 0.95).toFixed(2)}ms over ${lat.renders.length} scroll steps`);
+  check(q(lat.visible, 0.5) < 50, 'budget: input latency, key to visible result, median under 50ms', `${q(lat.visible, 0.5).toFixed(1)}ms`);
+  check(q(lat.visible, 0.95) < 100, 'budget: input latency, 95th percentile under 100ms (absorbs runner noise)', `${q(lat.visible, 0.95).toFixed(1)}ms`);
+  check(q(lat.recalcs, 0.95) < 100, 'budget: recalculation (selection count and footer) under 100ms', `${q(lat.recalcs, 0.95).toFixed(1)}ms`);
+  check(q(lat.renders, 0.95) < 16, 'budget: a scroll step re-renders the window in under one frame (16ms)', `${q(lat.renders, 0.95).toFixed(2)}ms`);
+  check(lat.rows <= 40, 'budget: the page never holds more than 40 rows', String(lat.rows));
+  await shot(page, 'large-table');
   await page.context().close();
 }
 
@@ -409,6 +595,106 @@ console.log('type');
   await page.context().close();
 }
 
+// Settings: staged until Apply, an inert preview, locked settings with an owner, reordering without a pointer, find, scope.
+console.log('settings');
+{
+  const url = q => pathToFileURL(root + 'specimen/settings.html').href + q;
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const page = await ctx.newPage(); await page.goto(url('')); await page.evaluate(() => document.fonts.ready); await page.waitForTimeout(200);
+  const st = () => page.evaluate(() => {
+    const r = document.documentElement, p = document.getElementById('preview'), off = id => document.getElementById(id).getAttribute('aria-disabled') === 'true';
+    return {
+      root: { theme: r.dataset.theme ?? null, density: r.dataset.density ?? null, dir: r.dir, lang: r.lang, trans: r.dataset.reducedTransparency ?? null },
+      prev: { theme: p.dataset.theme, density: p.dataset.density ?? null, dir: p.dir, lang: p.lang, first: p.querySelector('[data-t="live"]').textContent, btn: Math.round(p.querySelector('.btn').getBoundingClientRect().height) },
+      count: document.getElementById('set-count').textContent, countShown: !document.getElementById('set-count').parentElement.hidden, status: document.getElementById('set-status').textContent,
+      apply: off('s-apply'), reset: off('s-reset'), defaults: off('s-defaults'),
+    };
+  });
+  const checked = n => page.evaluate(n => document.querySelector(`input[name="${n}"]:checked`).value, n);
+  const msg = (k) => page.evaluate(k => document.querySelector(`.setting[data-key="${k}"] .field__message span`).textContent, k);
+  const dot = (k) => page.evaluate(k => !document.querySelector(`.setting[data-key="${k}"] .setting__name .mark`).hidden, k);
+  const click = sel => page.evaluate(q => document.querySelector(q).click(), sel);
+  let s = await st();
+  check(s.apply && s.reset && s.defaults && !s.countShown, 'at the defaults, Apply, Reset and Revert are unavailable and nothing is counted', JSON.stringify([s.apply, s.reset, s.defaults]));
+  check(await page.evaluate(() => ['s-apply', 's-reset', 's-defaults'].every(id => { const b = document.getElementById(id); return b.tabIndex >= 0 && !!document.getElementById(b.getAttribute('aria-describedby'))?.textContent.trim(); })), 'each unavailable action is focusable and carries its reason as a description');
+  const base = await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor);
+
+  // Staged: the controls and the preview change, the page does not.
+  await page.check('input[name="theme"][value="dark"]'); await page.check('input[name="density"][value="compact"]'); await page.check('input[name="language"][value="ar"]');
+  s = await st();
+  check(s.root.theme === null && s.root.density === null && s.root.dir === 'ltr' && await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor) === base, 'nothing takes effect on change: the page keeps its theme, density and direction', JSON.stringify(s.root));
+  check(s.prev.theme === 'dark' && s.prev.density === 'compact' && s.prev.dir === 'rtl' && s.prev.lang === 'ar', 'the preview shows the staged theme, density and language', JSON.stringify(s.prev));
+  check(s.prev.first.startsWith('مباشر'), 'the preview is translated into the staged language', s.prev.first);
+  check(s.prev.btn === 28, 'the preview button is compact (28px) while the page is comfortable (36px)', String(s.prev.btn));
+  check(s.count === '3 unsaved' && s.countShown && !s.apply && !s.reset && !s.defaults, 'the apply bar counts the staged settings and enables Apply and Reset', JSON.stringify([s.count, s.apply, s.reset]));
+  check(await dot('theme') && await dot('density') && await dot('language') && !(await dot('warnings')), 'each staged setting carries the unsaved mark; the others do not');
+  check(await msg('theme') === 'Unsaved · was System · applies to your profile on every device', 'a staged setting says what it was and its scope', await msg('theme'));
+  check((await msg('density')).endsWith('applies to this device only') && (await msg('warnings')) === 'Applies to your profile on every device', 'scope is stated per setting: profile or this device only', `${await msg('density')} | ${await msg('warnings')}`);
+  const inert = await page.evaluate(() => { const p = document.getElementById('preview'); return { inert: p.inert, reachable: [...p.querySelectorAll('button, input, a, [tabindex]')].filter(e => e.tabIndex >= 0 && !e.closest('[inert]')).length, described: p.getAttribute('aria-describedby') }; });
+  check(inert.inert && inert.reachable === 0, 'the preview is inert: no control in it can be reached or operated', JSON.stringify(inert));
+
+  // Reset discards; Apply writes.
+  await click('#s-reset'); s = await st();
+  check(s.status === 'Reset: 3 unsaved settings discarded.' && (await checked('theme')) === 'system' && s.prev.dir === 'ltr' && !s.countShown, 'Reset discards every staged setting and the preview follows', JSON.stringify([s.status, s.prev.dir]));
+  await page.check('input[name="theme"][value="dark"]'); await page.check('input[name="density"][value="compact"]'); await page.check('input[name="language"][value="ar"]');
+  await click('#s-apply'); s = await st();
+  check(s.status === 'Applied 3 settings.' && s.root.theme === 'dark' && s.root.density === 'compact' && s.root.dir === 'rtl' && s.root.lang === 'ar', 'Apply makes the staged settings take effect, and says how many', JSON.stringify([s.status, s.root]));
+  check(!s.countShown && s.apply && s.reset, 'after Apply nothing is unsaved');
+  await page.reload(); await page.evaluate(() => document.fonts.ready); s = await st();
+  check(s.root.theme === 'dark' && s.root.density === 'compact' && s.root.dir === 'rtl' && (await checked('theme')) === 'dark' && (await checked('language')) === 'ar', 'applied settings persist across a reload', JSON.stringify(s.root));
+  check(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth) <= 0, 'the page applied in Arabic, dark and compact has no sideways scrolling');
+  await page.addStyleTag({ content: '.applybar--page { position: static; }' });
+  await shot(page, 'settings-dark-rtl');
+
+  // Revert to defaults stages them; it does not apply them.
+  await click('#s-defaults'); s = await st();
+  check(s.status === 'Staged the defaults. Apply to use them.' && s.root.theme === 'dark' && s.count === '3 unsaved' && s.defaults, 'Revert to defaults stages the defaults without applying them, then is unavailable', JSON.stringify([s.status, s.root.theme, s.count, s.defaults]));
+  await click('#s-defaults'); s = await st(); check(s.status === 'Already at the defaults.', 'an unavailable action says why when activated', s.status);
+  await click('#s-apply'); s = await st(); check(s.root.theme === null && s.root.density === null && s.root.dir === 'ltr', 'applying the defaults restores the default page', JSON.stringify(s.root));
+
+  // Locked setting: visible, with reason and owner, and no way to edit it.
+  const lock = await page.evaluate(() => { const l = document.querySelector('.setting--locked'); return { controls: l.querySelectorAll('input, select, textarea').length, text: l.textContent, request: !!l.querySelector('#request') }; });
+  check(lock.controls === 0 && lock.text.includes('Always on') && lock.text.includes('Site policy') && lock.text.includes('H. Tazi, operations lead'), 'a locked setting stays visible with its reason and owner and has no editable control', JSON.stringify(lock));
+  await click('#request'); check((await st()).status === 'Change requested from H. Tazi, operations lead.', 'requesting a change is announced');
+
+  // Reordering without a pointer.
+  const order = () => page.evaluate(() => [...document.querySelectorAll('#order .order__row')].map(r => r.dataset.id));
+  check((await order()).join() === 'alerts,readings,table', 'the panels start in their default order');
+  check(await page.evaluate(() => document.getElementById('up-alerts').getAttribute('aria-disabled') === 'true' && !!document.getElementById(document.getElementById('up-alerts').getAttribute('aria-describedby')).textContent), 'the first panel cannot move up, and says why');
+  await page.focus('#up-readings'); await page.keyboard.press('Enter'); s = await st();
+  check((await order()).join() === 'readings,alerts,table' && s.status === 'Readings moved to position 1.', 'Enter on a labelled Up button moves the panel and announces its new position', `${(await order()).join()} | ${s.status}`);
+  check(await page.evaluate(() => document.activeElement.id) === 'up-readings', 'focus stays on the button that was used');
+  check(await dot('order') && (await msg('order')).startsWith('Unsaved · was Alerts, Readings, Table'), 'a reorder is a staged setting like any other', await msg('order'));
+  await page.evaluate(() => document.getElementById('down-readings').click()); await page.evaluate(() => document.getElementById('down-readings').click());
+  check((await order()).join() === 'alerts,table,readings' && (await st()).status === 'Readings moved to position 3.', 'Down moves the panel back and further', (await order()).join());
+  await click('#s-reset');
+
+  // Find.
+  const vis = () => page.evaluate(() => ({ settings: [...document.querySelectorAll('.setting:not([hidden])')].map(e => e.dataset.key), groups: [...document.querySelectorAll('[data-group]:not([hidden])')].length, status: document.getElementById('find-status').textContent }));
+  await page.fill('#find', 'density'); let v = await vis();
+  check(v.settings.join() === 'density' && v.groups === 1 && v.status === 'Showing 1 of 7 settings.', 'Find filters settings, hides a group with no match and says how many remain', JSON.stringify(v));
+  await page.fill('#find', 'owner'); v = await vis(); check(v.settings.join() === 'critical', 'Find also matches a setting\'s owner and reason', JSON.stringify(v));
+  await page.fill('#find', 'zzz'); v = await vis(); check(v.settings.length === 0 && v.groups === 0 && v.status === 'No settings match "zzz".', 'when nothing matches it says so', JSON.stringify(v));
+  await page.fill('#find', ''); v = await vis(); check(v.settings.length === 7 && v.groups === 4 && v.status === '', 'clearing the search restores every group');
+  await page.check('input[name="theme"][value="outdoor"]'); await page.fill('#find', 'language');
+  check((await st()).count === '1 unsaved', 'a staged setting stays staged while Find hides it');
+  await page.fill('#find', ''); await click('#s-reset');
+
+  // The page itself: painted text and targets.
+  await page.waitForTimeout(300);   // let the 140ms colour transitions of the last action settle before measuring
+  const texts = await page.evaluate(measureText); let worst = { ratio: 99 };
+  for (const t of texts) { const min = t.large ? 3 : 4.5; if (t.ratio < worst.ratio) worst = t; check(Math.round(t.ratio * 100) >= min * 100, `settings text contrast >= ${min}`, `${t.ratio.toFixed(2)} "${t.text}"`); }
+  console.log(`  ${texts.length} text runs measured, lowest ${worst.ratio.toFixed(2)} ("${worst.text}")`);
+  const targets = await page.evaluate(() => [...document.querySelectorAll('button, input, a[href]')].filter(e => !e.closest('[hidden], [inert]')).map(e => ({ n: (e.textContent.trim() || e.id || e.name).slice(0, 24), h: Math.round((e.closest('label.choice') ?? e.closest('.field__control') ?? e).getBoundingClientRect().height) })).filter(t => t.h < 36));
+  check(targets.length === 0, 'every control on the settings page is at least 36px high', JSON.stringify(targets));
+  await page.addStyleTag({ content: '.applybar--page { position: static; }' });   // a sticky bar floats mid-page in a stitched full-page capture
+  await shot(page, 'settings');
+  await ctx.close();
+  const dctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, colorScheme: 'dark' }); const dp = await dctx.newPage(); await dp.goto(url('')); await dp.evaluate(() => document.fonts.ready);
+  check(await dp.evaluate(() => document.getElementById('preview').dataset.theme) === 'dark', 'with the theme set to System, the preview follows the system preference');
+  await dctx.close();
+}
+
 // Glass: frosted on screen, solid in outdoor and with reduced transparency.
 console.log('\nglass');
 {
@@ -490,6 +776,10 @@ console.log('print');
   check(p.shadow === 'none' && p.blur === 'none', 'print has no shadows and no glass');
   check(p.rail === 'none', 'navigation is not printed');
   check(p.edge === 3, 'state edges are printed');
+  const pr = await page.evaluate(() => ({ height: document.documentElement.scrollHeight, big: getComputedStyle(document.getElementById('big-wrap')).display, note: getComputedStyle(document.querySelector('.print-note')).display, panel: getComputedStyle(document.querySelector('.table-bar')).display }));
+  check(pr.height < 20000, 'a virtualized table does not make the printed page tens of thousands of pixels tall', `${pr.height}px`);
+  check(pr.big === 'none' && pr.note === 'block', 'the large table is not printed, and the page says why', JSON.stringify(pr));
+  check(pr.panel === 'none', 'table controls are not printed', pr.panel);
   await shot(page, 'print');
   await page.context().close();
 }
@@ -501,7 +791,7 @@ console.log('zoom 200%');
   const z = await page.evaluate(() => ({
     sideways: document.documentElement.scrollWidth - document.documentElement.clientWidth,
     clipped: [...document.querySelectorAll('.state-label, .metric__value, .btn, .field__message, .reading span, .type p, .table-foot span, h1, h2, h3')]
-      .filter(el => el.scrollWidth > el.clientWidth + 1 || el.getBoundingClientRect().right > innerWidth + 1).map(el => el.textContent.trim().slice(0, 30)),
+      .filter(el => el.scrollWidth > el.clientWidth + 1 || (el.getBoundingClientRect().right > innerWidth + 1 && !el.closest('.table-wrap'))).map(el => el.textContent.trim().slice(0, 30)),
   }));
   check(z.sideways <= 0, 'no sideways scrolling', `${z.sideways}px`);
   check(z.clipped.length === 0, 'no clipped labels', z.clipped.join(' | '));

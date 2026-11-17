@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Realis Aero settings</title>
+<link rel="stylesheet" href="../fonts/realis-aero.fonts.css">
+<link rel="stylesheet" href="../tokens/realis-aero.tokens.css">
+<link rel="stylesheet" href="specimen.css">
+<script>
+  // Apply the saved settings before first paint, so there is no flash of the wrong theme.
+  (function () {
+    try {
+      var s = JSON.parse(localStorage.getItem('ra.settings')) || {}, r = document.documentElement;
+      if (s.theme && s.theme !== 'system') r.dataset.theme = s.theme;
+      if (s.density && s.density !== 'auto') r.dataset.density = s.density;
+      if (s.transparency) r.dataset.reducedTransparency = 'true';
+      if (s.language) { r.lang = s.language; r.dir = s.language === 'ar' ? 'rtl' : 'ltr'; }
+    } catch (e) { /* no storage: defaults */ }
+  })();
+</script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="m-live" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="2.6" fill="currentColor"/></symbol>
+    <symbol id="m-paused" viewBox="0 0 16 16"><rect x="3.5" y="3" width="3" height="10" rx="0.5" fill="currentColor"/><rect x="9.5" y="3" width="3" height="10" rx="0.5" fill="currentColor"/></symbol>
+    <symbol id="m-stale" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M8 4.6V8l2.4 1.6"/></g></symbol>
+    <symbol id="m-offline" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6"/><path d="M3.8 3.8l8.4 8.4"/></g></symbol>
+    <symbol id="m-degraded" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2a6 6 0 0 0 0 12z" fill="currentColor"/></symbol>
+    <symbol id="m-maintenance" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M8 1.6l5.5 3.2v6.4L8 14.4l-5.5-3.2V4.8z"/><circle cx="8" cy="8" r="2.2"/></g></symbol>
+    <symbol id="m-success" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M5.2 8.3l2 2 3.6-4.3"/></g></symbol>
+    <symbol id="m-uncertain" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6" stroke-dasharray="2 2.2"/><path d="M6.4 6.5a1.7 1.7 0 1 1 2.5 1.5c-.6.4-.9.7-.9 1.4"/></g><circle cx="8" cy="11.5" r="0.9" fill="currentColor"/></symbol>
+    <symbol id="m-error" viewBox="0 0 16 16"><path fill="currentColor" fill-rule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM7.2 4h1.6v5H7.2zM8 10.3a1.1 1.1 0 1 0 0 2.2 1.1 1.1 0 0 0 0-2.2z"/></symbol>
+    <symbol id="m-warning" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.2l6.3 11.3H1.7z"/><path d="M8 6.6v3.2"/></g><circle cx="8" cy="11.6" r="0.9" fill="currentColor"/></symbol>
+    <symbol id="m-info" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6"/><path d="M8 7.4v3.8"/></g><circle cx="8" cy="5" r="0.9" fill="currentColor"/></symbol>
+    <symbol id="m-dirty" viewBox="0 0 16 16"><circle cx="8" cy="8" r="3.2" fill="currentColor"/></symbol>
+    <symbol id="m-queued" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 11V3.4M4.8 6.4L8 3.2l3.2 3.2M3.5 13.5h9"/></g></symbol>
+      <symbol id="m-lock" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="3.5" y="7" width="9" height="6.5" rx="1"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></g></symbol>
+  </defs>
+</svg>
+
+<div class="app">
+  <nav class="rail" aria-label="Sections">
+    <div class="rail__brand">Realis Aero</div>
+    <div class="rail__section">Specimen</div>
+    <a href="index.html">States and tables</a>
+    <a href="settings.html" aria-current="page">Settings</a>
+  </nav>
+
+  <main class="canvas">
+    <div class="topbar">
+      <div>
+        <h1>Settings</h1>
+        <p class="secondary small">Nothing takes effect until you apply it. Locked settings show who owns them.</p>
+      </div>
+      <div class="field" style="min-width:260px">
+        <label class="field__label" for="find">Find a setting</label>
+        <div class="field__control"><input id="find" type="search" placeholder="Try &ldquo;density&rdquo; or &ldquo;language&rdquo;" autocomplete="off"></div>
+        <span class="field__message" id="find-status" role="status"></span>
+      </div>
+    </div>
+
+    <div class="settings-grid">
+      <div class="section" id="groups">
+        <section class="card" data-group aria-labelledby="g-display">
+          <header class="group__head"><h2 id="g-display">Display</h2></header>
+        <div class="setting" data-key="theme" data-text="theme appearance light dark outdoor system colour">
+          <div class="setting__head"><span class="setting__name" id="s-theme-l">Theme <svg class="mark" aria-hidden="true" hidden><use href="#m-dirty"/></svg></span><span class="caption muted" id="s-theme-d">Light, dark or outdoor. System follows your device.</span></div>
+          <fieldset class="setting__control" aria-labelledby="s-theme-l" aria-describedby="s-theme-d s-theme-m">
+            <label class="choice"><input type="radio" name="theme" value="system"> <span>System</span></label>
+            <label class="choice"><input type="radio" name="theme" value="light"> <span>Light</span></label>
+            <label class="choice"><input type="radio" name="theme" value="dark"> <span>Dark</span></label>
+            <label class="choice"><input type="radio" name="theme" value="outdoor"> <span>Outdoor</span></label>
+          </fieldset>
+          <span class="field__message" id="s-theme-m"><span></span></span>
+        </div>
+        <div class="setting" data-key="density" data-text="density spacing compact comfortable touch size rows">
+          <div class="setting__head"><span class="setting__name" id="s-density-l">Density <svg class="mark" aria-hidden="true" hidden><use href="#m-dirty"/></svg></span><span class="caption muted" id="s-density-d">How much room rows and controls take. Automatic uses touch on touch screens.</span></div>
+          <fieldset class="setting__control" aria-labelledby="s-density-l" aria-describedby="s-density-d s-density-m">
+            <label class="choice"><input type="radio" name="density" value="auto"> <span>Automatic</span></label>
+            <label class="choice"><input type="radio" name="density" value="comfortable"> <span>Comfortable</span></label>
+            <label class="choice"><input type="radio" name="density" value="compact"> <span>Compact</span></label>
+            <label class="choice"><input type="radio" name="density" value="touch"> <span>Touch</span></label>
+          </fieldset>
+          <span class="field__message" id="s-density-m"><span></span></span>
+        </div>
+        <div class="setting" data-key="transparency" data-text="transparency glass blur solid accessibility">
+          <div class="setting__head"><span class="setting__name" id="s-transparency-l">Reduced transparency <svg class="mark" aria-hidden="true" hidden><use href="#m-dirty"/></svg></span><span class="caption muted" id="s-transparency-d">Replaces glass with solid surfaces.</span></div>
+          <label class="choice setting__control"><input type="checkbox" id="in-transparency" aria-labelledby="s-transparency-l" aria-describedby="s-transparency-d s-transparency-m"> <span>Reduce transparency</span></label>
+          <span class="field__message" id="s-transparency-m"><span></span></span>
+        </div>
+        </section>
+
+        <section class="card" data-group aria-labelledby="g-language">
+          <header class="group__head"><h2 id="g-language">Language</h2></header>
+        <div class="setting" data-key="language" data-text="language english french arabic right to left direction">
+          <div class="setting__head"><span class="setting__name" id="s-language-l">Language <svg class="mark" aria-hidden="true" hidden><use href="#m-dirty"/></svg></span><span class="caption muted" id="s-language-d">Right to left follows from the language.</span></div>
+          <fieldset class="setting__control" aria-labelledby="s-language-l" aria-describedby="s-language-d s-language-m">
+            <label class="choice"><input type="radio" name="language" value="en"> <span>English</span></label>
+            <label class="choice"><input type="radio" name="language" value="fr"> <span>Français</span></label>
+            <label class="choice"><input type="radio" name="language" value="ar"> <span>العربية</span></label>
+          </fieldset>
+          <span class="field__message" id="s-language-m"><span></span></span>
+        </div>
+        </section>
+
+        <section class="card" data-group aria-labelledby="g-workspace">
+          <header class="group__head"><h2 id="g-workspace">Workspace</h2></header>
+        <div class="setting" data-key="order" data-text="panel order workspace home screen move reorder">
+          <div class="setting__head"><span class="setting__name" id="s-order-l">Panel order <svg class="mark" aria-hidden="true" hidden><use href="#m-dirty"/></svg></span><span class="caption muted" id="s-order-d">The order of the panels on your home screen.</span></div>
+          <ol class="order setting__control" id="order" aria-labelledby="s-order-l" aria-describedby="s-order-d s-order-m"></ol>
+          <span class="field__message" id="s-order-m"><span></span></span>
+        </div>
+        </section>
+
+        <section class="card" data-group aria-labelledby="g-alerts">
+          <header class="group__head"><h2 id="g-alerts">Alerts</h2></header>
+        <div class="setting" data-key="warnings" data-text="alerts warnings notify notifications">
+          <div class="setting__head"><span class="setting__name" id="s-warnings-l">Notify on warnings <svg class="mark" aria-hidden="true" hidden><use href="#m-dirty"/></svg></span><span class="caption muted" id="s-warnings-d">Warnings notify as well as critical alerts.</span></div>
+          <label class="choice setting__control"><input type="checkbox" id="in-warnings" aria-labelledby="s-warnings-l" aria-describedby="s-warnings-d s-warnings-m"> <span>Notify on warnings</span></label>
+          <span class="field__message" id="s-warnings-m"><span></span></span>
+        </div>
+          <div class="setting setting--locked" data-key="critical" data-text="critical alerts notify always on site policy locked owner">
+            <div class="setting__head"><span class="setting__name" id="s-critical-l">Critical alerts notify</span><span class="caption muted" id="s-critical-d">Critical alerts always notify, and group into one notification during a flood.</span></div>
+            <span class="state-label setting__control" data-state="info" id="s-critical-v"><svg class="mark" aria-hidden="true"><use href="#m-lock"/></svg><span>Always on</span></span>
+            <span class="field__message" id="s-critical-m"><svg class="mark" aria-hidden="true"><use href="#m-info"/></svg><span>Site policy &middot; Owned by H. Tazi, operations lead</span> <button class="btn btn--secondary" type="button" id="request">Request a change</button></span>
+          </div>
+        </section>
+      </div>
+
+      <aside class="settings-aside" aria-labelledby="h-preview">
+        <h2 id="h-preview">Preview</h2>
+        <p class="caption muted" id="preview-note">Shows the staged theme, density and language. It is a picture, not controls.</p>
+        <div class="preview" id="preview" inert aria-describedby="preview-note">
+          <span class="state-label" data-state="live"><svg class="mark" aria-hidden="true"><use href="#m-live"/></svg><span data-t="live">Live &middot; 14:02:31</span></span>
+          <div class="card metric" data-state="degraded"><span class="state-label"><svg class="mark" aria-hidden="true"><use href="#m-degraded"/></svg><span data-t="degraded">Degraded &middot; 71% of expected</span></span><span class="metric__name" data-t="name">Heat pump 2</span><span class="metric__value">5.1 <span class="metric__unit">kW</span></span></div>
+          <div class="field" data-state="dirty"><span class="field__label"><span data-t="setpoint">Setpoint</span> <svg class="mark" aria-hidden="true"><use href="#m-dirty"/></svg></span><div class="field__control"><input value="21.5" tabindex="-1" aria-hidden="true" readonly><span class="field__unit">&deg;C</span></div></div>
+          <div class="list card"><div class="list__item" aria-selected="true" role="option"><span data-t="row">Inverter 2</span><span class="state-label" data-state="maintenance"><svg class="mark" aria-hidden="true"><use href="#m-maintenance"/></svg><span data-t="maintenance">Maintenance</span></span></div></div>
+          <div class="actions"><button class="btn btn--primary" type="button" tabindex="-1" data-t="apply">Apply</button><button class="btn btn--secondary" type="button" tabindex="-1" data-t="cancel">Cancel</button></div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="applybar applybar--page">
+      <div class="applybar__counts">
+        <span class="state-label" data-state="dirty" hidden><svg class="mark" aria-hidden="true"><use href="#m-dirty"/></svg><span id="set-count">0 unsaved</span></span>
+        <span class="caption" id="set-status" role="status">No changes. Applies to your profile unless a setting says this device only.</span>
+      </div>
+      <button class="btn btn--primary" id="s-apply" type="button">Apply</button>
+      <button class="btn btn--secondary" id="s-reset" type="button">Reset</button>
+      <button class="btn btn--secondary" id="s-defaults" type="button">Revert to defaults</button>
+    </div>
+  </main>
+</div>
+<script src="settings.js"></script>
+</body>
+</html>

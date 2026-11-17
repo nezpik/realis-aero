@@ -18,7 +18,16 @@
   var plural = function (n, w) { return n + ' ' + w + (n === 1 ? '' : 's'); };
   function record(label) { history.push({ label: label + ' · ' + stamp(), committed: copy(committed), queued: copy(queued) }); }
   function say(text) { $('layers-status').textContent = text; }
-  function setDisabled(btn, off, why) { btn.setAttribute('aria-disabled', String(off)); if (off) btn.dataset.why = why; else delete btn.dataset.why; }
+  // A disabled control stays focusable and its reason is its description, not only a message after a click.
+  function setDisabled(btn, off, why) {
+    btn.setAttribute('aria-disabled', String(off));
+    var id = 'why-' + btn.id, el = document.getElementById(id);
+    if (off) {
+      btn.dataset.why = why;
+      if (!el) { el = document.createElement('span'); el.id = id; el.className = 'sr-only'; btn.after(el); }
+      el.textContent = why; btn.setAttribute('aria-describedby', id);
+    } else { delete btn.dataset.why; btn.setAttribute('aria-describedby', 'layers-status'); if (el) el.remove(); }
+  }
 
   // While the user types, the field they are in is left alone; after an action every field is redrawn.
   function render(typing) {

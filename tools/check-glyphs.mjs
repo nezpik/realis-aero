@@ -21,10 +21,13 @@ const faces = {
 
 const browser = await chromium.launch();
 let failed = 0, checked = 0;
-for (const theme of ['light', 'dark', 'outdoor']) {
+const PAGES = [['index.html', '?theme=light'], ['index.html', '?theme=dark'], ['index.html', '?theme=outdoor'], ['settings.html', '']];
+for (const [file, query] of PAGES) {
+  const theme = file + query;
   const page = await browser.newPage();
-  await page.goto(pathToFileURL(root + 'specimen/index.html').href + `?theme=${theme}`);
+  await page.goto(pathToFileURL(root + 'specimen/' + file).href + query);
   await page.evaluate(() => document.fonts.ready);
+  if (file === 'settings.html') for (const lang of ['fr', 'ar']) { await page.check(`input[name="language"][value="${lang}"]`); await page.evaluate(() => document.fonts.ready); }
   // Characters per computed first font family (mono vs sans), as drawn.
   const drawn = await page.evaluate(() => {
     const out = {};

@@ -14,7 +14,9 @@ v0.5 adds the mechanics that dense and long-running products need. As in v0.4, e
 - **Layered state, undo and offline**: baseline, committed, queued and draft layers; Apply, Reset, Revert and Undo; offline as a whole-surface state; conflicts shown, not overwritten. See [Layered State, Undo and Offline](#layered-state-undo-and-offline).
 - **Typography as engineering**: bundled open-licensed faces (Source Sans 3, Source Code Pro, Noto Sans Arabic), tabular digits and real weights proven by checks, and a check that every character drawn is covered by a bundled face. See [Font Stack](#font-stack).
 - **Right to left**: the layout mirrors through logical properties, and numbers and dates are isolated. See [Internationalization and Right to Left](#internationalization-and-right-to-left).
-- **Smaller sections**: [Performance](#performance), [Settings and Personalization](#settings-and-personalization), [Measuring Success](#measuring-success), and zoom in [Accessibility](#accessibility).
+- **The table model, completed**: range selection, copy and paste with a preview, column visibility, order and width with a keyboard alternative for every pointer action, middle truncation of paths, and a virtualized table of 12,408 rows with a measured budget. See [Tables & Data Grids](#tables--data-grids).
+- **A settings screen**: staged until Apply, an inert preview, locked settings with their owner, reordering without a pointer, find and stated scope. See [Settings and Personalization](#settings-and-personalization).
+- **Smaller sections**: [Performance](#performance), [Measuring Success](#measuring-success), and zoom in [Accessibility](#accessibility).
 
 Building the checks found defects, corrected here:
 
@@ -22,7 +24,9 @@ Building the checks found defects, corrected here:
 - **Charts clipped their labels in right-to-left pages**, because SVG text anchors follow the page direction while the chart's geometry does not. Charts now keep their own direction.
 - **The 44px input height** made every desktop form and table taller than the work needs. 44px is now the touch density; comfortable is 36px and compact 28px.
 - **Frutiger is a commercial face** that was first in the stack, so a device without it silently drew something else. The stack now leads with a bundled face.
-- **The disabled reasons were not reachable** on the new layer controls until each action was given an `aria-disabled` state and a status line to read its reason from.
+- **The reason an action was unavailable was a message after a click**, not something a screen reader could find first. Every unavailable action now carries its reason as its description, and still announces it when activated.
+- **A virtualized table cannot be printed.** In print, the large table's spacer rows made the page about 500,000px tall, thousands of blank pages. The large table is now left out of print, and the page says why.
+- **A plain click on a column edge rebuilt the header**, destroying the element before a double click could land on it. A pointer action that changes nothing must not re-render the control under the pointer.
 
 ## What Changed in v0.4
 
@@ -721,7 +725,7 @@ baseline  →  committed  →  queued  →  draft
 
 - **Nothing takes effect on change.** Editing creates a draft; only Apply writes.
 - **The apply bar is persistent**: counts of unsaved and queued changes (shown only when above zero), the four actions, and a status line, so the state of the work is visible without opening anything.
-- **An unavailable action explains itself.** All four use `aria-disabled` rather than the native attribute, so they stay focusable, and each is tied to the polite status line, which gives the reason ("Nothing to apply: no unsaved changes.") when the action is activated.
+- **An unavailable action explains itself.** All four use `aria-disabled` rather than the native attribute, so they stay focusable. The reason is the control's description ("Nothing to apply: no unsaved changes."), and it is announced in the polite status line when the action is activated.
 - **Recent named changes are listed** (the last three), so Undo is never a guess.
 - **Every result is announced** in the status line: "Applied 2 changes.", "Reset: 1 unsaved change discarded.", "Reverted to the values that were opened."
 
@@ -737,7 +741,7 @@ Offline is a state of the whole surface, never a surprise.
 
 ### Partial Failure
 
-For bulk or multi-step operations, report the outcome as counts with a way to review and retry the failures ("142 of 150 saved; 8 failed · Review"). The sync result above is the one example in the specimen; bulk operations over a table are not yet demonstrated.
+For bulk or multi-step operations, report the outcome as counts with a way to review and retry the failures ("142 of 150 saved; 8 failed · Review"). Two examples are in the specimen: the sync result above, and a paste that applies some values and skips others (see [Copy and Paste](#copy-and-paste)). Bulk edits over a whole table, with retry, are not yet demonstrated.
 
 ## Themes and Modes
 
@@ -913,49 +917,97 @@ Charts should be clear first, atmospheric second.
 
 ### Tables & Data Grids
 
-Tables are where Realis Aero's promise of "measured, not decorative" is tested hardest. The specimen's table is [`specimen/index.html#table`](specimen/index.html), and its behaviour is in [`specimen/grid.js`](specimen/grid.js).
+Tables are where Realis Aero's promise of "measured, not decorative" is tested hardest. The specimen's table is [`specimen/index.html#table`](specimen/index.html), rendered from a small model by [`specimen/grid.js`](specimen/grid.js); the large table is [`specimen/bigtable.js`](specimen/bigtable.js).
 
 #### Anatomy
 
 | Element | Specification |
 |---|---|
-| **Header** | Inset surface, sticky, uppercase caption. A first row names the **column groups** (Output, Health, Control); the second names the columns. Groups are separated by a card-tone rule. |
-| **Key column** | The identifying column (asset, record, person) is frozen at the inline start and stays in view when the table scrolls sideways. It also holds the marker slot. |
+| **Toolbar** | Above the table: **Columns**, **Reset layout** and **Discard unsaved**, and a polite status line that announces what each action did. |
+| **Header** | Inset surface, sticky, uppercase caption. A first row names the **column groups** (Identity, Output, Health, Control); the second names the columns. A group with no visible column loses its header. |
+| **Key column** | The identifying column is frozen at the inline start, stays in view when the table scrolls sideways, and always shows. It also holds the marker slot. |
 | **Marker slot** | A fixed one-mark-wide slot before the key, on every row, so names align whether or not a row has a state (see [Live Values and Data Quality](#live-values-and-data-quality)). |
 | **Rows** | One height in each density (`density-row-h`), a card-tone hairline between rows, hover on `surface-hover`. |
-| **Numbers** | Aligned to the end of the cell, tabular, with the unit in the column header rather than repeated in every cell. |
+| **Numbers** | Aligned to the end of the cell, tabular and isolated for right to left, with the unit in the column header rather than repeated in every cell. |
+| **Paths and IDs** | Truncated in the middle: see [Truncation](#truncation). |
 | **State** | A text label in its state colour with the mark in the slot; the row's edge is a real border only where the state has one. |
 | **Selected row** | `surface-selected` with the 3px leading bar; muted text re-points as elsewhere. |
+| **Range** | Every cell of a range has the selected fill **and** its own 1px outline, so a range inside selected rows does not vanish. |
 | **Editable cells** | Identified by structure: a surface fill with a control edge, inset in the cell, while read-only and computed cells have neither. |
-| **Footer** | Always states the limit, the selection, the unsaved edits and the sort: "Showing 8 of 1,240 · 1 selected · 0 unsaved · sorted by Asset (ascending)". A status line shows the mode and position: "NAV · Heat pump 2 · Control › Limit kW". |
+| **Footer** | Always states the limit, the selection, the unsaved edits, the sort and the range: "Showing 8 of 1,240 · 1 selected · 0 unsaved · sorted by Asset (ascending) · range 2 × 2". A status line shows the mode and position: "NAV · Heat pump 2 · Control › Limit kW". |
 
 #### Keyboard Model
 
-The grid is a single tab stop with a roving `tabindex`; focus moves inside it with the keys below. This is the WAI-ARIA grid pattern with spreadsheet conventions for editing.
+The grid is a single tab stop with a roving `tabindex`; focus moves inside it with the keys below. This is the WAI-ARIA grid pattern with spreadsheet conventions for editing and selecting.
 
 | Key | Navigation mode | Edit mode |
 |---|---|---|
 | Arrow keys | Move one cell. Up from the first row reaches the header. | Stay in the field |
+| Shift+Arrow keys | Extend a cell range from where it started | — |
 | Home / End | First / last cell in the row | — |
 | Ctrl+Home / Ctrl+End | First / last cell in the table | — |
 | Page Up / Page Down | Move a page of rows | — |
-| Enter or F2 | Start editing an editable cell; **sort** when on a sortable header | Commit and move down |
-| Escape | — | Cancel and restore the value |
+| Enter or F2 | Start editing an editable cell; **sort** when on a sortable header (ascending, then descending) | Commit and move down |
+| Escape | Clear the range | Cancel and restore the value |
 | Space | Select or deselect the row | Type a space |
+| Shift+Space | Select every row from the last toggled row to the active one | Type a space |
+| Ctrl+C | Copy the range, or the active cell | Copy text in the field |
+| Ctrl+V | Open a paste preview at the active cell | Paste text into the field |
 | Tab / Shift+Tab | Leave the grid | Commit and move to the next / previous editable cell |
 
-- **Every state is announced with the cell.** An edited cell exposes "Unsaved, was 30.0" as its description; a sorted header exposes `aria-sort`; the footer states the sort in words.
-- **The active cell stays visible when focus is elsewhere**, as a dashed outline in the control tone, so the user can always see where they are.
-- **Typing the original value back clears the unsaved mark**: unsaved means different from the layer below, not "touched".
+- **Every state is announced with the cell.** An edited cell exposes "Unsaved, was 40.0" as its description; a sorted header exposes `aria-sort`; a range is exposed with `aria-selected` on each of its cells; the footer states the sort and the range in words.
+- **The active cell stays visible when focus is elsewhere**, as a dashed outline in the control tone.
+- **Unsaved means different from the layer below.** Typing the original value back clears the mark.
+- **An invalid value is refused with its reason** ("Not applied: "abc" is not a number from 0 to 100.") and nothing changes.
 - **Pointer follows the same model**: a click makes a cell active, a click on a sortable header sorts, a double click edits.
-- **Not yet specified**: range selection (Shift+Arrow, Shift+Space), copy and paste of ranges, and column visibility, reorder and resize. These are on the next-steps list.
+
+#### Range Selection
+
+Shift+Arrow extends a rectangular range from the cell it started on; the active cell is the end the range last moved to. Escape or any move without Shift clears it. The footer counts it ("range 2 × 2"). Ranges are for copying and for reading a block of values: only the active cell is edited.
+
+#### Copy and Paste
+
+- **Copy** puts the range, or the active cell, on the clipboard as tab-separated text with no headers, and announces "Copied 2 × 2 cells." or "Copied 1 cell."
+- **Paste never writes at once.** It opens a **preview** below the table and moves focus into it: "Paste preview · 3 changes, 3 skipped". Each change is listed as *before → after* ("Heat pump 2 · Limit kW: 8.0 → 10.0"); each skipped value is listed with its reason ("Last service: read-only", ""abc" is not a number from 0 to 100", "Outside the table").
+- **The block is anchored at the active cell** and fills right and down. Read-only cells and invalid values are skipped, not guessed at; the rest still apply.
+- **Apply paste** writes the values as unsaved changes and announces the outcome ("Pasted 3 values as unsaved changes. 3 skipped."). **Cancel** or **Escape** changes nothing and returns focus to the cell. When every value is skipped, Apply is unavailable and says why.
+- **Pasted values are drafts.** They get the unsaved mark and the footer counts them; **Discard unsaved** restores every one.
+
+#### Columns
+
+Visibility, order and width are **view state**: they take effect at once, persist for the user, and have a **Reset layout**. This is unlike the [settings](#settings-and-personalization) that reshape the whole interface (theme, density, language), which are staged until Apply. The difference is consequence: a hidden column is one click from back; a changed theme is a change to everything.
+
+- **Show or hide** with a checkbox per column. The status line says what happened ("Location hidden. 8 of 9 columns shown.").
+- **Reorder with Up and Down**, within the column's group. At the edge of a group the move explains itself ("Today kWh is already first in Output. Columns move within their group.") instead of doing nothing. Groups stay together so their headers stay meaningful.
+- **Resize by dragging** a column edge; **double-click resets** it to the default width. Every pointer action has a keyboard alternative: **Narrower** and **Wider** change the width by 16px, between 64 and 480px, and announce the result.
+- **The key column is protected**: its controls are `aria-disabled`, so they stay focusable, and they explain why ("Asset is the key column: always shown, in place, and its width is fixed.").
+- **The layout persists** across a reload and survives edits: unsaved values stay when columns move.
+- **Reset layout** is unavailable while the layout is the default, and says so.
+- **The drag handle is not the only way**, so its small size does not make resizing pointer-only (WCAG 2.5.8 accepts an equivalent control).
+
+#### Truncation
+
+- **Identifiers and paths truncate in the middle.** The start gives way with an ellipsis and the identifying tail stays whole ("CA-DC/Roof/Array…4/INV-1-0412"). Paths and identifiers stay left to right in a mirrored page.
+- **The full text is always reachable**: it is the cell's text for assistive technology, the hover title, and, when the cell is focused, the end of the status line.
+- **Nothing that affects a decision is ever truncated**: numbers, states and limits never give way. The render check proves no such cell clips; only paths do.
+- **Domain labels** use an approved abbreviation list rather than arbitrary clipping. The specimen has none to show.
+
+#### Large Tables
+
+A table of thousands of rows cannot put them all in the page. [`specimen/bigtable.js`](specimen/bigtable.js) renders 12,408 rows with about twenty in the DOM.
+
+- **The full structure stays accessible**: `aria-rowcount` and `aria-colcount` give the true size, every rendered row carries its true `aria-rowindex`, and the table is a single tab stop whose keyboard model works across the whole range (Ctrl+End reaches row 12,408).
+- **Selection and focus survive scrolling** far away and back.
+- **The footer states the window and the total**: "Rows 5,001–5,009 of 12,408 · 21 in the page · 1 selected".
+- **Scrolling by pointer** moves the window and keeps one tab stop.
+- **The budget is measured** (see [Performance](#performance)).
+- **A virtualized table is not printed.** Only the rows in the page exist, so a printout would be a few dozen arbitrary rows. In print the table is left out and the page says "The large table has 12,408 rows and is not printed … Export it instead." Export itself is not in the specimen.
 
 #### Rules
 
 - **Limits are stated.** When a list is capped or windowed, say so ("Showing 500 of 12,408"). Never cut a list off silently, including by permission ("3 rows hidden by permission").
-- **Truncation follows rules.** Identifiers and paths truncate in the middle so both ends stay readable; domain labels use an approved abbreviation list rather than arbitrary clipping; the full text is always available on hover, on focus and in the detail panel; values that affect a decision (amounts, states, readings) are never truncated, so the layout gives way first. The specimen does not yet show truncation.
-- **Large tables are virtualized**, with the parallel accessible structure kept (row and column counts and indexes). The budget for this is in [Performance](#performance); the specimen's eight rows do not exercise it.
-- **Bulk actions preview before they apply** and report partial success (see [Layered State, Undo and Offline](#layered-state-undo-and-offline)).
+- **Bulk actions preview before they apply** and report partial success (see [Copy and Paste](#copy-and-paste) and [Layered State, Undo and Offline](#layered-state-undo-and-offline)).
+- **Not yet specified**: multi-column sort, row grouping, filtering inside a column, and export. Edits in the table are discarded with **Discard unsaved**; they do not yet join the named-change **Undo** of the layers model.
 
 ### Forms & Inputs
 
@@ -1160,7 +1212,8 @@ Realis Aero must remain usable when glass, color, motion, and environmental imag
 - **Touch targets**: Minimum 44px by 44px in the touch density; never below 24px (WCAG 2.5.8) in any density, and in a table the target is the whole cell.
 - **Zoom**: Test at 100%, 125%, 150% and 200%. Text, controls and charts must not overlap or clip, and the page reflows. The render check covers 200% on the specimen.
 - **Right to left**: Mirrors through logical properties, with numbers and dates isolated.
-- **Grid semantics**: Tables with editing use the grid pattern: one tab stop, `aria-sort` on sorted headers, and an accessible description for unsaved cells.
+- **Grid semantics**: Tables with editing use the grid pattern: one tab stop, `aria-sort` on sorted headers, `aria-selected` on every cell of a range, an accessible description for unsaved cells, and `aria-rowcount` and `aria-rowindex` on windowed tables.
+- **Unavailable actions**: Keep their reason as their accessible description, as well as announcing it when activated.
 - **Error recovery**: Form errors must explain what failed and how to correct it.
 
 ### Screen Reader Metric Pattern
@@ -1188,6 +1241,7 @@ Solar generation: 42 kilowatt-hours today, up 8 percent from yesterday. Last upd
 - **These move with the direction**: the rail, the 3px selection bar, state edges, the frozen key column, and the table's column order.
 - **Numbers and dates are isolated** with `<bdi>` (`unicode-bidi: isolate`). Without it a minus sign jumps to the wrong side of its digits ("12.4−") and a date reorders ("Sep 2026 12"), because digits are weakly directional and join the reordering of the surrounding text.
 - **Numbers stay aligned to the end of the cell** and keep tabular figures.
+- **Paths and identifiers stay left to right** (`direction: ltr`, isolated), so a truncated path keeps its identifying tail on the same side in a mirrored page.
 - **Marks are not mirrored.** None of the state marks has a direction.
 - **Charts keep their own direction** (`direction: ltr`): a time axis reads left to right in every language, and a chart's text anchors are tied to its geometry. Left to follow the page's direction, the specimen's chart clipped its labels and made them collide.
 - **Digits.** The specimen's Arabic line keeps Western digits for measurements, as the rest of the page does. Whether a product uses Arabic-Indic digits is a decision to make with readers of Arabic, per product.
@@ -1195,33 +1249,43 @@ Solar generation: 42 kilowatt-hours today, up 8 percent from yesterday. Last upd
 
 ## Performance
 
-These are budgets to be measured on the largest dataset and the lowest-supported device. No script measures them yet; the specimen's eight rows cannot.
+The budgets below are measured by `npm run check:render` on [the large table](specimen/index.html#large), in headless Chromium on the machine that runs the check. That is a development or CI machine, **not a low-end device**, so a passing result shows the table's design is not the bottleneck; it does not show a phone will hold the budget.
 
-- **Input latency**: under 50ms from a keystroke or a key press to the visible result, in tables included.
-- **Recalculation**: dependent values (footer counts, totals, validation counts) update within 100ms of a commit.
-- **Scrolling**: tables hold 60fps through their largest supported dataset. Specify that dataset in rows by columns and test against it.
-- **Large tables are virtualized**, and the accessible row and column structure is kept in step.
+| Budget | Target | Measured at the time of writing |
+|---|---|---|
+| **Input latency**: a key press to the painted result, in a table of 12,408 rows | Median under 50ms (95th percentile under 100ms, to absorb runner noise) | Median 16.6ms, 95th percentile 17.6ms: one frame. The handler itself is about 4ms. |
+| **Recalculation**: selection count and footer after a commit | Under 100ms | 95th percentile 4ms |
+| **A scroll step**: re-rendering the window | Under one frame (16ms) | 95th percentile 5ms over 400 scroll steps |
+| **Rows in the page** | At most 40, whatever the dataset | 21 |
+
+- **Not measured**: frames per second while scrolling, memory, real devices, tables with many columns or heavy cells, and the cost of the real data source.
+- **Specify the largest supported dataset** for each product in rows by columns and test against it; 12,408 rows is the specimen's number, not a limit.
 - **Background work never blocks input**, reports progress, and can be cancelled.
+- **Large tables are virtualized**, and the accessible row and column structure stays in step with the rows that exist.
 - **Glass costs rendering time.** The tonal-ladder rule (glass only over moving content or imagery) is the first control; the second is measuring `backdrop-filter` on the lowest-supported device before adding a glass panel to a screen. This document gives no panel limit because none has been measured.
 
 ## Settings and Personalization
 
-Settings are where people tune the product to their conditions, so they follow the same rules as every other surface. There is no settings screen in the specimen yet; the apply bar of the [Layers section](#layered-state-undo-and-offline) is the pattern they would use.
+Settings are where people tune the product to their conditions, so they follow the same rules as every other surface. The specimen is [`specimen/settings.html`](specimen/settings.html), driven by [`specimen/settings.js`](specimen/settings.js).
 
-| Group | Settings |
+| Group | Settings in the specimen |
 |---|---|
-| **Display** | Theme (light, dark, outdoor, or follow the system), density (comfortable, compact, touch), reduced transparency, motion |
-| **Language** | Language and number format; right-to-left follows from the language |
-| **Workspace** | Which columns a table shows, saved layouts, default sort |
-| **Offline** | What is kept for offline use, and how long |
-| **Alerts** | Which states notify, and where |
+| **Display** | Theme (system, light, dark, outdoor), density (automatic, comfortable, compact, touch), reduced transparency |
+| **Language** | English, French, Arabic; right to left follows from the language |
+| **Workspace** | The order of the panels on the home screen |
+| **Alerts** | Notify on warnings; critical alerts notify (locked) |
 
-- **Staged until Apply.** A change creates a draft with the unsaved mark and counts in the apply bar, which offers Apply, Reset and Revert to defaults. Nothing takes effect on change.
-- **Preview before applying.** The staged theme and density are shown on real components in a subtree, using `data-theme` and `data-density` on that subtree (the specimen's dark panel shows the mechanism). The preview is inert: a picture, not controls.
-- **Locked settings stay visible** with their reason and owner ("Set by the grid operator · request a change", as in the specimen's disabled field). A locked setting has no editable control; hiding it would hide how the system behaves.
-- **Reordering works without a pointer**: labelled "Move up" and "Move down" buttons, each move announced.
-- **Scope is stated**: "Applies to your profile on every device" or "this device only".
-- **Find a setting** filters by text and hides a group only when none of its settings match.
+Offline caching, and which table columns to show by default, are settings a product would add; the specimen does not show them. Column visibility, order and width are view state, not settings (see [Columns](#columns)).
+
+- **Staged until Apply.** A change creates a staged setting with the unsaved mark and a message that says what it was and where it applies ("Unsaved · was System · applies to your profile on every device"). The page keeps its theme, density and direction until **Apply**, which says how many settings it applied. **Reset** discards the staged settings. **Revert to defaults** stages the defaults; it does not apply them.
+- **Preview before applying.** A preview shows the staged theme, density and language on real components, by putting `data-theme`, `data-density` and `dir` on a subtree. In Arabic the preview's text is Arabic and mirrored while the page stays as it was. The preview is **inert**: nothing in it can be reached or operated, because it is a picture.
+- **Locked settings stay visible** with their reason and owner: "Always on · Site policy · Owned by H. Tazi, operations lead", with **Request a change** that announces whom the request went to. A locked setting has no editable control; hiding it would hide how the system behaves.
+- **Reordering works without a pointer**: labelled Up and Down buttons, each move announced ("Readings moved to position 1.") and focus kept on the button that was used. At an edge the button explains itself.
+- **Scope is stated** on every setting: "Applies to your profile on every device" or "Applies to this device only".
+- **Find a setting** matches names, descriptions and owners; hides a group only when none of its settings match; and says how many remain ("Showing 1 of 7 settings."). A staged setting stays staged while Find hides it.
+- **The apply bar is the layers model again**: counts, Apply, Reset and a status line, with each unavailable action keeping its reason as its description.
+
+**What the specimen does not do.** It stores the applied settings in the browser, so "your profile on every device" and "this device only" are stated but not enforced; a product needs a profile store and a device store. The Arabic and French preview strings are the specimen's own; a product translates every string.
 
 ## Measuring Success
 
@@ -1698,15 +1762,16 @@ The claims in the token, state, theme, table, layer and type sections are measur
 |---|---|---|
 | **Contrast** | `npm run check:tokens` | 144 token pairs in each of light, dark and outdoor: layers at least 1.12:1 from their neighbour; text at least 4.5:1 on every surface it can sit on; marks, control edges and focus rings at least 3:1; 7:1 and 4.5:1 in outdoor. Translucent tokens are composited over their surface. Also that the two dark blocks are identical. |
 | **Colour vision** | `npm run check:cvd` | The five family chart series stay at least 0.07 apart in OKLab under simulated protanopia, deuteranopia and tritanopia (Machado 2009), in every theme. |
-| **Rendering** | `npm run check:render` | In a real browser, on [`specimen/index.html`](specimen/index.html). **In each theme:** every state is drawn with a mark and a text label, and no two states share a mark; every run of painted text meets its target against the surface actually behind it; every control shows a focus ring of at least 2px and meets the density's height; disabled controls are focusable, explained and not faded; a dark panel inside another theme resolves its own tokens; pausing changes mark and text. **Density:** the three densities measure 36/28/44px controls and 40/32/48px rows, compact never drops below 24px, type size and rows are identical in all three, rows keep one height, a coarse pointer gets touch. **Table:** the keyboard model key by key (single tab stop, arrows, Home and End, Ctrl+Home and End, paging, header reach, sort, row selection, edit, cancel, commit, Tab while editing, unsaved marks and counts, restoring a value, leaving the grid, frozen key column). **Layers:** every action, enabled and disabled, with the status it announces; offline queueing, partial sync, a conflict and its resolution. **Type:** the bundled faces load, digits are tabular, the four weights differ. **Right to left:** edges, bar, frozen column, alignment, minus sign and date order, and chart text kept inside its frame. **Modes:** glass is solid in outdoor and with reduced transparency; the system preference picks the theme; forced-colors edges, buttons and marks; reduced motion; print is light; at 200% zoom nothing clips. |
-| **Glyphs** | `npm run check:glyphs` | Every character the specimen draws, in each theme, is covered by the bundled face that draws it, read from the WOFF2 character maps. Nothing depends on a system font. |
+| **Rendering** | `npm run check:render` | In a real browser, on [`specimen/index.html`](specimen/index.html). **In each theme:** every state is drawn with a mark and a text label, and no two states share a mark; every run of painted text meets its target against the surface actually behind it; every control shows a focus ring of at least 2px and meets the density's height; disabled controls are focusable, explained and not faded; a dark panel inside another theme resolves its own tokens; pausing changes mark and text. **Density:** the three densities measure 36/28/44px controls and 40/32/48px rows, compact never drops below 24px, type size and rows are identical in all three, rows keep one height, a coarse pointer gets touch. **Table:** the keyboard model key by key (single tab stop, arrows, Home and End, Ctrl+Home and End, paging, header reach, sort, row selection, edit, cancel, commit, Tab while editing, unsaved marks and counts, restoring a value, leaving the grid, frozen key column). **Table, continued:** range selection, copy to the clipboard, paste preview with its skips and cancel, discard; columns (show, hide, reorder within a group, widths, drag and double click, the protected key column, persistence, reset); truncation (the start is cut, the tail stays, no decision value clips, the full text is reachable). **Large table:** 12,408 rows with about twenty in the page, true `aria-rowindex`, Ctrl+End to the last row, selection across scrolling, and the performance budget. **Layers:** every action, enabled and disabled, with the status it announces; offline queueing, partial sync, a conflict and its resolution. **Settings:** staged until Apply, an inert preview, Reset, Apply and persistence, Revert to defaults, a locked setting with its owner, reordering with announcements, Find, scope, painted contrast and target sizes. **Type:** the bundled faces load, digits are tabular, the four weights differ. **Right to left:** edges, bar, frozen column, alignment, minus sign and date order, and chart text kept inside its frame. **Modes:** glass is solid in outdoor and with reduced transparency; the system preference picks the theme; forced-colors edges, buttons and marks; reduced motion; print is light, leaves out the large table and its controls, and stays under 20,000px tall; at 200% zoom nothing clips. |
+| **Glyphs** | `npm run check:glyphs` | Every character the specimen and the settings page draw, in each theme and in French and Arabic, is covered by the bundled face that draws it, read from the WOFF2 character maps. Nothing depends on a system font. |
 
 - **Lowest measured contrast at the time of writing**: text 4.58 (light), 4.50 (dark), 7.37 (outdoor); marks and edges 3.06 (light), 3.29 (dark), 4.69 (outdoor); layers 1.16 (light), 1.13 (dark), 1.18 (outdoor).
-- **Counts at the time of writing**: 435 contrast checks, 12 colour-vision checks, 1,379 render checks, 396 characters checked for coverage.
+- **Counts at the time of writing**: 435 contrast checks, 12 colour-vision checks, 1,956 render checks, 493 characters checked for coverage.
+- **The render check can reproduce another machine's rendering**: `RA_CHROMIUM_ARGS=--font-render-hinting=full npm run check:render` gives the pixel-snapped glyph widths of the CI runner. The suite passes in both modes.
 - **The checks were tested against the defects they target**: re-introducing an overflowing field, a state edge drawn with `box-shadow`, a paler muted text, a component token declared on the root alone, or a character missing from the bundled face makes them fail.
 - **Review renders** are written to [`specimen/screenshots/`](specimen/screenshots/): each theme, grayscale, forced colors, print and 200% zoom. Grayscale is reviewed by eye.
 
-**What the checks cannot tell us.** Text on glass over imagery is skipped by the render check, because the surface behind it is not one colour. Real sunlight on a real screen, colour perception by people rather than a simulation, how screen readers actually announce the grid and the status lines (the checks read the attributes, not the speech), whether Arabic readers find the mirrored layout right, performance on large tables and low-end devices, and a real sync conflict all need people and devices. The keyboard model is tested in Chromium only.
+**What the checks cannot tell us.** Text on glass over imagery is skipped by the render check, because the surface behind it is not one colour. Real sunlight on a real screen, colour perception by people rather than a simulation, how screen readers actually announce the grid and the status lines (the checks read the attributes, not the speech), whether Arabic readers find the mirrored layout right, performance on large tables and low-end devices, and a real sync conflict, and a real clipboard (paste is tested with a dispatched paste event carrying text) all need people and devices. The keyboard model is tested in Chromium only.
 
 ## Acceptance Criteria
 
@@ -1736,7 +1801,10 @@ A design qualifies as Realis Aero if it meets these standards:
 - **Data quality**: Stale values show their age, uncertain values their reason, and a bad value is replaced, never shown as current.
 - **Unsaved and queued**: Marked with the ink dot, never solar.
 - **Layers**: Apply, Reset, Revert and Undo are available only when they can act, and say why when they cannot. Offline is stated by text and mark.
-- **Tables**: One tab stop; the footer states the limit, selection, unsaved edits and sort; rows keep one height; numbers are aligned and isolated.
+- **Tables**: One tab stop; the footer states the limit, selection, unsaved edits, sort and range; rows keep one height; numbers are aligned and isolated; paths truncate in the middle and nothing that affects a decision is truncated.
+- **Paste and columns**: Paste previews before it writes and lists what it skips; every pointer action on a column has a keyboard alternative; the key column is protected and says why.
+- **Large tables**: The page holds a few dozen rows, the accessible structure keeps the true counts, and the table is left out of print.
+- **Settings**: Nothing takes effect until Apply; the preview is inert; locked settings show their owner; scope is stated.
 - **Metrics**: Units, timestamps, and confidence are shown where needed.
 - **Navigation**: Current location and system status are visible.
 - **Forms**: Errors are specific and recoverable.
@@ -1779,16 +1847,22 @@ These are renders of the working specimen, written by `npm run check:render`.
 ![Realis Aero specimen, right to left](specimen/screenshots/rtl.png)  
 *Right to left: rail, bars, edges and the frozen column move; numbers and dates keep their order.*
 
+![Realis Aero settings](specimen/screenshots/settings.png)  
+*Settings: staged until Apply, an inert preview, and a locked setting with its owner.*
+
+![Realis Aero settings, dark and right to left](specimen/screenshots/settings-dark-rtl.png)  
+*The applied settings in dark, compact and Arabic.*
+
 ## Recommended v0.6 Next Steps
 
 - **Done in v0.3 and v0.3.1**: tonal ladder, domain semantics, the Ruled Sheet and Writing Workspace.
 - **Done in v0.4**: state system, live values and data quality, three-tier tokens, dark and outdoor themes, forced colors, print, specimen and checks.
-- **Done in v0.5**: density, tables and the grid keyboard model, layered state and offline, bundled typography, right to left, and the smaller sections.
+- **Done in v0.5**: density, the table model (keyboard, range, copy and paste, columns, truncation, large tables), layered state and offline, bundled typography, right to left, settings, performance budgets, and the smaller sections.
 - **Ruled Sheet in the specimen**: add the sheet to the specimen in all three themes and densities, and to the render check.
-- **Tables, continued**: range selection, copy and paste with a paste preview, column visibility, reorder and resize, a virtualized example with a measured budget, and a truncation example.
+- **Tables, continued**: multi-column sort, row grouping, filters inside a column, export (the large table points to it), and bringing table edits into the named-change Undo of the layers model.
+- **Measure on a device**: run the large-table budget on a low-end phone and a low-end laptop, and add frames per second while scrolling, which the check cannot see.
 - **Pseudo-localization**: a test build that expands every string by 40% and marks missing translations, to test the expansion rule.
-- **Settings screen**: build the settings specimen with staged changes, an inert preview, locked settings and keyboard reordering.
-- **Measure performance**: a script that renders the largest supported table and measures latency, recalculation and scroll.
+- **Settings, continued**: a profile store and a device store so that scope is enforced, offline caching, and default table columns.
 - **Glass on imagery**: validate glass panels on real photographic backgrounds; the render check skips them.
 - **Automation**: provenance on values, staged changes, and the rule that the product works with automation off.
 - **Component specs**: Produce Figma variants for every component listed in this document.
