@@ -114,6 +114,65 @@ const densOk = sizes.compact >= 24 && sizes.comfortable > sizes.compact && sizes
 console.log(`${densOk ? 'ok  ' : 'FAIL'} density control heights: compact ${sizes.compact}px >= 24, comfortable ${sizes.comfortable}px, touch ${sizes.touch}px >= 44`);
 if (!densOk) failures++;
 
+// ---- Glass ----
+// 1. Each tint's alpha is the one its token says (the opacity tokens once disagreed with the material table).
+// 2. The reading plate guarantees text: over the brightest and the darkest possible backdrop, every text role
+//    reaches 4.5:1 and every state mark 3:1, for every variant, composited as the browser does (plate over tint over backdrop).
+// 3. Every fallback (outdoor, reduced transparency, print, forced colors, no backdrop-filter) collapses glass to a solid.
+// 4. The envelope of BARE glass is measured and printed: it is why bare glass carries no text.
+const glassVariants = { light: ['clear', 'frosted', 'alert'], dark: ['clear', 'frosted', 'dense', 'alert'] };
+const textRoles = ['--color-text-primary', '--color-text-secondary', '--color-text-muted', ...['warning', 'error', 'success', 'info', 'live', 'maintenance', 'neutral'].map(k => `--state-${k}-text`)];
+const markRoles = ['warning', 'error', 'success', 'info', 'live', 'maintenance', 'neutral'].map(k => `--state-${k}-mark`);
+const rootScope = themes.light;
+const alphaOf = (scope, t) => color(scope, t)[3];
+const num = (scope, t) => parseFloat(scope[t]);
+const glassRows = [];
+for (const theme of ['light', 'dark']) {
+  const scope = themes[theme];
+  for (const v of glassVariants[theme]) {
+    const want = num(rootScope, `--opacity-glass-${v}`), got = alphaOf(scope, `--glass-${v}-bg`);
+    glassRows.push([Math.abs(want - got) < 1e-9, `${theme}: --glass-${v}-bg alpha ${got} equals --opacity-glass-${v} ${want}`]);
+  }
+  const plateWant = num(rootScope, `--opacity-glass-plate-${theme}`), plateGot = alphaOf(scope, '--glass-plate-bg');
+  glassRows.push([Math.abs(plateWant - plateGot) < 1e-9, `${theme}: --glass-plate-bg alpha ${plateGot} equals --opacity-glass-plate-${theme} ${plateWant}`]);
+  const plate = color(scope, '--glass-plate-bg');
+  for (const v of glassVariants[theme]) {
+    const tint = color(scope, `--glass-${v}-bg`);
+    for (const [label, g] of [['black', 0], ['white', 255]]) {
+      const bg = over(plate, over(tint, [g, g, g, 1]));
+      const badText = textRoles.filter(r => Math.round(contrast(color(scope, r), bg) * 100) < 450);
+      const badMarks = markRoles.filter(r => Math.round(contrast(color(scope, r), bg) * 100) < 300);
+      glassRows.push([!badText.length && !badMarks.length, `${theme}: text and marks on a plate over ${v} glass over ${label} (lowest text ${Math.min(...textRoles.map(r => contrast(color(scope, r), bg))).toFixed(2)}:1)${badText.length ? ' FAILS ' + badText.join(',') : ''}${badMarks.length ? ' MARKS ' + badMarks.join(',') : ''}`]);
+    }
+  }
+}
+const collapsed = (decls, name) => {
+  const bgs = Object.keys(decls).filter(k => /^--glass-(clear|frosted|dense|alert|plate)-bg$/.test(k)), blurs = Object.keys(decls).filter(k => k.startsWith('--glass-blur-')), streams = Object.keys(decls).filter(k => k.startsWith('--glass-stream-') && k !== '--glass-stream-color');
+  const solid = v => v === 'var(--color-surface)' || v === 'Canvas';
+  const ok = bgs.length === 5 && bgs.every(k => solid(decls[k])) && blurs.length === 4 && blurs.every(k => decls[k] === 'none') && streams.length === 3 && streams.every(k => decls[k] === '0') && decls['--glass-haze'] === 'transparent' && decls['--glass-scratch'] === 'transparent' && decls['--glass-edge-light'] === 'transparent';
+  glassRows.push([ok, `fallback "${name}" makes every glass tint and the plate solid, removes blur, streams, haze, scratches and edge light`]);
+};
+const find = fn => blocks.filter(fn).map(b => b.decls)[0];
+collapsed(find(b => b.selectors.includes('[data-theme="outdoor"]')), 'outdoor');
+collapsed(find(b => b.selectors.includes('[data-reduced-transparency="true"]')), 'reduced transparency');
+collapsed(find(b => b.media.startsWith('@media (prefers-reduced-transparency')), 'prefers-reduced-transparency');
+collapsed(find(b => b.media.startsWith('@supports not')), 'no backdrop-filter');
+collapsed(find(b => b.media === '@media print' && b.decls['--glass-clear-bg']), 'print');
+collapsed(find(b => b.media.startsWith('@media (forced-colors') && b.decls['--glass-clear-bg']), 'forced colors');
+let glassFail = 0;
+for (const [ok, label] of glassRows) { if (!ok) glassFail++; if (!ok || args.includes('--all')) console.log(`${ok ? 'ok  ' : 'FAIL'} glass: ${label}`); }
+console.log(`\nglass: ${glassRows.length - glassFail}/${glassRows.length} pass`);
+failures += glassFail; count += glassRows.length;
+console.log('\nBare glass (no plate): the backdrops, as gray level 0 (black) to 255 (white), over which EVERY text role reaches 4.5:1');
+for (const theme of ['light', 'dark']) {
+  const scope = themes[theme];
+  for (const v of glassVariants[theme]) {
+    const tint = color(scope, `--glass-${v}-bg`); let lo = null, hi = null;
+    for (let g = 0; g <= 255; g++) { const bg = over(tint, [g, g, g, 1]); if (textRoles.every(r => contrast(color(scope, r), bg) >= 4.5)) { if (lo === null) lo = g; hi = g; } }
+    console.log(`  ${theme.padEnd(5)} ${v.padEnd(8)} ${lo === null ? 'no backdrop' : `gray ${lo}..${hi}`}`);
+  }
+}
+
 console.log('\nLowest measured:');
 for (const [k, v] of Object.entries(lowest)) console.log(`  ${k.padEnd(14)} ${v.r.toFixed(2)}  ${v.label} (${v.fg} on ${v.bg})`);
 console.log(failures ? `\n${failures} failing check(s) of ${count + 3}` : `\nAll ${count + 3} checks pass.`);

@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Realis Aero glass</title>
+<script>
+  // ?theme=light|dark|outdoor, ?transparency=reduced, ?density=compact|touch, ?dir=rtl
+  (function () {
+    var q = new URLSearchParams(location.search), r = document.documentElement;
+    if (q.get('theme')) r.dataset.theme = q.get('theme');
+    if (q.get('transparency') === 'reduced') r.dataset.reducedTransparency = 'true';
+    if (q.get('density')) r.dataset.density = q.get('density');
+    if (q.get('dir')) r.dir = q.get('dir');
+  })();
+</script>
+<link rel="stylesheet" href="../fonts/realis-aero.fonts.css">
+<link rel="stylesheet" href="../tokens/realis-aero.tokens.css">
+<link rel="stylesheet" href="specimen.css">
+<link rel="stylesheet" href="glass.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="m-live" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="2.6" fill="currentColor"/></symbol>
+    <symbol id="m-paused" viewBox="0 0 16 16"><rect x="3.5" y="3" width="3" height="10" rx="0.5" fill="currentColor"/><rect x="9.5" y="3" width="3" height="10" rx="0.5" fill="currentColor"/></symbol>
+    <symbol id="m-stale" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M8 4.6V8l2.4 1.6"/></g></symbol>
+    <symbol id="m-offline" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6"/><path d="M3.8 3.8l8.4 8.4"/></g></symbol>
+    <symbol id="m-degraded" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2a6 6 0 0 0 0 12z" fill="currentColor"/></symbol>
+    <symbol id="m-maintenance" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M8 1.6l5.5 3.2v6.4L8 14.4l-5.5-3.2V4.8z"/><circle cx="8" cy="8" r="2.2"/></g></symbol>
+    <symbol id="m-success" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M5.2 8.3l2 2 3.6-4.3"/></g></symbol>
+    <symbol id="m-uncertain" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6" stroke-dasharray="2 2.2"/><path d="M6.4 6.5a1.7 1.7 0 1 1 2.5 1.5c-.6.4-.9.7-.9 1.4"/></g><circle cx="8" cy="11.5" r="0.9" fill="currentColor"/></symbol>
+    <symbol id="m-error" viewBox="0 0 16 16"><path fill="currentColor" fill-rule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM7.2 4h1.6v5H7.2zM8 10.3a1.1 1.1 0 1 0 0 2.2 1.1 1.1 0 0 0 0-2.2z"/></symbol>
+    <symbol id="m-warning" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.2l6.3 11.3H1.7z"/><path d="M8 6.6v3.2"/></g><circle cx="8" cy="11.6" r="0.9" fill="currentColor"/></symbol>
+    <symbol id="m-info" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6"/><path d="M8 7.4v3.8"/></g><circle cx="8" cy="5" r="0.9" fill="currentColor"/></symbol>
+    <symbol id="m-dirty" viewBox="0 0 16 16"><circle cx="8" cy="8" r="3.2" fill="currentColor"/></symbol>
+    <symbol id="m-queued" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 11V3.4M4.8 6.4L8 3.2l3.2 3.2M3.5 13.5h9"/></g></symbol>
+  </defs>
+</svg>
+<div class="app">
+  <nav class="rail" aria-label="Sections">
+    <div class="rail__brand">Realis Aero</div>
+    <div class="rail__section">Specimen</div>
+    <a href="index.html">States and tables</a>
+    <a href="settings.html">Settings</a>
+    <a href="glass.html" aria-current="page">Glass</a>
+    <div class="rail__section">On this page</div>
+    <a href="#anatomy-section">Anatomy</a>
+    <a href="#legibility">Legibility</a>
+    <a href="#reveal-section">What it reveals</a>
+    <a href="#moving">Moving content</a>
+    <a href="#states">States</a>
+    <a href="#fallbacks">Fallbacks</a>
+  </nav>
+  <main class="canvas">
+    <div class="topbar">
+      <div>
+        <h1>Glass</h1>
+        <p class="secondary small">Glass that reveals, and a reading plate that guarantees. Bare glass never carries text.</p>
+      </div>
+      <nav class="themes" aria-label="Theme"><a href="?">System</a><a href="?theme=light">Light</a><a href="?theme=dark">Dark</a><a href="?theme=outdoor">Outdoor</a><a href="?transparency=reduced">Reduced transparency</a><a href="?dir=rtl">Right to left</a></nav>
+    </div>
+
+    <section class="section" id="anatomy-section" aria-labelledby="h-anatomy">
+      <header><h2 id="h-anatomy">Anatomy</h2><p class="muted small">Back to front: the backdrop, a blur, a tint, system lines, then reading plates. Switch a layer off to see what it does.</p></header>
+      <div class="layers" role="group" aria-label="Layers"><label class="choice"><input type="checkbox" data-layer="blur" checked> <span>Blur</span></label><label class="choice"><input type="checkbox" data-layer="tint" checked> <span>Tint</span></label><label class="choice"><input type="checkbox" data-layer="streams" checked> <span>Streams</span></label><label class="choice"><input type="checkbox" data-layer="plate" checked> <span>Plate</span></label><label class="choice"><input type="checkbox" data-layer="edge" checked> <span>Edge light</span></label><label class="choice"><input type="checkbox" data-layer="wear"> <span>Wear (touch surfaces only)</span></label></div>
+      <div class="scene scene--tall" data-backdrop="sky"><canvas aria-hidden="true"></canvas><div class="glass glass--open" id="anatomy" data-variant="frosted" data-state="live"><span class="glass__wear" aria-hidden="true"></span><span class="glass__haze" aria-hidden="true"></span><span class="glass__seam" aria-hidden="true"></span><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><div class="glass__plate glass__plate--row"><span class="state-label" data-state="live" data-m="plate"><svg class="mark" aria-hidden="true"><use href="#m-live"/></svg><span>Live &middot; 14:02:31</span></span><span data-m="plate">Roof array output</span></div><div class="glass__plate"><span data-m="plate" style="font-size:var(--text-metric-lg);font-weight:550;line-height:1">42.6 <span class="metric__unit">kW</span></span><span class="caption" data-m="plate" style="color:var(--color-text-muted)">Measured &middot; roof array sensor &middot; 8% above forecast</span></div></div></div>
+    </section>
+
+    <section class="section" id="legibility" aria-labelledby="h-leg">
+      <header><h2 id="h-leg">Legibility</h2><p class="muted small">Each panel has a line of text on bare glass and the same text on a plate. The backdrops are stress tests drawn in code: a landscape, a dark ground, fine black and white detail, and white beside black.</p></header>
+      <div class="matrix">
+        <figure>
+          <div class="scene " data-backdrop="sky"><canvas aria-hidden="true"></canvas><div class="glass" data-variant="clear" data-cell="clear-sky"><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><span class="glass__bare" data-m="bare">Bare glass &middot; 12.4 kW</span><span class="glass__bare" data-m="bare" style="color:var(--color-text-muted);font-weight:400">Bare muted &middot; updated 2 min ago</span><div class="glass__plate">
+            <span data-m="plate">On a plate &middot; 12.4 kW</span>
+            <span data-m="plate" style="color:var(--color-text-muted)">Muted &middot; updated 2 min ago</span>
+            <span data-m="plate" class="state-label" data-state="warning"><svg class="mark" aria-hidden="true"><use href="#m-warning"/></svg><span>Warning &middot; above limit</span></span>
+          </div></div></div>
+          <figcaption>Clear over a built environment</figcaption>
+        </figure>
+        <figure>
+          <div class="scene " data-backdrop="ground"><canvas aria-hidden="true"></canvas><div class="glass" data-variant="clear" data-cell="clear-ground"><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><span class="glass__bare" data-m="bare">Bare glass &middot; 12.4 kW</span><span class="glass__bare" data-m="bare" style="color:var(--color-text-muted);font-weight:400">Bare muted &middot; updated 2 min ago</span><div class="glass__plate">
+            <span data-m="plate">On a plate &middot; 12.4 kW</span>
+            <span data-m="plate" style="color:var(--color-text-muted)">Muted &middot; updated 2 min ago</span>
+            <span data-m="plate" class="state-label" data-state="warning"><svg class="mark" aria-hidden="true"><use href="#m-warning"/></svg><span>Warning &middot; above limit</span></span>
+          </div></div></div>
+          <figcaption>Clear over a dark ground</figcaption>
+        </figure>
+        <figure>
+          <div class="scene " data-backdrop="busy"><canvas aria-hidden="true"></canvas><div class="glass" data-variant="clear" data-cell="clear-busy"><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><span class="glass__bare" data-m="bare">Bare glass &middot; 12.4 kW</span><span class="glass__bare" data-m="bare" style="color:var(--color-text-muted);font-weight:400">Bare muted &middot; updated 2 min ago</span><div class="glass__plate">
+            <span data-m="plate">On a plate &middot; 12.4 kW</span>
+            <span data-m="plate" style="color:var(--color-text-muted)">Muted &middot; updated 2 min ago</span>
+            <span data-m="plate" class="state-label" data-state="warning"><svg class="mark" aria-hidden="true"><use href="#m-warning"/></svg><span>Warning &middot; above limit</span></span>
+          </div></div></div>
+          <figcaption>Clear over fine detail</figcaption>
+        </figure>
+        <figure>
+          <div class="scene " data-backdrop="split"><canvas aria-hidden="true"></canvas><div class="glass" data-variant="clear" data-cell="clear-split"><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><span class="glass__bare" data-m="bare">Bare glass &middot; 12.4 kW</span><span class="glass__bare" data-m="bare" style="color:var(--color-text-muted);font-weight:400">Bare muted &middot; updated 2 min ago</span><div class="glass__plate">
+            <span data-m="plate">On a plate &middot; 12.4 kW</span>
+            <span data-m="plate" style="color:var(--color-text-muted)">Muted &middot; updated 2 min ago</span>
+            <span data-m="plate" class="state-label" data-state="warning"><svg class="mark" aria-hidden="true"><use href="#m-warning"/></svg><span>Warning &middot; above limit</span></span>
+          </div></div></div>
+          <figcaption>Clear over white beside black</figcaption>
+        </figure>
+        <figure>
+          <div class="scene " data-backdrop="sky"><canvas aria-hidden="true"></canvas><div class="glass" data-variant="frosted" data-cell="frosted-sky"><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><span class="glass__bare" data-m="bare">Bare glass &middot; 12.4 kW</span><span class="glass__bare" data-m="bare" style="color:var(--color-text-muted);font-weight:400">Bare muted &middot; updated 2 min ago</span><div class="glass__plate">
+            <span data-m="plate">On a plate &middot; 12.4 kW</span>
+            <span data-m="plate" style="color:var(--color-text-muted)">Muted &middot; updated 2 min ago</span>
+            <span data-m="plate" class="state-label" data-state="warning"><svg class="mark" aria-hidden="true"><use href="#m-warning"/></svg><span>Warning &middot; above limit</span></span>
+          </div></div></div>
+          <figcaption>Frosted over a built environment</figcaption>
+        </figure>
+        <figure>
+          <div class="scene " data-backdrop="ground"><canvas aria-hidden="true"></canvas><div class="glass" data-variant="frosted" data-cell="frosted-ground"><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><span class="glass__bare" data-m="bare">Bare glass &middot; 12.4 kW</span><span class="glass__bare" data-m="bare" style="color:var(--color-text-muted);font-weight:400">Bare muted &middot; updated 2 min ago</span><div class="glass__plate">
+            <span data-m="plate">On a plate &middot; 12.4 kW</span>
+            <span data-m="plate" style="color:var(--color-text-muted)">Muted &middot; updated 2 min ago</span>
+            <span data-m="plate" class="state-label" data-state="warning"><svg class="mark" aria-hidden="true"><use href="#m-warning"/></svg><span>Warning &middot; above limit</span></span>
+          </div></div></div>
+          <figcaption>Frosted over a dark ground</figcaption>
+        </figure>
+        <figure>
+          <div class="scene " data-backdrop="busy"><canvas aria-hidden="true"></canvas><div class="glass" data-variant="frosted" data-cell="frosted-busy"><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><span class="glass__bare" data-m="bare">Bare glass &middot; 12.4 kW</span><span class="glass__bare" data-m="bare" style="color:var(--color-text-muted);font-weight:400">Bare muted &middot; updated 2 min ago</span><div class="glass__plate">
+            <span data-m="plate">On a plate &middot; 12.4 kW</span>
+            <span data-m="plate" style="color:var(--color-text-muted)">Muted &middot; updated 2 min ago</span>
+            <span data-m="plate" class="state-label" data-state="warning"><svg class="mark" aria-hidden="true"><use href="#m-warning"/></svg><span>Warning &middot; above limit</span></span>
+          </div></div></div>
+          <figcaption>Frosted over fine detail</figcaption>
+        </figure>
+        <figure>
+          <div class="scene " data-backdrop="split"><canvas aria-hidden="true"></canvas><div class="glass" data-variant="frosted" data-cell="frosted-split"><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><span class="glass__bare" data-m="bare">Bare glass &middot; 12.4 kW</span><span class="glass__bare" data-m="bare" style="color:var(--color-text-muted);font-weight:400">Bare muted &middot; updated 2 min ago</span><div class="glass__plate">
+            <span data-m="plate">On a plate &middot; 12.4 kW</span>
+            <span data-m="plate" style="color:var(--color-text-muted)">Muted &middot; updated 2 min ago</span>
+            <span data-m="plate" class="state-label" data-state="warning"><svg class="mark" aria-hidden="true"><use href="#m-warning"/></svg><span>Warning &middot; above limit</span></span>
+          </div></div></div>
+          <figcaption>Frosted over white beside black</figcaption>
+        </figure>
+        <figure>
+          <div class="scene " data-backdrop="sky"><canvas aria-hidden="true"></canvas><div class="glass" data-variant="dense" data-theme="dark" data-cell="dense-sky"><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><span class="glass__bare" data-m="bare">Bare glass &middot; 12.4 kW</span><span class="glass__bare" data-m="bare" style="color:var(--color-text-muted);font-weight:400">Bare muted &middot; updated 2 min ago</span><div class="glass__plate">
+            <span data-m="plate">On a plate &middot; 12.4 kW</span>
+            <span data-m="plate" style="color:var(--color-text-muted)">Muted &middot; updated 2 min ago</span>
+            <span data-m="plate" class="state-label" data-state="warning"><svg class="mark" aria-hidden="true"><use href="#m-warning"/></svg><span>Warning &middot; above limit</span></span>
+          </div></div></div>
+          <figcaption>Dense hardware over a built environment</figcaption>
+        </figure>
+        <figure>
+          <div class="scene " data-backdrop="ground"><canvas aria-hidden="true"></canvas><div class="glass" data-variant="dense" data-theme="dark" data-cell="dense-ground"><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><span class="glass__bare" data-m="bare">Bare glass &middot; 12.4 kW</span><span class="glass__bare" data-m="bare" style="color:var(--color-text-muted);font-weight:400">Bare muted &middot; updated 2 min ago</span><div class="glass__plate">
+            <span data-m="plate">On a plate &middot; 12.4 kW</span>
+            <span data-m="plate" style="color:var(--color-text-muted)">Muted &middot; updated 2 min ago</span>
+            <span data-m="plate" class="state-label" data-state="warning"><svg class="mark" aria-hidden="true"><use href="#m-warning"/></svg><span>Warning &middot; above limit</span></span>
+          </div></div></div>
+          <figcaption>Dense hardware over a dark ground</figcaption>
+        </figure>
+        <figure>
+          <div class="scene " data-backdrop="busy"><canvas aria-hidden="true"></canvas><div class="glass" data-variant="dense" data-theme="dark" data-cell="dense-busy"><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><span class="glass__bare" data-m="bare">Bare glass &middot; 12.4 kW</span><span class="glass__bare" data-m="bare" style="color:var(--color-text-muted);font-weight:400">Bare muted &middot; updated 2 min ago</span><div class="glass__plate">
+            <span data-m="plate">On a plate &middot; 12.4 kW</span>
+            <span data-m="plate" style="color:var(--color-text-muted)">Muted &middot; updated 2 min ago</span>
+            <span data-m="plate" class="state-label" data-state="warning"><svg class="mark" aria-hidden="true"><use href="#m-warning"/></svg><span>Warning &middot; above limit</span></span>
+          </div></div></div>
+          <figcaption>Dense hardware over fine detail</figcaption>
+        </figure>
+        <figure>
+          <div class="scene " data-backdrop="split"><canvas aria-hidden="true"></canvas><div class="glass" data-variant="dense" data-theme="dark" data-cell="dense-split"><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><span class="glass__bare" data-m="bare">Bare glass &middot; 12.4 kW</span><span class="glass__bare" data-m="bare" style="color:var(--color-text-muted);font-weight:400">Bare muted &middot; updated 2 min ago</span><div class="glass__plate">
+            <span data-m="plate">On a plate &middot; 12.4 kW</span>
+            <span data-m="plate" style="color:var(--color-text-muted)">Muted &middot; updated 2 min ago</span>
+            <span data-m="plate" class="state-label" data-state="warning"><svg class="mark" aria-hidden="true"><use href="#m-warning"/></svg><span>Warning &middot; above limit</span></span>
+          </div></div></div>
+          <figcaption>Dense hardware over white beside black</figcaption>
+        </figure>
+        <figure>
+          <div class="scene " data-backdrop="sky"><canvas aria-hidden="true"></canvas><div class="glass" data-variant="alert" data-cell="alert-sky"><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><span class="glass__bare" data-m="bare">Bare glass &middot; 12.4 kW</span><span class="glass__bare" data-m="bare" style="color:var(--color-text-muted);font-weight:400">Bare muted &middot; updated 2 min ago</span><div class="glass__plate">
+            <span data-m="plate">On a plate &middot; 12.4 kW</span>
+            <span data-m="plate" style="color:var(--color-text-muted)">Muted &middot; updated 2 min ago</span>
+            <span data-m="plate" class="state-label" data-state="warning"><svg class="mark" aria-hidden="true"><use href="#m-warning"/></svg><span>Warning &middot; above limit</span></span>
+          </div></div></div>
+          <figcaption>Alert over a built environment</figcaption>
+        </figure>
+        <figure>
+          <div class="scene " data-backdrop="ground"><canvas aria-hidden="true"></canvas><div class="glass" data-variant="alert" data-cell="alert-ground"><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><span class="glass__bare" data-m="bare">Bare glass &middot; 12.4 kW</span><span class="glass__bare" data-m="bare" style="color:var(--color-text-muted);font-weight:400">Bare muted &middot; updated 2 min ago</span><div class="glass__plate">
+            <span data-m="plate">On a plate &middot; 12.4 kW</span>
+            <span data-m="plate" style="color:var(--color-text-muted)">Muted &middot; updated 2 min ago</span>
+            <span data-m="plate" class="state-label" data-state="warning"><svg class="mark" aria-hidden="true"><use href="#m-warning"/></svg><span>Warning &middot; above limit</span></span>
+          </div></div></div>
+          <figcaption>Alert over a dark ground</figcaption>
+        </figure>
+        <figure>
+          <div class="scene " data-backdrop="busy"><canvas aria-hidden="true"></canvas><div class="glass" data-variant="alert" data-cell="alert-busy"><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><span class="glass__bare" data-m="bare">Bare glass &middot; 12.4 kW</span><span class="glass__bare" data-m="bare" style="color:var(--color-text-muted);font-weight:400">Bare muted &middot; updated 2 min ago</span><div class="glass__plate">
+            <span data-m="plate">On a plate &middot; 12.4 kW</span>
+            <span data-m="plate" style="color:var(--color-text-muted)">Muted &middot; updated 2 min ago</span>
+            <span data-m="plate" class="state-label" data-state="warning"><svg class="mark" aria-hidden="true"><use href="#m-warning"/></svg><span>Warning &middot; above limit</span></span>
+          </div></div></div>
+          <figcaption>Alert over fine detail</figcaption>
+        </figure>
+        <figure>
+          <div class="scene " data-backdrop="split"><canvas aria-hidden="true"></canvas><div class="glass" data-variant="alert" data-cell="alert-split"><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><span class="glass__bare" data-m="bare">Bare glass &middot; 12.4 kW</span><span class="glass__bare" data-m="bare" style="color:var(--color-text-muted);font-weight:400">Bare muted &middot; updated 2 min ago</span><div class="glass__plate">
+            <span data-m="plate">On a plate &middot; 12.4 kW</span>
+            <span data-m="plate" style="color:var(--color-text-muted)">Muted &middot; updated 2 min ago</span>
+            <span data-m="plate" class="state-label" data-state="warning"><svg class="mark" aria-hidden="true"><use href="#m-warning"/></svg><span>Warning &middot; above limit</span></span>
+          </div></div></div>
+          <figcaption>Alert over white beside black</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section" id="reveal-section" aria-labelledby="h-rev">
+      <header><h2 id="h-rev">What it reveals</h2><p class="muted small">Over a live data field the glass shows the field, blurred, and a layer of system lines drawn on the glass itself. Each line is a category with its own line style; every line is also named on a plate.</p></header>
+      <div class="scene scene--tall" data-backdrop="flow"><canvas aria-hidden="true"></canvas><div class="glass glass--open" id="reveal" data-variant="frosted" data-state="live"><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><div class="glass__plate glass__plate--row"><span data-m="plate">Site systems</span><span data-m="plate" style="color:var(--color-text-secondary)">Power &middot; Heat &middot; Water &middot; Air</span></div><div class="glass__plate"><span data-m="plate" class="caption" style="color:var(--color-text-muted)">Streams are decoration that explains structure. Nothing here is only on a line.</span></div></div></div>
+      <div class="legend" aria-label="Stream line styles"><span><svg viewBox="0 0 44 8" aria-hidden="true"><path class="stream--power" d="M0 4 H44"/></svg>Power</span><span><svg viewBox="0 0 44 8" aria-hidden="true"><path class="stream--water" d="M0 4 H44"/></svg>Water</span><span><svg viewBox="0 0 44 8" aria-hidden="true"><path class="stream--air" d="M0 4 H44"/></svg>Air</span><span><svg viewBox="0 0 44 8" aria-hidden="true"><path class="stream--heat" d="M0 4 H44"/></svg>Heat</span><span><svg viewBox="0 0 44 8" aria-hidden="true"><path class="stream--carbon" d="M0 4 H44"/></svg>Carbon</span><span><svg viewBox="0 0 44 8" aria-hidden="true"><path class="stream--network" d="M0 4 H44"/></svg>Network</span><span><svg viewBox="0 0 44 8" aria-hidden="true"><path class="stream--maintenance" d="M0 4 H44"/></svg>Maintenance</span><span><svg viewBox="0 0 44 8" aria-hidden="true"><path class="stream--movement" d="M0 4 H44"/></svg>Movement</span></div>
+      <div class="actions"><button class="btn btn--secondary" id="fresh" type="button">Simulate a fresh reading</button><span class="caption" id="fresh-say" role="status"></span></div>
+    </section>
+
+    <section class="section" id="moving" aria-labelledby="h-mov">
+      <header><h2 id="h-mov">Moving content</h2><p class="muted small">Glass belongs over content that moves. Scroll the list: bright, dark and mid rows pass under the notice, and its text stays legible.</p></header>
+      <div class="feed" id="feed" tabindex="0" role="region" aria-label="Readings list">
+        <div class="glass" data-variant="alert" data-state="warning" id="toast"><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><div class="glass__plate"><span class="state-label" data-state="warning" data-m="plate"><svg class="mark" aria-hidden="true"><use href="#m-warning"/></svg><span>Warning &middot; feed pressure 2.31 bar, limit 2.20</span></span><span class="caption" data-m="plate" style="color:var(--color-text-muted)">Read 14:02:31 &middot; pressure sensor 3</span></div></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-001</span><span>0.0 kW</span></div>
+          <div class="feed__row" data-tone="dark"><span>Reading RD-002</span><span>3.7 kW</span></div>
+          <div class="feed__row" data-tone="mid"><span>Reading RD-003</span><span>7.4 kW</span></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-004</span><span>11.1 kW</span></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-005</span><span>14.8 kW</span></div>
+          <div class="feed__row" data-tone="dark"><span>Reading RD-006</span><span>18.5 kW</span></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-007</span><span>22.2 kW</span></div>
+          <div class="feed__row" data-tone="dark"><span>Reading RD-008</span><span>25.9 kW</span></div>
+          <div class="feed__row" data-tone="mid"><span>Reading RD-009</span><span>29.6 kW</span></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-010</span><span>33.3 kW</span></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-011</span><span>37.0 kW</span></div>
+          <div class="feed__row" data-tone="dark"><span>Reading RD-012</span><span>40.7 kW</span></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-013</span><span>44.4 kW</span></div>
+          <div class="feed__row" data-tone="dark"><span>Reading RD-014</span><span>48.1 kW</span></div>
+          <div class="feed__row" data-tone="mid"><span>Reading RD-015</span><span>51.8 kW</span></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-016</span><span>55.5 kW</span></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-017</span><span>59.2 kW</span></div>
+          <div class="feed__row" data-tone="dark"><span>Reading RD-018</span><span>62.9 kW</span></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-019</span><span>66.6 kW</span></div>
+          <div class="feed__row" data-tone="dark"><span>Reading RD-020</span><span>70.3 kW</span></div>
+          <div class="feed__row" data-tone="mid"><span>Reading RD-021</span><span>74.0 kW</span></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-022</span><span>77.7 kW</span></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-023</span><span>81.4 kW</span></div>
+          <div class="feed__row" data-tone="dark"><span>Reading RD-024</span><span>85.1 kW</span></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-025</span><span>88.8 kW</span></div>
+          <div class="feed__row" data-tone="dark"><span>Reading RD-026</span><span>92.5 kW</span></div>
+          <div class="feed__row" data-tone="mid"><span>Reading RD-027</span><span>96.2 kW</span></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-028</span><span>99.9 kW</span></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-029</span><span>3.6 kW</span></div>
+          <div class="feed__row" data-tone="dark"><span>Reading RD-030</span><span>7.3 kW</span></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-031</span><span>11.0 kW</span></div>
+          <div class="feed__row" data-tone="dark"><span>Reading RD-032</span><span>14.7 kW</span></div>
+          <div class="feed__row" data-tone="mid"><span>Reading RD-033</span><span>18.4 kW</span></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-034</span><span>22.1 kW</span></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-035</span><span>25.8 kW</span></div>
+          <div class="feed__row" data-tone="dark"><span>Reading RD-036</span><span>29.5 kW</span></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-037</span><span>33.2 kW</span></div>
+          <div class="feed__row" data-tone="dark"><span>Reading RD-038</span><span>36.9 kW</span></div>
+          <div class="feed__row" data-tone="mid"><span>Reading RD-039</span><span>40.6 kW</span></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-040</span><span>44.3 kW</span></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-041</span><span>48.0 kW</span></div>
+          <div class="feed__row" data-tone="dark"><span>Reading RD-042</span><span>51.7 kW</span></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-043</span><span>55.4 kW</span></div>
+          <div class="feed__row" data-tone="dark"><span>Reading RD-044</span><span>59.1 kW</span></div>
+          <div class="feed__row" data-tone="mid"><span>Reading RD-045</span><span>62.8 kW</span></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-046</span><span>66.5 kW</span></div>
+          <div class="feed__row" data-tone="bright"><span>Reading RD-047</span><span>70.2 kW</span></div>
+          <div class="feed__row" data-tone="dark"><span>Reading RD-048</span><span>73.9 kW</span></div>
+      </div>
+    </section>
+
+    <section class="section" id="states" aria-labelledby="h-states">
+      <header><h2 id="h-states">States</h2><p class="muted small">Glass adds no meaning of its own: each cue repeats one the state system already gives. Stale clouds, offline goes solid, maintenance shows its seam and fasteners.</p></header>
+      <div class="matrix">
+        <figure style="margin:0;display:grid;gap:8px">
+          <div class="scene " data-backdrop="sky"><canvas aria-hidden="true"></canvas><div class="glass" data-state="live" data-s="live"><span class="glass__wear" aria-hidden="true"></span><span class="glass__haze" aria-hidden="true"></span><span class="glass__seam" aria-hidden="true"></span><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><div class="glass__plate"><span class="state-label" data-state="live" data-m="plate"><svg class="mark" aria-hidden="true"><use href="#m-live"/></svg><span>Live &middot; 14:02:31</span></span><span data-m="plate">Roof array output</span><span data-m="plate" style="font-size:var(--text-metric-md);font-weight:550">42.6 <span class="metric__unit">kW</span></span><span class="caption" data-m="plate" style="color:var(--color-text-muted)">Measured &middot; roof array sensor</span></div></div></div>
+          <figcaption class="caption muted" style="margin:0">Live</figcaption>
+        </figure>        <figure style="margin:0;display:grid;gap:8px">
+          <div class="scene " data-backdrop="sky"><canvas aria-hidden="true"></canvas><div class="glass" data-state="stale" data-s="stale"><span class="glass__wear" aria-hidden="true"></span><span class="glass__haze" aria-hidden="true"></span><span class="glass__seam" aria-hidden="true"></span><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><div class="glass__plate"><span class="state-label" data-state="stale" data-m="plate"><svg class="mark" aria-hidden="true"><use href="#m-stale"/></svg><span>Stale &middot; 18 min</span></span><span data-m="plate">Roof array output</span><span data-m="plate" style="font-size:var(--text-metric-md);font-weight:550">42.6 <span class="metric__unit">kW</span></span><span class="caption" data-m="plate" style="color:var(--color-text-muted)">Last reading 13:44 &middot; expected every 5 min</span></div></div></div>
+          <figcaption class="caption muted" style="margin:0">Stale</figcaption>
+        </figure>        <figure style="margin:0;display:grid;gap:8px">
+          <div class="scene " data-backdrop="sky"><canvas aria-hidden="true"></canvas><div class="glass" data-state="offline" data-s="offline"><span class="glass__wear" aria-hidden="true"></span><span class="glass__haze" aria-hidden="true"></span><span class="glass__seam" aria-hidden="true"></span><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><div class="glass__plate"><span class="state-label" data-state="offline" data-m="plate"><svg class="mark" aria-hidden="true"><use href="#m-offline"/></svg><span>Offline &middot; last sync 13:44</span></span><span data-m="plate">Roof array output</span><span data-m="plate" style="font-size:var(--text-metric-md);font-weight:550">42.6 <span class="metric__unit">kW</span></span><span class="caption" data-m="plate" style="color:var(--color-text-muted)">Last known value &middot; 3 changes queued</span></div></div></div>
+          <figcaption class="caption muted" style="margin:0">Offline</figcaption>
+        </figure>        <figure style="margin:0;display:grid;gap:8px">
+          <div class="scene " data-backdrop="sky"><canvas aria-hidden="true"></canvas><div class="glass" data-state="maintenance" data-s="maintenance"><span class="glass__wear" aria-hidden="true"></span><span class="glass__haze" aria-hidden="true"></span><span class="glass__seam" aria-hidden="true"></span><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><div class="glass__plate"><span class="state-label" data-state="maintenance" data-m="plate"><svg class="mark" aria-hidden="true"><use href="#m-maintenance"/></svg><span>Maintenance &middot; scheduled 16:00</span></span><span data-m="plate">Inverter 2</span><span data-m="plate" style="font-size:var(--text-metric-md);font-weight:550">0.0 <span class="metric__unit">kW</span></span><span class="caption" data-m="plate" style="color:var(--color-text-muted)">Filter change &middot; R. Amrani &middot; back about 17:30</span></div></div></div>
+          <figcaption class="caption muted" style="margin:0">Maintenance</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section" id="fallbacks" aria-labelledby="h-fb">
+      <header><h2 id="h-fb">Fallbacks</h2><p class="muted small">The same panel, three ways. Reduced transparency and outdoor replace every layer of glass with a solid surface. Print, forced colors and a browser without backdrop-filter do the same.</p></header>
+      <div class="matrix" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+        <figure style="margin:0;display:grid;gap:8px">
+          <div class="scene" data-backdrop="sky" ><canvas aria-hidden="true"></canvas><div class="glass" data-fb="Standard"><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><div class="glass__plate"><span data-m="plate">Roof array output</span><span data-m="plate" style="font-size:var(--text-metric-md);font-weight:550">42.6 <span class="metric__unit">kW</span></span></div></div></div>
+          <figcaption class="caption muted" style="margin:0">Standard</figcaption>
+        </figure>        <figure style="margin:0;display:grid;gap:8px">
+          <div class="scene" data-backdrop="sky" data-reduced-transparency="true"><canvas aria-hidden="true"></canvas><div class="glass" data-fb="Reduced transparency"><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><div class="glass__plate"><span data-m="plate">Roof array output</span><span data-m="plate" style="font-size:var(--text-metric-md);font-weight:550">42.6 <span class="metric__unit">kW</span></span></div></div></div>
+          <figcaption class="caption muted" style="margin:0">Reduced transparency</figcaption>
+        </figure>        <figure style="margin:0;display:grid;gap:8px">
+          <div class="scene" data-backdrop="sky" data-theme="outdoor"><canvas aria-hidden="true"></canvas><div class="glass" data-fb="Outdoor"><svg class="glass__streams" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="stream--power" d="M0 40 C90 40 120 20 200 30 S330 60 400 50"/>
+            <path class="stream--heat" d="M0 80 C120 70 160 120 240 90 S330 70 400 90"/>
+            <path class="stream--water" d="M0 120 C60 140 150 100 230 120 S340 160 400 130"/>
+            <path class="stream--air" d="M0 180 C100 170 180 200 260 180 S350 170 400 185"/>
+          </svg><div class="glass__plate"><span data-m="plate">Roof array output</span><span data-m="plate" style="font-size:var(--text-metric-md);font-weight:550">42.6 <span class="metric__unit">kW</span></span></div></div></div>
+          <figcaption class="caption muted" style="margin:0">Outdoor</figcaption>
+        </figure>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="glass.js"></script>
+</body>
+</html>

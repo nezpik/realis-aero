@@ -132,8 +132,18 @@
   --blur-md: 14px;
   --blur-lg: 24px;
 
-  --opacity-glass-clear: 0.72;
-  --opacity-glass-frosted: 0.82;
+  /* The alpha of each glass tint. check-tokens fails if a --glass-*-bg alpha differs from its token. */
+  --opacity-glass-clear: 0.58;
+  --opacity-glass-frosted: 0.72;
+  --opacity-glass-dense: 0.72;
+  --opacity-glass-alert: 0.78;
+  --opacity-glass-plate-light: 0.92;
+  --opacity-glass-plate-dark: 0.88;
+
+  /* Internal data layer: how visible the system lines are (spec: 10% to 28%). */
+  --glass-stream-idle: 0.20;
+  --glass-stream-live: 0.28;
+  --glass-stream-stale: 0.10;
   --opacity-disabled: 0.42; /* imagery and illustrations only; controls use disabled-fill and disabled-text */
 
   --stroke-hairline: 0.5px;
@@ -271,13 +281,27 @@
   --chart-forecast: var(--graphite-600);
   --chart-grid: rgba(88, 102, 107, 0.18);
 
-  /* Glass materials */
+  /* Glass: four tints for the frame, one reading plate for text, and the
+     small parts (edge, streams, haze, seam, wear). Bare glass never carries
+     text; the plate does (see the Glass section of the document). */
   --glass-clear-bg: rgba(255, 254, 250, 0.58);
   --glass-frosted-bg: rgba(242, 235, 221, 0.72);
+  --glass-dense-bg: rgba(7, 29, 43, 0.72);
   --glass-alert-bg: rgba(255, 254, 250, 0.78);
   --glass-border: rgba(255, 254, 250, 0.42);
+  --glass-dense-border: rgba(156, 198, 216, 0.28);
+  --glass-edge-light: rgba(255, 254, 250, 0.42);
+  --glass-edge-shade: rgba(7, 29, 43, 0.10);
   --glass-blur-clear: blur(var(--blur-sm));
   --glass-blur-frosted: blur(var(--blur-md)) saturate(1.12);
+  --glass-blur-dense: blur(18px) saturate(1.12);
+  --glass-blur-alert: blur(12px);
+  --glass-plate-bg: rgba(255, 254, 250, 0.92);
+  --glass-plate-edge: rgba(217, 205, 182, 0.55);
+  --glass-stream-color: var(--teal-system-700);
+  --glass-haze: rgba(243, 237, 225, 0.38);
+  --glass-seam: var(--umber-600);
+  --glass-scratch: rgba(17, 24, 28, 0.05);
   --shadow-tint: 7 29 43;
 }
 
@@ -354,8 +378,18 @@
 
     --glass-clear-bg: rgba(13, 47, 69, 0.58);
     --glass-frosted-bg: rgba(13, 47, 69, 0.72);
-    --glass-alert-bg: rgba(13, 47, 69, 0.82);
+    --glass-dense-bg: rgba(3, 14, 22, 0.72);
+    --glass-alert-bg: rgba(13, 47, 69, 0.78);
     --glass-border: rgba(156, 198, 216, 0.28);
+    --glass-dense-border: rgba(156, 198, 216, 0.28);
+    --glass-edge-light: rgba(156, 198, 216, 0.24);
+    --glass-edge-shade: rgba(0, 0, 0, 0.30);
+    --glass-plate-bg: rgba(13, 47, 69, 0.88);
+    --glass-plate-edge: rgba(42, 84, 108, 0.70);
+    --glass-stream-color: var(--teal-system-300);
+    --glass-haze: rgba(156, 198, 216, 0.14);
+    --glass-seam: var(--umber-300);
+    --glass-scratch: rgba(255, 254, 250, 0.06);
     --shadow-tint: 0 0 0;
   }
 }
@@ -428,8 +462,18 @@
 
     --glass-clear-bg: rgba(13, 47, 69, 0.58);
     --glass-frosted-bg: rgba(13, 47, 69, 0.72);
-    --glass-alert-bg: rgba(13, 47, 69, 0.82);
+    --glass-dense-bg: rgba(3, 14, 22, 0.72);
+    --glass-alert-bg: rgba(13, 47, 69, 0.78);
     --glass-border: rgba(156, 198, 216, 0.28);
+    --glass-dense-border: rgba(156, 198, 216, 0.28);
+    --glass-edge-light: rgba(156, 198, 216, 0.24);
+    --glass-edge-shade: rgba(0, 0, 0, 0.30);
+    --glass-plate-bg: rgba(13, 47, 69, 0.88);
+    --glass-plate-edge: rgba(42, 84, 108, 0.70);
+    --glass-stream-color: var(--teal-system-300);
+    --glass-haze: rgba(156, 198, 216, 0.14);
+    --glass-seam: var(--umber-300);
+    --glass-scratch: rgba(255, 254, 250, 0.06);
     --shadow-tint: 0 0 0;
   }
 }
@@ -509,10 +553,23 @@
 
   --glass-clear-bg: var(--color-surface);
   --glass-frosted-bg: var(--color-surface);
+  --glass-dense-bg: var(--color-surface);
   --glass-alert-bg: var(--color-surface);
   --glass-border: var(--color-border-card);
+  --glass-dense-border: var(--color-border-card);
+  --glass-edge-light: transparent;
+  --glass-edge-shade: transparent;
   --glass-blur-clear: none;
   --glass-blur-frosted: none;
+  --glass-blur-dense: none;
+  --glass-blur-alert: none;
+  --glass-plate-bg: var(--color-surface);
+  --glass-plate-edge: var(--color-border-card);
+  --glass-haze: transparent;
+  --glass-scratch: transparent;
+  --glass-stream-idle: 0;
+  --glass-stream-live: 0;
+  --glass-stream-stale: 0;
 }
 
 /* ---------- Derived tokens ----------
@@ -557,20 +614,74 @@
 [data-reduced-transparency="true"] [data-theme] {
   --glass-clear-bg: var(--color-surface);
   --glass-frosted-bg: var(--color-surface);
+  --glass-dense-bg: var(--color-surface);
   --glass-alert-bg: var(--color-surface);
   --glass-border: var(--color-border-card);
+  --glass-dense-border: var(--color-border-card);
+  --glass-edge-light: transparent;
+  --glass-edge-shade: transparent;
   --glass-blur-clear: none;
   --glass-blur-frosted: none;
+  --glass-blur-dense: none;
+  --glass-blur-alert: none;
+  --glass-plate-bg: var(--color-surface);
+  --glass-plate-edge: var(--color-border-card);
+  --glass-haze: transparent;
+  --glass-scratch: transparent;
+  --glass-stream-idle: 0;
+  --glass-stream-live: 0;
+  --glass-stream-stale: 0;
 }
 @media (prefers-reduced-transparency: reduce) {
   :root,
   [data-theme] {
     --glass-clear-bg: var(--color-surface);
     --glass-frosted-bg: var(--color-surface);
+    --glass-dense-bg: var(--color-surface);
     --glass-alert-bg: var(--color-surface);
     --glass-border: var(--color-border-card);
+    --glass-dense-border: var(--color-border-card);
+    --glass-edge-light: transparent;
+    --glass-edge-shade: transparent;
     --glass-blur-clear: none;
     --glass-blur-frosted: none;
+    --glass-blur-dense: none;
+    --glass-blur-alert: none;
+    --glass-plate-bg: var(--color-surface);
+    --glass-plate-edge: var(--color-border-card);
+    --glass-haze: transparent;
+    --glass-scratch: transparent;
+    --glass-stream-idle: 0;
+    --glass-stream-live: 0;
+    --glass-stream-stale: 0;
+  }
+}
+
+/* ---------- No backdrop-filter: without the blur, glass is a solid surface ----------
+ * A browser that cannot blur would show the backdrop sharp behind the tint,
+ * which is not the material this system describes. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root,
+  [data-theme] {
+    --glass-clear-bg: var(--color-surface);
+    --glass-frosted-bg: var(--color-surface);
+    --glass-dense-bg: var(--color-surface);
+    --glass-alert-bg: var(--color-surface);
+    --glass-border: var(--color-border-card);
+    --glass-dense-border: var(--color-border-card);
+    --glass-edge-light: transparent;
+    --glass-edge-shade: transparent;
+    --glass-blur-clear: none;
+    --glass-blur-frosted: none;
+    --glass-blur-dense: none;
+    --glass-blur-alert: none;
+    --glass-plate-bg: var(--color-surface);
+    --glass-plate-edge: var(--color-border-card);
+    --glass-haze: transparent;
+    --glass-scratch: transparent;
+    --glass-stream-idle: 0;
+    --glass-stream-live: 0;
+    --glass-stream-stale: 0;
   }
 }
 
@@ -593,10 +704,23 @@
   [data-theme] {
     --glass-clear-bg: var(--color-surface);
     --glass-frosted-bg: var(--color-surface);
+    --glass-dense-bg: var(--color-surface);
     --glass-alert-bg: var(--color-surface);
     --glass-border: var(--color-border-control);
+    --glass-dense-border: var(--color-border-control);
+    --glass-edge-light: transparent;
+    --glass-edge-shade: transparent;
     --glass-blur-clear: none;
     --glass-blur-frosted: none;
+    --glass-blur-dense: none;
+    --glass-blur-alert: none;
+    --glass-plate-bg: var(--color-surface);
+    --glass-plate-edge: var(--color-border-control);
+    --glass-haze: transparent;
+    --glass-scratch: transparent;
+    --glass-stream-idle: 0;
+    --glass-stream-live: 0;
+    --glass-stream-stale: 0;
     --shadow-1: none;
     --shadow-2: none;
     --shadow-3: none;
@@ -677,9 +801,24 @@
     --chart-selected: Highlight;
     --glass-clear-bg: Canvas;
     --glass-frosted-bg: Canvas;
+    --glass-dense-bg: Canvas;
     --glass-alert-bg: Canvas;
     --glass-border: CanvasText;
+    --glass-dense-border: CanvasText;
+    --glass-edge-light: transparent;
+    --glass-edge-shade: transparent;
     --glass-blur-clear: none;
     --glass-blur-frosted: none;
+    --glass-blur-dense: none;
+    --glass-blur-alert: none;
+    --glass-plate-bg: Canvas;
+    --glass-plate-edge: CanvasText;
+    --glass-haze: transparent;
+    --glass-scratch: transparent;
+    --glass-stream-idle: 0;
+    --glass-stream-live: 0;
+    --glass-stream-stale: 0;
+    --glass-seam: CanvasText;
+    --glass-stream-color: CanvasText;
   }
 }

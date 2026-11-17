@@ -15,6 +15,7 @@ v0.5 adds the mechanics that dense and long-running products need. As in v0.4, e
 - **Typography as engineering**: bundled open-licensed faces (Source Sans 3, Source Code Pro, Noto Sans Arabic), tabular digits and real weights proven by checks, and a check that every character drawn is covered by a bundled face. See [Font Stack](#font-stack).
 - **Right to left**: the layout mirrors through logical properties, and numbers and dates are isolated. See [Internationalization and Right to Left](#internationalization-and-right-to-left).
 - **The table model, completed**: range selection, copy and paste with a preview, column visibility, order and width with a keyboard alternative for every pointer action, middle truncation of paths, and a virtualized table of 12,408 rows with a measured budget. See [Tables & Data Grids](#tables--data-grids).
+- **Glass, specified and measured**: bare glass carries no text, text sits on reading plates, and the plate's legibility is measured on real rendered pixels. All four variants are now tokens, and the internal data layer, glass states and wear are built. See [Glass](#glass).
 - **A settings screen**: staged until Apply, an inert preview, locked settings with their owner, reordering without a pointer, find and stated scope. See [Settings and Personalization](#settings-and-personalization).
 - **Smaller sections**: [Performance](#performance), [Measuring Success](#measuring-success), and zoom in [Accessibility](#accessibility).
 
@@ -25,6 +26,10 @@ Building the checks found defects, corrected here:
 - **The 44px input height** made every desktop form and table taller than the work needs. 44px is now the touch density; comfortable is 36px and compact 28px.
 - **Frutiger is a commercial face** that was first in the stack, so a device without it silently drew something else. The stack now leads with a bundled face.
 - **The reason an action was unavailable was a message after a click**, not something a screen reader could find first. Every unavailable action now carries its reason as its description, and still announces it when activated.
+- **Frosted glass was legible only over near-white.** Measured, light frosted glass kept every text role at 4.5:1 only over backdrops brighter than gray 230, and dark frosted glass only below gray 138. Over a mid-gray photograph its muted and state text failed, so the glass could not carry text over the imagery it was specified for. Text now sits on a plate that holds over every backdrop.
+- **The glass tokens contradicted the material table.** `opacity-glass-clear` was 0.72 (table: 0.58) and `opacity-glass-frosted` 0.82 (table: 0.72), nothing used them, and dense hardware glass and the alert blur were not tokens at all. A check now fails if a tint's alpha differs from its token.
+- **Dense hardware glass broke outdoor's AAA promise.** It is a dark subtree, so inside an outdoor page it escaped the outdoor theme and its muted text measured 6.28:1 against the 7:1 target. In outdoor it now stays in the outdoor theme.
+- **Every glass component put text directly on glass**, and the secondary button, the system button and the tooltip were specified as glass over a flat canvas or over arbitrary charts, which the tonal ladder forbids.
 - **A virtualized table cannot be printed.** In print, the large table's spacer rows made the page about 500,000px tall, thousands of blank pages. The large table is now left out of print, and the page says why.
 - **A plain click on a column edge rebuilt the header**, destroying the element before a double click could land on it. A pointer action that changes nothing must not re-render the control under the pointer.
 
@@ -84,6 +89,7 @@ Glass is not decoration. Glass reveals. Translucent surfaces should expose usefu
 
 - **Do**: Use glass to reveal hierarchy, state, and context.
 - **Avoid**: Frosted panels that hide information, ornamental bubbles, fake refraction, or excessive blur.
+- **Test**: Remove the backdrop. If the panel tells you the same thing, it has no business being glass. And the opposite test: if its text is only legible over some backdrops, the text does not belong on the glass. See [Glass](#glass).
 
 ### 3. Earned Optimism
 
@@ -438,7 +444,7 @@ Depth is communicated by tone first, then hairline, then shadow. Each layer has 
 
 - **Components placed on the canvas use the white surface**, not `surface-raised`: a raised track on the canvas measures 1.02:1 and disappears (segmented controls, chips, selects).
 - **Inside an overlay, repeat the ladder**: a side panel is a workspace (canvas + white step cards) with a solid white header.
-- **Glass only over moving content**: toasts and sticky elements over scrolling lists. A sidebar or header over a flat canvas is solid; blur that reveals nothing is decoration (see Honest Translucency) and costs rendering time.
+- **Glass only over moving content**: toasts and sticky elements over scrolling lists. A sidebar or header over a flat canvas is solid; blur that reveals nothing is decoration (see Honest Translucency) and costs rendering time. The full rules, with the backdrops glass is allowed over, are in [Glass](#glass).
 - **One filled action per surface.** Primary is filled aerospace blue; a dialog's destructive answer is filled coral-700; everything else is outlined or ghost.
 - **Disabled is neutral**: mineral fill and graphite text, never a faded primary that still looks clickable.
 - **Selected items re-point muted text**: on `surface-selected` the muted token steps up to `text-muted-on-selected`, so metadata inside a selected row or card stays AA without per-element overrides.
@@ -539,8 +545,12 @@ Shadows should feel physical, soft, and directional. They should not create floa
 | **blur-sm** | 8px | Dense UI glass |
 | **blur-md** | 14px | Standard glass panels |
 | **blur-lg** | 24px | Large background glass |
-| **opacity-glass-clear** | 0.72 | Clear operational glass |
-| **opacity-glass-frosted** | 0.82 | Frosted system glass |
+| **opacity-glass-clear** | 0.58 | Clear operational glass tint (v0.5: was 0.72, contradicting the material table) |
+| **opacity-glass-frosted** | 0.72 | Frosted system glass tint (v0.5: was 0.82) |
+| **opacity-glass-dense** | 0.72 | Dense hardware glass tint |
+| **opacity-glass-alert** | 0.78 | Alert glass tint |
+| **opacity-glass-plate-light** / **-dark** | 0.92 / 0.88 | The reading plate |
+| **glass-stream-idle** / **-live** / **-stale** | 0.20 / 0.28 / 0.10 | Internal data layer line opacity |
 | **opacity-disabled** | 0.42 | Disabled imagery and illustrations only; controls use `disabled-fill` and `disabled-text` (v0.4) |
 | **stroke-hairline** | 0.5px | High-density visualizations |
 | **stroke-sm** | 1px | Standard borders |
@@ -575,35 +585,173 @@ Shadows should feel physical, soft, and directional. They should not create floa
 
 Materials should feel like they belong to instruments, vehicles, public infrastructure, renewable systems, and repairable personal devices. Glass, metal, polymer, rubber, ceramic, water, air, and vegetation should be represented with restraint.
 
-### Glass Material Variants
+### Glass
 
-| Material | Background | Blur | Border | Shadow | Use |
+Glass is the material Realis Aero is named for and the one most likely to break its own promise. A blurred, translucent panel that hides what is behind its text is the "frosted panel that hides information" the Honest Translucency principle rejects, and a panel that is only legible over a white page is no material for imagery. This section makes glass **reveal** and makes it **legible**, and the checks measure both. The specimen is [`specimen/glass.html`](specimen/glass.html), drawn by [`specimen/glass.css`](specimen/glass.css) and [`specimen/glass.js`](specimen/glass.js).
+
+#### What the First Measurements Found
+
+Measuring the glass as it was specified found problems that only a measurement could:
+
+- **Frosted glass was legible only over near-white.** With every text role laid on bare glass, light frosted glass reached 4.5:1 only over backdrops brighter than gray 230 (of 255), and dark frosted glass only below gray 138. Over a mid-gray photograph its muted and state text failed.
+- **The material table and the tokens disagreed**, and two of the four variants were not tokens.
+- **The internal data layer, the imperfections and any glass behaviour in a state** were specified and never built, so they had never been looked at.
+- **Every glass component put its text straight onto the glass.**
+
+#### The Rule: Bare Glass Carries No Text
+
+Glass shows; plates carry. The two have different jobs and are measured differently.
+
+| Part | Carries | Never carries |
+|---|---|---|
+| **Bare glass** | The blurred backdrop, the edge, the internal data layer, and the few cues that repeat the state system (haze, seam) | Text, state marks, values, controls |
+| **Reading plate** | All text, state labels and marks, values and controls | — |
+
+Between the plates the glass is free to be translucent, so it can reveal what is behind it; where a person has to read, a plate guarantees that they can. This is the only way a translucent surface can both reveal and be legible over an arbitrary backdrop, and it is the reason the rule has no exceptions: the specimen's stress samples are the only text on bare glass anywhere in it, and they are there to show it failing.
+
+#### Anatomy
+
+Back to front. Every layer after the tint is decoration or structure, and none but the plates carries text.
+
+| Layer | Token | What it does |
+|---|---|---|
+| **Backdrop** | — | The imagery or moving content the glass is placed over |
+| **Blur** | `glass-blur-*` | Softens the backdrop so it reads as depth, not as competing detail |
+| **Tint** | `glass-*-bg` | Gives the glass its colour and body; sets how much of the backdrop shows |
+| **Wear** | `glass-scratch` | Optional micro-scratches, touch surfaces only |
+| **Haze / seam** | `glass-haze`, `glass-seam` | State cues that repeat the state system (stale, maintenance) |
+| **Streams** | `glass-stream-*` | The internal data layer: system lines drawn on the glass |
+| **Edge** | `glass-border`, `glass-edge-light`, `glass-edge-shade` | A hairline, a light edge on top and a shaded edge below: the glass's thickness |
+| **Plates** | `glass-plate-bg`, `glass-plate-edge` | Everything that is read |
+
+The specimen's anatomy panel has a switch for each layer, so what each contributes can be seen by removing it.
+
+#### Variants
+
+| Variant | Tint (light) | Blur | Hairline | Use | Bare-glass envelope, light / dark |
 |---|---|---:|---|---|---|
-| **Clear Operational Glass** | `rgba(255, 254, 250, 0.58)` | 8px | `rgba(255, 254, 250, 0.42)` | elevation-2 | Compact controls, live labels |
-| **Frosted System Glass** | `rgba(242, 235, 221, 0.72)` | 14px | `rgba(255, 254, 250, 0.34)` | elevation-3 | Panels over imagery or moving content (a sign-in card over a photographic background); not over a flat canvas (v0.3) |
-| **Dense Hardware Glass** | `rgba(7, 29, 43, 0.72)` | 18px | `rgba(156, 198, 216, 0.28)` | elevation-3 | Dark instrument panels |
-| **Alert Glass** | `rgba(255, 254, 250, 0.78)` | 12px | semantic warning/danger border | elevation-3 | Alerts, maintenance states |
-| **Reduced Transparency Surface** | solid semantic surface | 0px | standard border | elevation-1 | Accessibility fallback |
+| **Clear** | `rgba(255, 254, 250, 0.58)` | 8px | `rgba(255, 254, 250, 0.42)` | A lens over a small readout: compact controls, live labels (their text on a small plate) | gray 206–255 / 0–105 |
+| **Frosted** | `rgba(242, 235, 221, 0.72)` | 14px, saturate 1.12 | `rgba(255, 254, 250, 0.42)` | Panels over imagery or moving content | gray 230–255 / 0–138 |
+| **Dense hardware** | `rgba(7, 29, 43, 0.72)` | 18px, saturate 1.12 | `rgba(156, 198, 216, 0.28)` | Dark instrument panels over imagery. A dark subtree (`data-theme="dark"`), except in outdoor | — / 0–215 |
+| **Alert** | `rgba(255, 254, 250, 0.78)` | 12px | `rgba(255, 254, 250, 0.42)` plus the state's 3px leading edge | Notices and maintenance messages over moving content | gray 161–255 / 0–162 |
+| **Reduced transparency surface** | the solid surface | none | the card hairline | The fallback for every other row | — |
 
-### Imperfection Rules
+- **Light values are shown**; dark tints are the same alphas on `aero-blue-900` (dense on `#030E16`), and every value is in the token file.
+- **The envelope** is the range of backdrop grays (0 black, 255 white) over which *every* text role would reach 4.5:1 if it were laid on that variant bare. It is printed by `npm run check:tokens`. It is why bare glass carries no text: no variant covers the backdrops that photographs and live data actually contain.
+- **An alert's colour comes from the state system**, as a real 3px border, not from a coloured glass border.
+- **Each tint's alpha is its `opacity-glass-*` token**, and a check fails if they differ.
 
-Imperfections should signal real use, not visual noise.
+#### The Reading Plate
 
-- **Micro-scratches**: 1px or thinner, 3% to 8% opacity, aligned with plausible touch or cleaning direction.
-- **Fingerprints**: Use only on touch surfaces and only at large sizes or close-up views.
-- **Condensation**: Use near weather, cooling, water, greenhouse, or thermal systems; never as generic decoration.
-- **Dust or pollen**: Use for outdoor infrastructure, vents, sensor housings, and seasonal surfaces.
-- **Wear**: Apply to edges, handles, frequently pressed buttons, and replaceable modules.
+| Token | Light | Dark |
+|---|---|---|
+| `glass-plate-bg` | `rgba(255, 254, 250, 0.92)` | `rgba(13, 47, 69, 0.88)` |
+| `glass-plate-edge` | `rgba(217, 205, 182, 0.55)` | `rgba(42, 84, 108, 0.70)` |
 
-### Internal Data Layer
+A plate is a surface, 1px edge, `radius-sm`, in the colour of the layer it stands in for. It holds text of every role.
 
-Glass panels may reveal low-intensity system lines beneath the surface.
+- **It is a guarantee, and it is measured twice.** Over pure black and pure white, for every variant in both themes, every text role reaches 4.5:1 and every state mark 3:1 (29 checks in `npm run check:tokens`, composited as the browser does: plate over tint over backdrop). And on real rendered pixels: the glass page has 79 plate text runs, laid over a landscape, a dark ground, fine black and white detail and white beside black, and every one reaches 4.5:1 (7:1 in outdoor) against the pixels actually behind its box.
+- **It holds while content moves.** A notice over a scrolling list of bright, dark and mid rows was measured at eight scroll positions: its lowest text contrast was 5.13:1.
+- **The plate is the size of its text, not of the panel.** A panel with a plate that fills it is a solid card with a thin rim. Leave the frame, the margins and the spaces between plates visible: that is where the glass reveals.
+- **Plates stack with the tint beneath them.** A 0.92 plate over a 0.72 tint is 97.8% opaque, a 0.88 plate in dark 96.6%, so a plate does not need to be fully opaque to hold.
+- **A plate may be thinner only against a backdrop that has been measured.** The alpha needed by the frosted tint depends on the darkest (light) or brightest (dark) region behind the plate:
 
-- **Line opacity**: 10% to 28%.
-- **Line width**: 1px to 2px.
-- **Glow**: Use `teal-system-500` at low opacity; pulse only on fresh data.
-- **Meaning**: Every stream must map to a real category: power, water, air, heat, carbon, network, maintenance, or movement.
-- **Animation**: Idle streams should barely move or remain still; live updates may pulse once.
+| Light, darkest region behind the plate | gray 0 | 64 | 128 | 192 | 224 and up |
+|---|---:|---:|---:|---:|---:|
+| **Plate alpha needed** | 0.76 | 0.70 | 0.59 | 0.34 | 0.30 or less |
+
+| Dark, brightest region behind the plate | gray 255 | 224 | 192 | 160 and down |
+|---|---:|---:|---:|---:|
+| **Plate alpha needed** | 0.57 | 0.49 | 0.38 | 0.30 or less |
+
+  The tokens keep the guarantee for any backdrop. Lowering the alpha is a decision about one known backdrop (a fixed brand photograph, a map style) and has to be re-measured when the backdrop changes.
+
+#### Where Glass Is Allowed
+
+| Backdrop | Glass? | Why |
+|---|---|---|
+| **Imagery**: a photographed or illustrated environment | Yes | The glass shows context: the place the data is about |
+| **Moving content**: a scrolling list, a live data field | Yes | The glass shows that something moves behind it, and stays in place while it does |
+| **A flat canvas** | No, solid | Blur over nothing reveals nothing, and costs rendering time |
+| **Content the person has to read** (a table, a form) | No, solid overlay | A translucent panel over data hides it; use a solid L4 overlay over a scrim |
+| **Another glass panel** | Never | A blur on a blur cannot be measured, compounds the cost and doubles the haze. Components inside glass are plates and solid controls |
+
+The test from [Honest Translucency](#2-honest-translucency): remove the backdrop. If the panel reads the same, it should be solid.
+
+#### Edge and Light
+
+One light source, from above, a little warm: diffused daylight or low sun. Shadows fall straight down (the `shadow-*` tokens have a vertical offset only), and the edges agree with them.
+
+- **Light edge**: 1px inside the top edge, `glass-edge-light` (white 42% in light, blue-white 24% in dark).
+- **Shaded edge**: 1px inside the bottom edge, `glass-edge-shade` (10% in light, 30% black in dark).
+- **Hairline**: 1px, `glass-border`.
+- **Radius**: `radius-lg` for panels, `radius-xl` for hero panels, `radius-sm` for plates.
+- **What is left out on purpose**: a diagonal gloss sweep, a specular streak, rainbow refraction, an inner glow. These are the "glossy, decorative, magical" glass the Frutiger Aero comparison rejects; the two edges alone give the pane its thickness.
+
+#### Internal Data Layer
+
+System lines drawn on the glass, under the plates and over the tint. They are what lets glass **reveal structure** as well as the backdrop.
+
+- **Drawn as SVG**, hidden from assistive technology, and never taking the pointer. Removed in every fallback.
+- **Opacity** 20% at idle (`glass-stream-idle`), 28% for the instant of a fresh reading, 10% when stale. All inside the 10% to 28% range.
+- **Width** 2px, round caps, constant at any panel size.
+- **Colour** `glass-stream-color`: teal-system-700 in light, teal-system-300 in dark, because the lines are live system structure.
+- **Every line is a real category with its own line style**, and is named on a plate. A line is never the only carrier of anything.
+
+| Category | Line style | Category | Line style |
+|---|---|---|---|
+| **Power** | Solid | **Carbon** | Short dash |
+| **Heat** | Dash, dot | **Network** | Dash, dot, dot (1px) |
+| **Water** | Long dash | **Maintenance** | Long dash, dots |
+| **Air** | Round dots | **Movement** | Very long dash |
+
+- **A fresh reading pulses its own line once**, for 600ms (`motion-live-pulse`), from 28% back to idle, and no other line moves. Idle lines stay still. Under reduced motion nothing pulses and the announcement ("Fresh reading on the water stream.") carries it.
+- **Checked**: every line within the opacity and width ranges, eight categories with eight distinct styles, the pulse once and only on its own line, none under reduced motion, and the layer hidden from assistive technology.
+
+#### Glass and State
+
+**Glass never carries a state alone.** Each cue below repeats one the state system already gives, so removing the glass loses nothing.
+
+| State | What the glass does | The cue it repeats |
+|---|---|---|
+| **Live** | Clear, lines at idle, one pulse on a fresh reading | The live label and mark |
+| **Stale** | A haze under the plates (`glass-haze`); lines drop to 10% and stop | The clock mark and the age on the plate |
+| **Offline** | Solid and recessed, no light, no lines, no shadow ("Offline wins over glass") | The offline label and mark |
+| **Maintenance** | A seam and four corner fasteners in `glass-seam` (umber), and the 3px leading edge | The nut mark and the who-and-when label |
+| **Warning, error** (alert glass) | The 3px leading edge in the state's colour, as a real border | The warning or error mark and message on the plate |
+| **Degraded, success, uncertain** | Nothing: the plate carries them | The state system, on the plate |
+
+A fogged pane for stale data is a deliberate use of the glass metaphor: you can still read it, and you can see that you are looking through something. The seam and fasteners say "this panel is serviceable", which is what Repairable Beauty asks of a module under maintenance. Neither is ornament, because each repeats a label.
+
+#### Wear
+
+Imperfections signal use, so each has a place and a reason.
+
+- **Micro-scratches** (built): hairlines under the plates in `glass-scratch` (5% in light, 6% in dark; the range is 3% to 8%), crossing at two angles. **Touch surfaces only**, off unless a surface asks (`data-wear`), and removed in every fallback. Being under the plates they never touch a contrast measurement.
+- **Fingerprints, condensation, dust and edge wear** are specified for products and **not built** in the specimen. Fingerprints are for touch surfaces seen large; condensation only near weather, cooling, water, greenhouse or thermal systems; dust only for outdoor housings and vents; wear on edges, handles and replaceable modules. None is generic decoration.
+
+#### Fallbacks
+
+Every fallback is the same move: the glass tokens become solid. Components need no rule of their own.
+
+| Mode | What glass becomes |
+|---|---|
+| **Reduced transparency** | The solid surface, a card hairline, a solid plate; no blur, lines, haze, scratches or edge light |
+| **Outdoor** | The same. Dense hardware glass stays in the outdoor theme, because a dark subtree would fall outside the 7:1 target |
+| **Print** | The same, with the control-tone edge; the printed page is light |
+| **Forced colors** | `Canvas` with a `CanvasText` border; the seam in `CanvasText` |
+| **No `backdrop-filter`** | The same, through `@supports not`: unblurred tint over a sharp backdrop would not be the material this system describes |
+| **Offline** | A solid, recessed surface, whatever the mode |
+
+`npm run check:tokens` asserts that each of the six token blocks makes every tint and the plate solid and removes blur, lines, haze, scratches and light. The glass page is then rendered in reduced transparency (light and dark), outdoor, forced colors and print, and every panel is checked to be solid.
+
+#### Limits of What Is Measured
+
+- **The backdrops are stress tests drawn in code, not photographs.** They are chosen to be hard (white beside black, fine detail that defeats a blur) and deterministic, so a run is repeatable. Real photography, video and map imagery have to be put through the same pixel measurement before a product ships glass over them.
+- **Blur and compositing differ between browsers and GPUs.** The measurement is of one engine.
+- **Focus rings** that fall on bare glass at a plate's edge are not measured.
+- **Whether people read the haze and the seam as intended** has not been tested with people.
+- **Rendering cost on real devices** is not measured (see [Performance](#performance)).
 
 ## State System
 
@@ -749,7 +897,7 @@ For bulk or multi-step operations, report the outcome as counts with a way to re
 |---|---|---|
 | **Light** | Default | The v0.3 tonal ladder |
 | **Dark** | User preference, evening and low light | Designed, not inverted: see the dark ladder below |
-| **Outdoor** | Direct sunlight, field and site work | Held to WCAG AAA: 7:1 for text, 4.5:1 for marks and control edges. Layers are separated by strong edges. Glass is solid. |
+| **Outdoor** | Direct sunlight, field and site work | Held to WCAG AAA: 7:1 for text, 4.5:1 for marks and control edges. Layers are separated by strong edges. Glass is solid, and dense hardware glass stays in the outdoor theme instead of becoming a dark panel. |
 | **Forced colors** | Windows High Contrast and similar | Tokens map to system colours; borders, marks and text carry everything |
 | **Print** | Reports, logs, sheets | Always light, whatever the screen showed. No glass, no shadows, no navigation. |
 | **Reduced transparency** | Low vision, battery saver, user setting | Glass becomes the solid surface of its layer |
@@ -813,7 +961,7 @@ The system replaces author colours, drops backgrounds and removes shadows. Glass
 - **Container**: Rounded rectangle or capsule with subtle bevel.
 - **Label**: Humanist medium weight, sentence case.
 - **Icon**: Optional, left for action category or right for continuation.
-- **Highlight**: Thin solar or glass highlight along top edge.
+- **Highlight**: Thin solar or glass highlight along top edge (the glass edge light, see [Edge and Light](#edge-and-light)).
 - **Shadow**: Soft directional depth.
 
 #### Variants
@@ -821,10 +969,10 @@ The system replaces author colours, drops backgrounds and removes shadows. Glass
 | Variant | Use | Visual Spec |
 |---|---|---|
 | **Primary** | Main action | Aerospace-blue fill, refined solar highlight, high-contrast label |
-| **Secondary** | Supporting action | Glass surface, aerospace-blue border, dark text |
+| **Secondary** | Supporting action | Solid surface, aerospace-blue border, dark text; a glass chip only when the button sits on imagery or moving content, with its label on a plate |
 | **Tertiary** | Low emphasis | Text or subtle glass chip |
 | **Danger** | Destructive/critical | Filled `action-danger` (coral-700) with the on-action label; in a dialog it is the one filled action |
-| **System** | Operational control | Dense hardware glass, compact label |
+| **System** | Operational control | Solid hardware surface, compact label; dense hardware glass only on a dark instrument panel over imagery, with its label on a plate |
 
 #### States
 
@@ -856,7 +1004,7 @@ Cards are not empty containers. A Realis Aero card should communicate a system s
 - **System card**: Health state, subsystem list, maintenance context.
 - **Narrative card**: Short explanatory content with measured evidence.
 - **Control panel**: Inputs, toggles, confirmations, and safety states.
-- **Hero panel**: Large glass panel for core product proposition and live proof.
+- **Hero panel**: Large glass panel over imagery for the core proposition and live proof, with its text on plates and its internal data layer showing between them.
 
 ### Navigation
 
@@ -907,7 +1055,7 @@ Charts should be clear first, atmospheric second.
 - **Gridlines**: Warm neutral at low opacity.
 - **Lines**: Slightly rounded caps, 2px standard stroke.
 - **Areas**: 12% to 24% opacity, never hide grid or labels.
-- **Tooltips**: Glass surface with timestamp, value, source, and confidence.
+- **Tooltips**: A reading plate with timestamp, value, source, and confidence. A tooltip floats over arbitrary chart content, so it never relies on bare glass.
 - **Forecasts**: Dotted or dashed with confidence band.
 - **Anomalies**: Annotate with reason when known.
 - **Live updates**: Animate only the changed segment, not the entire chart.
@@ -1199,7 +1347,7 @@ Realis Aero must remain usable when glass, color, motion, and environmental imag
 
 ### Requirements
 
-- **Contrast**: Body text must meet WCAG 2.2 AA minimum contrast. Large text, icons, and controls must be tested on final glass backgrounds. Every token pair of the tonal ladder and the state system is measured by `npm run check:tokens`, and the text actually painted on the specimen by `npm run check:render` (see [Verification](#verification)).
+- **Contrast**: Body text must meet WCAG 2.2 AA minimum contrast. Text sits on reading plates, and plates are measured on the pixels that are really behind them (see [Glass](#glass)). Every token pair of the tonal ladder and the state system is measured by `npm run check:tokens`, and the text actually painted on the specimen by `npm run check:render` (see [Verification](#verification)).
 - **Non-text contrast**: Input and checkbox edges, focus rings and the active-navigation bar reach 3:1 against their surface (WCAG 1.4.11).
 - **Glass fallback**: Provide reduced-transparency surfaces for low vision, high contrast, battery saver, or unsupported backdrop blur.
 - **Keyboard**: All interactive components must be reachable, visible, and operable by keyboard.
@@ -1262,7 +1410,7 @@ The budgets below are measured by `npm run check:render` on [the large table](sp
 - **Specify the largest supported dataset** for each product in rows by columns and test against it; 12,408 rows is the specimen's number, not a limit.
 - **Background work never blocks input**, reports progress, and can be cancelled.
 - **Large tables are virtualized**, and the accessible row and column structure stays in step with the rows that exist.
-- **Glass costs rendering time.** The tonal-ladder rule (glass only over moving content or imagery) is the first control; the second is measuring `backdrop-filter` on the lowest-supported device before adding a glass panel to a screen. This document gives no panel limit because none has been measured.
+- **Glass costs rendering time.** The tonal-ladder rule (glass only over moving content or imagery) is the first control; the second is that glass is never nested, so a blur is never applied to a blur, and only the glass element carries `backdrop-filter` (plates and lines do not). The third is measuring `backdrop-filter` on the lowest-supported device before adding a glass panel to a screen. This document gives no panel limit because none has been measured.
 
 ## Settings and Personalization
 
@@ -1360,17 +1508,64 @@ The dark values appear twice (explicit theme and system preference), and so do t
 ### Reference Component CSS
 
 ```css
-.realis-glass-panel {
+/* Glass. The tokens become solid in outdoor, print, forced colors, reduced
+   transparency and without backdrop-filter, so this needs no fallback of its own.
+   Bare glass carries no text: put text on .realis-glass__plate. */
+.realis-glass {
+  --glass-bg: var(--glass-frosted-bg);
+  --glass-blur: var(--glass-blur-frosted);
+  --glass-line: var(--glass-border);
   position: relative;
+  isolation: isolate;
   overflow: hidden;
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3);
   border-radius: var(--radius-lg);
-  /* The glass tokens become solid in outdoor, print, forced colors and
-     reduced transparency, so this rule needs no fallback of its own. */
-  background: var(--glass-frosted-bg);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-3), var(--inner-highlight), var(--inner-depth);
-  -webkit-backdrop-filter: var(--glass-blur-frosted);
-  backdrop-filter: var(--glass-blur-frosted);
+  border: 1px solid var(--glass-line);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--shadow-3),
+    inset 0 1px 0 var(--glass-edge-light),
+    inset 0 -1px 0 var(--glass-edge-shade);
+}
+.realis-glass[data-variant="clear"] { --glass-bg: var(--glass-clear-bg); --glass-blur: var(--glass-blur-clear); }
+.realis-glass[data-variant="dense"] { --glass-bg: var(--glass-dense-bg); --glass-blur: var(--glass-blur-dense); --glass-line: var(--glass-dense-border); }
+.realis-glass[data-variant="alert"] { --glass-bg: var(--glass-alert-bg); --glass-blur: var(--glass-blur-alert); }
+
+.realis-glass__plate {
+  position: relative;
+  z-index: 3;
+  padding: var(--space-3);
+  color: var(--color-text-primary);
+  background: var(--glass-plate-bg);
+  border: 1px solid var(--glass-plate-edge);
+  border-radius: var(--radius-sm);
+}
+
+/* The internal data layer: decoration under the plates, hidden from assistive technology. */
+.realis-glass__streams { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; pointer-events: none; }
+.realis-glass__streams path { fill: none; stroke: var(--glass-stream-color); stroke-width: 2; stroke-linecap: round; vector-effect: non-scaling-stroke; opacity: var(--glass-stream-idle); }
+.realis-glass__streams path.is-fresh { animation: realis-glass-pulse var(--motion-live-pulse) var(--ease-settle) 1; }
+@keyframes realis-glass-pulse { from { opacity: var(--glass-stream-live); } to { opacity: var(--glass-stream-idle); } }
+
+/* State: each cue repeats one the state system gives. */
+.realis-glass[data-state="stale"] .realis-glass__streams path { opacity: var(--glass-stream-stale); animation: none; }
+.realis-glass[data-state="maintenance"] { border-inline-start: var(--stroke-state) solid var(--state-maintenance-mark); }
+.realis-glass[data-state="warning"] { border-inline-start: var(--stroke-state) solid var(--state-warning-mark); }
+.realis-glass[data-state="error"] { border-inline-start: var(--stroke-state) solid var(--state-error-mark); }
+.realis-glass[data-state="offline"] {
+  background: var(--color-surface-inset);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+  border-color: var(--color-border-card);
+}
+.realis-glass[data-state="offline"] .realis-glass__streams { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .realis-glass__streams path.is-fresh { animation: none; }
 }
 
 .realis-button-primary {
@@ -1448,7 +1643,7 @@ src/
   components/
     primitives/
       RealisButton.vue
-      RealisGlassPanel.vue
+      RealisGlass.vue
       RealisMetric.vue
       RealisStatusTag.vue
     patterns/
@@ -1530,7 +1725,10 @@ const accessibleLabel = computed(() => {
 </script>
 
 <template>
-  <article class="realis-metric realis-glass-panel" :data-state="state" :aria-label="accessibleLabel">
+  <!-- Use the glass wrapper only over imagery or moving content; over a flat canvas the metric is a solid card.
+       Its text sits on a plate, never on bare glass. -->
+  <article class="realis-metric realis-glass" data-variant="frosted" :data-state="state" :aria-label="accessibleLabel">
+    <div class="realis-glass__plate">
     <div class="realis-metric__header">
       <span class="realis-metric__label">{{ label }}</span>
       <span class="realis-metric__state">{{ state }}</span>
@@ -1545,6 +1743,7 @@ const accessibleLabel = computed(() => {
       <span>{{ updatedAt }}</span>
       <span v-if="trendLabel">{{ trendLabel }}</span>
     </footer>
+    </div>
   </article>
 </template>
 
@@ -1760,18 +1959,18 @@ The claims in the token, state, theme, table, layer and type sections are measur
 
 | Check | Command | What it enforces |
 |---|---|---|
-| **Contrast** | `npm run check:tokens` | 144 token pairs in each of light, dark and outdoor: layers at least 1.12:1 from their neighbour; text at least 4.5:1 on every surface it can sit on; marks, control edges and focus rings at least 3:1; 7:1 and 4.5:1 in outdoor. Translucent tokens are composited over their surface. Also that the two dark blocks are identical. |
+| **Contrast** | `npm run check:tokens` | **Glass:** every tint's alpha is its token; over pure black and pure white every text role reaches 4.5:1 and every state mark 3:1 on a plate, for every variant in light and dark; every fallback (outdoor, reduced transparency, print, forced colors, no backdrop-filter) makes glass solid; and the envelope of bare glass is printed. **Tokens:** 144 token pairs in each of light, dark and outdoor: layers at least 1.12:1 from their neighbour; text at least 4.5:1 on every surface it can sit on; marks, control edges and focus rings at least 3:1; 7:1 and 4.5:1 in outdoor. Translucent tokens are composited over their surface. Also that the two dark blocks are identical. |
 | **Colour vision** | `npm run check:cvd` | The five family chart series stay at least 0.07 apart in OKLab under simulated protanopia, deuteranopia and tritanopia (Machado 2009), in every theme. |
-| **Rendering** | `npm run check:render` | In a real browser, on [`specimen/index.html`](specimen/index.html). **In each theme:** every state is drawn with a mark and a text label, and no two states share a mark; every run of painted text meets its target against the surface actually behind it; every control shows a focus ring of at least 2px and meets the density's height; disabled controls are focusable, explained and not faded; a dark panel inside another theme resolves its own tokens; pausing changes mark and text. **Density:** the three densities measure 36/28/44px controls and 40/32/48px rows, compact never drops below 24px, type size and rows are identical in all three, rows keep one height, a coarse pointer gets touch. **Table:** the keyboard model key by key (single tab stop, arrows, Home and End, Ctrl+Home and End, paging, header reach, sort, row selection, edit, cancel, commit, Tab while editing, unsaved marks and counts, restoring a value, leaving the grid, frozen key column). **Table, continued:** range selection, copy to the clipboard, paste preview with its skips and cancel, discard; columns (show, hide, reorder within a group, widths, drag and double click, the protected key column, persistence, reset); truncation (the start is cut, the tail stays, no decision value clips, the full text is reachable). **Large table:** 12,408 rows with about twenty in the page, true `aria-rowindex`, Ctrl+End to the last row, selection across scrolling, and the performance budget. **Layers:** every action, enabled and disabled, with the status it announces; offline queueing, partial sync, a conflict and its resolution. **Settings:** staged until Apply, an inert preview, Reset, Apply and persistence, Revert to defaults, a locked setting with its owner, reordering with announcements, Find, scope, painted contrast and target sizes. **Type:** the bundled faces load, digits are tabular, the four weights differ. **Right to left:** edges, bar, frozen column, alignment, minus sign and date order, and chart text kept inside its frame. **Modes:** glass is solid in outdoor and with reduced transparency; the system preference picks the theme; forced-colors edges, buttons and marks; reduced motion; print is light, leaves out the large table and its controls, and stays under 20,000px tall; at 200% zoom nothing clips. |
-| **Glyphs** | `npm run check:glyphs` | Every character the specimen and the settings page draw, in each theme and in French and Arabic, is covered by the bundled face that draws it, read from the WOFF2 character maps. Nothing depends on a system font. |
+| **Rendering** | `npm run check:render` | In a real browser, on [`specimen/index.html`](specimen/index.html). **In each theme:** every state is drawn with a mark and a text label, and no two states share a mark; every run of painted text meets its target against the surface actually behind it; every control shows a focus ring of at least 2px and meets the density's height; disabled controls are focusable, explained and not faded; a dark panel inside another theme resolves its own tokens; pausing changes mark and text. **Density:** the three densities measure 36/28/44px controls and 40/32/48px rows, compact never drops below 24px, type size and rows are identical in all three, rows keep one height, a coarse pointer gets touch. **Table:** the keyboard model key by key (single tab stop, arrows, Home and End, Ctrl+Home and End, paging, header reach, sort, row selection, edit, cancel, commit, Tab while editing, unsaved marks and counts, restoring a value, leaving the grid, frozen key column). **Table, continued:** range selection, copy to the clipboard, paste preview with its skips and cancel, discard; columns (show, hide, reorder within a group, widths, drag and double click, the protected key column, persistence, reset); truncation (the start is cut, the tail stays, no decision value clips, the full text is reachable). **Large table:** 12,408 rows with about twenty in the page, true `aria-rowindex`, Ctrl+End to the last row, selection across scrolling, and the performance budget. **Layers:** every action, enabled and disabled, with the status it announces; offline queueing, partial sync, a conflict and its resolution. **Glass:** the glass page rendered with its text hidden, and the contrast of every plate text colour measured against the real pixels behind it, in light, dark, outdoor and reduced transparency (79 plate runs each) and over eight scroll positions of a moving list; the stress backdrops must make bare glass fail (15 of 32 bare runs in light, 19 in dark); no glass inside glass, no text on bare glass outside the stress samples; streams within 10% to 28% and 1px to 2px, eight categories with eight line styles, hidden from assistive technology; each layer switch removes its layer; a fresh reading pulses once on its own line and not under reduced motion; live, stale, offline and maintenance panels behave as specified; reduced transparency, outdoor, forced colors and print make every panel solid; and the page reflows and mirrors. **Settings:** staged until Apply, an inert preview, Reset, Apply and persistence, Revert to defaults, a locked setting with its owner, reordering with announcements, Find, scope, painted contrast and target sizes. **Type:** the bundled faces load, digits are tabular, the four weights differ. **Right to left:** edges, bar, frozen column, alignment, minus sign and date order, and chart text kept inside its frame. **Modes:** glass is solid in outdoor and with reduced transparency; the system preference picks the theme; forced-colors edges, buttons and marks; reduced motion; print is light, leaves out the large table and its controls, and stays under 20,000px tall; at 200% zoom nothing clips. |
+| **Glyphs** | `npm run check:glyphs` | Every character the specimen, the settings page and the glass page draw, in each theme and in French and Arabic, is covered by the bundled face that draws it, read from the WOFF2 character maps. Nothing depends on a system font. |
 
 - **Lowest measured contrast at the time of writing**: text 4.58 (light), 4.50 (dark), 7.37 (outdoor); marks and edges 3.06 (light), 3.29 (dark), 4.69 (outdoor); layers 1.16 (light), 1.13 (dark), 1.18 (outdoor).
-- **Counts at the time of writing**: 435 contrast checks, 12 colour-vision checks, 1,956 render checks, 493 characters checked for coverage.
+- **Counts at the time of writing**: 464 contrast checks, 12 colour-vision checks, 2,032 render checks, 555 characters checked for coverage.
 - **The render check can reproduce another machine's rendering**: `RA_CHROMIUM_ARGS=--font-render-hinting=full npm run check:render` gives the pixel-snapped glyph widths of the CI runner. The suite passes in both modes.
-- **The checks were tested against the defects they target**: re-introducing an overflowing field, a state edge drawn with `box-shadow`, a paler muted text, a component token declared on the root alone, or a character missing from the bundled face makes them fail.
+- **The checks were tested against the defects they target**: a plate thinned to 45% or a stray text run on bare glass fails the glass checks, and re-introducing an overflowing field, a state edge drawn with `box-shadow`, a paler muted text, a component token declared on the root alone, or a character missing from the bundled face makes them fail.
 - **Review renders** are written to [`specimen/screenshots/`](specimen/screenshots/): each theme, grayscale, forced colors, print and 200% zoom. Grayscale is reviewed by eye.
 
-**What the checks cannot tell us.** Text on glass over imagery is skipped by the render check, because the surface behind it is not one colour. Real sunlight on a real screen, colour perception by people rather than a simulation, how screen readers actually announce the grid and the status lines (the checks read the attributes, not the speech), whether Arabic readers find the mirrored layout right, performance on large tables and low-end devices, and a real sync conflict, and a real clipboard (paste is tested with a dispatched paste event carrying text) all need people and devices. The keyboard model is tested in Chromium only.
+**What the checks cannot tell us.** Text on glass is now measured on real pixels, but only over procedural stress backdrops, not photographs, video or maps. Real sunlight on a real screen, colour perception by people rather than a simulation, how screen readers actually announce the grid and the status lines (the checks read the attributes, not the speech), whether Arabic readers find the mirrored layout right, performance on large tables and low-end devices, and a real sync conflict, and a real clipboard (paste is tested with a dispatched paste event carrying text) all need people and devices. The keyboard model is tested in Chromium only.
 
 ## Acceptance Criteria
 
@@ -1790,7 +1989,9 @@ A design qualifies as Realis Aero if it meets these standards:
 ### Visual QA
 
 - **Light source**: Shadows and highlights are consistent.
-- **Glass**: Transparency supports meaning and does not reduce readability.
+- **Glass**: Transparency supports meaning and does not reduce readability. Remove the backdrop: if the panel reads the same, it should be solid.
+- **Glass text**: No text on bare glass; every text run sits on a plate, and plates are measured on real pixels.
+- **Glass nesting and fallbacks**: No glass inside glass; reduced transparency, outdoor, print, forced colors and a browser without `backdrop-filter` all give a solid panel.
 - **Palette**: Accents are purposeful and not oversaturated. Family accents are not used as text; charts use the series tokens.
 - **Depth**: Layering communicates hierarchy.
 - **Imperfections**: Wear, scratches, or condensation have a contextual reason.
@@ -1847,6 +2048,15 @@ These are renders of the working specimen, written by `npm run check:render`.
 ![Realis Aero specimen, right to left](specimen/screenshots/rtl.png)  
 *Right to left: rail, bars, edges and the frozen column move; numbers and dates keep their order.*
 
+![Realis Aero glass, light](specimen/screenshots/glass.png)  
+*Glass in light: anatomy, the legibility matrix over four stress backdrops, what the glass reveals, a moving list, states and fallbacks.*
+
+![Realis Aero glass, dark](specimen/screenshots/glass-dark.png)  
+*Glass in dark.*
+
+![Realis Aero glass, outdoor](specimen/screenshots/glass-outdoor.png)  
+*Glass in outdoor: every panel solid.*
+
 ![Realis Aero settings](specimen/screenshots/settings.png)  
 *Settings: staged until Apply, an inert preview, and a locked setting with its owner.*
 
@@ -1863,7 +2073,9 @@ These are renders of the working specimen, written by `npm run check:render`.
 - **Measure on a device**: run the large-table budget on a low-end phone and a low-end laptop, and add frames per second while scrolling, which the check cannot see.
 - **Pseudo-localization**: a test build that expands every string by 40% and marks missing translations, to test the expansion rule.
 - **Settings, continued**: a profile store and a device store so that scope is enforced, offline caching, and default table columns.
-- **Glass on imagery**: validate glass panels on real photographic backgrounds; the render check skips them.
+- **Glass on real imagery**: run the glass pixel measurement over real photographs, video and map styles, and over a product's own backdrops, and add the measured plate alpha for each known backdrop.
+- **Glass cost**: measure `backdrop-filter` on a low-end phone and laptop and set a panel limit; none is claimed today.
+- **Glass, continued**: build fingerprints, condensation and dust where a product has the surface that justifies them, and test the haze and seam with people.
 - **Automation**: provenance on values, staged changes, and the rule that the product works with automation off.
 - **Component specs**: Produce Figma variants for every component listed in this document.
 - **Icon library**: Extend the 16px state marks into a 24px icon grid with engineering-natural hybrid motifs.

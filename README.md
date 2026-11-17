@@ -13,6 +13,7 @@ By Naji Zouiti.
 | [`fonts/`](fonts/) | The bundled faces (Source Sans 3, Source Code Pro, Noto Sans Arabic), their `@font-face` file and their SIL Open Font License texts |
 | [`specimen/index.html`](specimen/index.html) | A working page showing every surface and state, a keyboard-operable table (range selection, copy and paste with a preview, column controls, truncation), a virtualized table of 12,408 rows and a layered-state demo. Add `?theme=light`, `?theme=dark`, `?theme=outdoor`, `?transparency=reduced`, `?density=compact`, `?density=touch` or `?dir=rtl` |
 | [`specimen/settings.html`](specimen/settings.html) | A settings screen: staged until Apply, an inert preview, a locked setting with its owner, reordering without a pointer, find. Add nothing: it stores the applied settings in the browser |
+| [`specimen/glass.html`](specimen/glass.html) | Glass: its anatomy with a switch for each layer, a legibility matrix of four variants over four stress backdrops, the internal data layer over a live field, a moving list under a notice, states, and every fallback. Add `?theme=dark`, `?theme=outdoor` or `?transparency=reduced` |
 | [`specimen/screenshots/`](specimen/screenshots/) | Review renders: each theme, density, right to left, grayscale, forced colors, print, 200% zoom |
 | [`tools/`](tools/) | The checks |
 
@@ -22,7 +23,7 @@ By Naji Zouiti.
 npm run check:tokens   # WCAG contrast for every token pair, per theme
 npm run check:cvd      # chart series under simulated colour-vision deficiency
 npm install && npx playwright install chromium
-npm run check:render   # browser checks on the specimen and settings page; writes the screenshots
+npm run check:render   # browser checks on the specimen, settings and glass pages; writes the screenshots
 npm run check:glyphs   # every drawn character, in French and Arabic too, is in a bundled face
 # Reproduce another machine's rendering, e.g. the CI runner's pixel-snapped glyph advances:
 RA_CHROMIUM_ARGS=--font-render-hinting=full npm run check:render

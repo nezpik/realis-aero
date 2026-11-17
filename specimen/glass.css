@@ -1,0 +1,89 @@
+/* Realis Aero glass. One recipe, four tints, and a rule: bare glass carries no
+ * text. Text sits on a reading plate; between the plates the glass shows what
+ * is behind it and its internal data layer.
+ *
+ * Layer order, back to front:
+ *   backdrop -> blur -> tint -> wear -> haze / seam -> streams -> plates -> content
+ * Every layer after the tint is decoration or structure and none carries text
+ * except the plates. */
+
+.glass {
+  --glass-bg: var(--glass-frosted-bg);
+  --glass-blur: var(--glass-blur-frosted);
+  --glass-line: var(--glass-border);
+  position: relative; isolation: isolate; overflow: hidden;
+  display: grid; gap: var(--space-3); padding: var(--space-3);
+  border-radius: var(--radius-lg); border: var(--stroke-sm) solid var(--glass-line);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+  box-shadow: var(--shadow-3), inset 0 1px 0 var(--glass-edge-light), inset 0 -1px 0 var(--glass-edge-shade);
+}
+.glass[data-variant="clear"] { --glass-bg: var(--glass-clear-bg); --glass-blur: var(--glass-blur-clear); }
+.glass[data-variant="dense"] { --glass-bg: var(--glass-dense-bg); --glass-blur: var(--glass-blur-dense); --glass-line: var(--glass-dense-border); }
+.glass[data-variant="alert"] { --glass-bg: var(--glass-alert-bg); --glass-blur: var(--glass-blur-alert); }
+
+/* The reading plate: the only place glass carries text. */
+.glass__plate { position: relative; z-index: 3; display: grid; gap: var(--space-1); padding: var(--space-3); color: var(--color-text-primary); background: var(--glass-plate-bg); border: var(--stroke-sm) solid var(--glass-plate-edge); border-radius: var(--radius-sm); }
+.glass__plate--row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); }
+
+/* Internal data layer: system lines under the plates, never the only carrier of information. */
+.glass__streams { position: absolute; inset: 0; z-index: 2; pointer-events: none; width: 100%; height: 100%; }
+.glass__streams path { fill: none; stroke: var(--glass-stream-color); stroke-width: 2; stroke-linecap: round; opacity: var(--glass-stream-idle); vector-effect: non-scaling-stroke; }
+.stream--power { stroke-dasharray: none; }
+.stream--water { stroke-dasharray: 10 5; }
+.stream--air { stroke-dasharray: 0.1 6; }
+.stream--heat { stroke-dasharray: 10 4 2 4; }
+.stream--carbon { stroke-dasharray: 4 3; }
+.stream--network { stroke-dasharray: 5 2 1 2; stroke-width: 1; }
+.stream--maintenance { stroke-dasharray: 14 3 3 3; }
+.stream--movement { stroke-dasharray: 16 8; }
+@keyframes glass-pulse { from { opacity: var(--glass-stream-live); } to { opacity: var(--glass-stream-idle); } }
+.glass__streams path.is-fresh { animation: glass-pulse var(--motion-live-pulse) var(--ease-settle) 1; }
+
+/* An open panel keeps its plates the size of their text, so the glass between them shows. */
+.glass--open { padding: var(--space-5); max-width: 560px; }
+.glass--open .glass__plate { justify-self: start; }
+
+/* Wear: micro-scratches, touch surfaces only, off unless a surface asks for it. */
+.glass__wear { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.glass[data-wear] .glass__wear {
+  background:
+    repeating-linear-gradient(112deg, transparent 0 11px, var(--glass-scratch) 11px 12px, transparent 12px 29px),
+    repeating-linear-gradient(67deg, transparent 0 17px, var(--glass-scratch) 17px 18px, transparent 18px 43px);
+}
+
+/* Haze and seam sit under the plates. */
+.glass__haze, .glass__seam { position: absolute; inset: 0; z-index: 1; pointer-events: none; display: none; }
+
+/* ---- State: glass adds no meaning of its own; each cue repeats one from the state system. ---- */
+.glass[data-state="stale"] .glass__haze { display: block; background: var(--glass-haze); }
+.glass[data-state="stale"] .glass__streams path { opacity: var(--glass-stream-stale); animation: none; }
+.glass[data-state="maintenance"] { border-inline-start: var(--stroke-state) solid var(--state-maintenance-mark); }
+.glass[data-state="warning"] { border-inline-start: var(--stroke-state) solid var(--state-warning-mark); }
+.glass[data-state="error"] { border-inline-start: var(--stroke-state) solid var(--state-error-mark); }
+.glass[data-state="maintenance"] .glass__seam {
+  display: block; inset: 6px;
+  background:
+    radial-gradient(circle, transparent 1.5px, var(--glass-seam) 2px 3px, transparent 3.5px) top left / 10px 10px no-repeat,
+    radial-gradient(circle, transparent 1.5px, var(--glass-seam) 2px 3px, transparent 3.5px) top right / 10px 10px no-repeat,
+    radial-gradient(circle, transparent 1.5px, var(--glass-seam) 2px 3px, transparent 3.5px) bottom left / 10px 10px no-repeat,
+    radial-gradient(circle, transparent 1.5px, var(--glass-seam) 2px 3px, transparent 3.5px) bottom right / 10px 10px no-repeat,
+    linear-gradient(var(--glass-seam), var(--glass-seam)) center 42% / calc(100% - 28px) 1px no-repeat;
+}
+/* Offline wins over glass: solid, recessed, no light. */
+.glass[data-state="offline"] { background: var(--color-surface-inset); -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; border-color: var(--color-border-card); }
+.glass[data-state="offline"] .glass__streams, .glass[data-state="offline"] .glass__wear { display: none; }
+.glass[data-state="offline"] .glass__plate { background: var(--color-surface-inset); border-color: var(--color-border-card); }
+
+/* ---- Demo scaffolding: switch a layer off to see what it does. Not part of the product. ---- */
+.glass[data-off~="blur"] { -webkit-backdrop-filter: none; backdrop-filter: none; }
+.glass[data-off~="tint"] { background: transparent; }
+.glass[data-off~="streams"] .glass__streams { display: none; }
+.glass[data-off~="plate"] .glass__plate { background: transparent; border-color: transparent; }
+.glass[data-off~="edge"] { box-shadow: var(--shadow-3); border-color: transparent; }
+
+@media (forced-colors: active) {
+  .glass { forced-color-adjust: auto; border: var(--stroke-sm) solid CanvasText; }
+  .glass__plate { border: var(--stroke-sm) solid CanvasText; }
+}
+@media (prefers-reduced-motion: reduce) { .glass__streams path.is-fresh { animation: none; } }

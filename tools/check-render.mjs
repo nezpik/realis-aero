@@ -695,6 +695,190 @@ console.log('settings');
   await dctx.close();
 }
 
+// Glass: legibility measured on real rendered pixels, the layers, the states and every fallback.
+console.log('glass page');
+{
+  const gurl = q => pathToFileURL(root + 'specimen/glass.html').href + q;
+  const openGlass = async (q, ctx = {}, media) => {
+    const c = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce', ...ctx });
+    const p = await c.newPage(); if (media) await p.emulateMedia({ media });
+    await p.goto(gurl(q)); await p.evaluate(() => document.fonts.ready); await p.waitForTimeout(400);
+    return p;
+  };
+  // Runs in the page: the worst contrast of each text colour against the pixels of a screenshot taken with the text hidden.
+  const MEASURE = async ({ b64, items }) => {
+    const img = new Image(); img.src = 'data:image/png;base64,' + b64; await img.decode();
+    const cv = document.createElement('canvas'); cv.width = img.width; cv.height = img.height;
+    const c = cv.getContext('2d', { willReadFrequently: true }); c.drawImage(img, 0, 0);
+    const lin = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+    const lum = (r, g, b) => 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+    return items.map(it => {
+      const x0 = Math.max(0, Math.floor(it.x)), y0 = Math.max(0, Math.floor(it.y)), w = Math.min(img.width - x0, Math.ceil(it.w)), h = Math.min(img.height - y0, Math.ceil(it.h));
+      const d = c.getImageData(x0, y0, w, h).data, lt = lum(...it.color); let worst = 99;
+      for (let i = 0; i < d.length; i += 4) { const lb = lum(d[i], d[i + 1], d[i + 2]), r = (Math.max(lt, lb) + 0.05) / (Math.min(lt, lb) + 0.05); if (r < worst) worst = r; }
+      return { id: it.id, kind: it.kind, worst };
+    });
+  };
+  // The text runs of a region, with their colours, taken before the text is hidden.
+  const collect = (page, scope) => page.evaluate(sel => {
+    const root = document.querySelector(sel) ?? document.body, base = sel ? root.getBoundingClientRect() : { left: -scrollX, top: -scrollY };
+    return [...root.querySelectorAll('[data-m]')].filter(e => e.getClientRects().length).map(e => {
+      const r = e.getBoundingClientRect(), cell = e.closest('[data-cell]')?.dataset.cell ?? e.closest('[id]')?.id ?? '', m = getComputedStyle(e).color.match(/[\d.]+/g).map(Number);
+      return { id: cell, kind: e.dataset.m, muted: e.style.color.includes('muted'), x: r.left - base.left, y: r.top - base.top, w: r.width, h: r.height, color: m.slice(0, 3), label: e.textContent.trim().slice(0, 28) };
+    });
+  }, scope);
+  const HIDE = '*, *::before, *::after { color: transparent !important; text-shadow: none !important; caret-color: transparent !important; }';
+  const measureRegion = async (page, scope, fullPage) => {
+    const items = await collect(page, scope), style = await page.addStyleTag({ content: HIDE });
+    const buf = scope ? await page.locator(scope).screenshot({ animations: 'disabled' }) : await page.screenshot({ fullPage, animations: 'disabled' });
+    await style.evaluate(e => e.remove());
+    const res = await page.evaluate(MEASURE, { b64: buf.toString('base64'), items });
+    return res.map((r, i) => ({ ...r, muted: items[i].muted, label: items[i].label }));
+  };
+
+  // ---- Legibility on real pixels, in every theme and mode that draws glass or its fallback.
+  const MODES = [['light', '?theme=light', 4.5], ['dark', '?theme=dark', 4.5], ['outdoor', '?theme=outdoor', 7], ['reduced transparency, light', '?theme=light&transparency=reduced', 4.5], ['reduced transparency, dark', '?theme=dark&transparency=reduced', 4.5]];
+  const bareResults = {};
+  for (const [name, q, min] of MODES) {
+    const page = await openGlass(q);
+    const res = await measureRegion(page, null, true);
+    const plates = res.filter(r => r.kind === 'plate'), bare = res.filter(r => r.kind === 'bare');
+    const low = plates.reduce((a, b) => (b.worst < a.worst ? b : a));
+    console.log(`  ${name.padEnd(28)} ${plates.length} plate text runs on real pixels, lowest ${low.worst.toFixed(2)} ("${low.label}" in ${low.id})${bare.length ? `; bare glass: ${bare.filter(b => b.worst < 4.5).length} of ${bare.length} runs below 4.5` : ''}`);
+    check(plates.length >= 70, `${name}: the plate text runs were measured`, String(plates.length));
+    check(plates.every(r => r.worst >= min), `${name}: every plate text run reaches ${min}:1 on the pixels actually behind it`, plates.filter(r => r.worst < min).map(r => `${r.worst.toFixed(2)} ${r.label} in ${r.id}`).slice(0, 4).join(' | '));
+    bareResults[name] = bare;
+    await page.context().close();
+  }
+  // The stress set has to be able to fail, or passing it proves nothing.
+  const cell = (mode, id, muted) => bareResults[mode].find(r => r.id === id && r.muted === muted)?.worst;
+  check(cell('light', 'frosted-ground', true) < 4.5, 'stress: muted text on bare light frosted glass over a dark ground fails, so the plate is doing the work', String(cell('light', 'frosted-ground', true)));
+  check(cell('dark', 'frosted-sky', true) < 4.5, 'stress: muted text on bare dark frosted glass over a bright sky fails', String(cell('dark', 'frosted-sky', true)));
+  check(cell('light', 'clear-split', true) < 4.5 && cell('light', 'clear-busy', true) < 4.5, 'stress: muted text on bare clear glass over white beside black and over fine detail fails', `${cell('light', 'clear-split', true)} ${cell('light', 'clear-busy', true)}`);
+
+  // ---- Moving content: the notice stays legible as bright, dark and mid rows pass under it.
+  {
+    const page = await openGlass('?theme=light');
+    let worst = 99, at = 0;
+    for (const top of [0, 37, 111, 233, 400, 690, 1000, 1500]) {
+      await page.evaluate(t => { document.getElementById('feed').scrollTop = t; }, top); await page.waitForTimeout(60);
+      const res = await measureRegion(page, '#feed');
+      const toast = res.filter(r => r.id === 'toast');
+      for (const r of toast) if (r.worst < worst) { worst = r.worst; at = top; }
+      if (top === 0) check(toast.length === 2, 'the notice has its two text runs measured', String(toast.length));
+    }
+    console.log(`  moving content: lowest plate text contrast over 8 scroll positions ${worst.toFixed(2)} (at ${at}px)`);
+    check(worst >= 4.5, 'the notice stays at 4.5:1 or better at every scroll position', `${worst.toFixed(2)} at ${at}px`);
+    const toast = await page.evaluate(() => { const t = document.getElementById('toast'), f = document.getElementById('feed'), a = t.getBoundingClientRect().top - f.getBoundingClientRect().top; f.scrollTop = 500; return { sticky: getComputedStyle(t).position, topAfter: Math.round(t.getBoundingClientRect().top - f.getBoundingClientRect().top), topBefore: Math.round(a), blur: getComputedStyle(t).backdropFilter }; });
+    check(toast.sticky === 'sticky' && toast.topAfter === toast.topBefore && toast.blur.includes('blur'), 'the notice stays in place, blurred, while the list moves under it', JSON.stringify(toast));
+    const edge = await page.evaluate(() => { const cs = getComputedStyle(document.getElementById('toast')); return { w: parseFloat(cs.borderInlineStartWidth), style: cs.borderInlineStartStyle, blur: cs.backdropFilter }; });
+    check(edge.w === 3 && edge.style === 'solid' && edge.blur.includes('blur(12px)'), 'an alert notice is 12px alert glass with the state\'s 3px leading edge as a real border', JSON.stringify(edge));
+    await page.context().close();
+  }
+
+  // ---- Rules and structure.
+  for (const [name, q] of [['light', '?theme=light'], ['dark', '?theme=dark']]) {
+    const page = await openGlass(q);
+    const r = await page.evaluate(() => {
+      const glass = [...document.querySelectorAll('.glass')];
+      const stray = []; const w = document.createTreeWalker(document.querySelector('main'), NodeFilter.SHOW_TEXT);
+      for (let n; (n = w.nextNode());) { if (!n.textContent.trim() || !n.parentElement.closest('.glass')) continue; const el = n.parentElement; if (!el.closest('.glass__plate') && !el.closest('[data-m="bare"]') && !el.closest('script, style, [hidden]')) stray.push(n.textContent.trim().slice(0, 30)); }
+      const paths = [...document.querySelectorAll('.glass__streams path')], cs = e => getComputedStyle(e);
+      const legend = [...document.querySelectorAll('.legend path')].map(p => cs(p).strokeDasharray);
+      const scratch = getComputedStyle(document.documentElement).getPropertyValue('--glass-scratch').match(/[\d.]+/g).map(Number);
+      return { n: glass.length, nested: document.querySelectorAll('.glass .glass').length, stray, matrix: document.querySelectorAll('[data-cell]').length, plates: [...document.querySelectorAll('[data-cell]')].filter(g => g.querySelector('.glass__plate')).length, bare: document.querySelectorAll('[data-m="bare"]').length,
+        wear: document.querySelectorAll('[data-wear]').length, streamsHidden: [...document.querySelectorAll('.glass__streams')].every(s => s.getAttribute('aria-hidden') === 'true'),
+        opacity: paths.filter(p => !p.closest('[data-state="stale"]') && !p.closest('[data-state="offline"]') && (!p.closest('[data-fb]') || p.closest('[data-fb]').dataset.fb === 'Standard')).map(p => +cs(p).opacity), widths: paths.map(p => parseFloat(cs(p).strokeWidth)), dashes: new Set(legend).size, legendN: legend.length, scratchAlpha: scratch[3], pointer: paths.every(p => cs(p.closest('svg')).pointerEvents === 'none') };
+    });
+    check(r.n === 26, `${name}: the glass page shows its 26 panels`, String(r.n));
+    check(r.nested === 0, `${name}: no glass inside glass`, String(r.nested));
+    check(r.stray.length === 0, `${name}: no text on bare glass outside the stress samples; every text run sits on a plate`, r.stray.join(' | '));
+    check(r.matrix === 16 && r.plates === 16 && r.bare === 32, `${name}: four variants over four backdrops, each with bare samples and a plate`, JSON.stringify([r.matrix, r.plates, r.bare]));
+    check(r.wear === 0, `${name}: wear is off unless a touch surface asks for it`, String(r.wear));
+    check(r.streamsHidden && r.pointer, `${name}: the data layer is hidden from assistive technology and never takes the pointer`);
+    check(r.opacity.every(o => o >= 0.10 && o <= 0.28), `${name}: stream lines sit within the 10% to 28% opacity spec`, [...new Set(r.opacity)].join(','));
+    check(r.widths.every(w => w >= 1 && w <= 2), `${name}: stream lines are 1px to 2px wide`, [...new Set(r.widths)].join(','));
+    check(r.legendN === 8 && r.dashes === 8, `${name}: the eight stream categories each have their own line style`, `${r.dashes} of ${r.legendN}`);
+    check(r.scratchAlpha >= 0.03 && r.scratchAlpha <= 0.08, `${name}: wear lines are 3% to 8% opaque`, String(r.scratchAlpha));
+    await page.context().close();
+  }
+
+  // ---- Layers: each switch removes exactly its layer.
+  {
+    const page = await openGlass('?theme=light');
+    const read = () => page.evaluate(() => { const g = document.getElementById('anatomy'), cs = getComputedStyle(g), pl = getComputedStyle(g.querySelector('.glass__plate')); return { blur: cs.backdropFilter, tint: cs.backgroundColor, streams: getComputedStyle(g.querySelector('.glass__streams')).display, plate: pl.backgroundColor, shadow: cs.boxShadow, wear: getComputedStyle(g.querySelector('.glass__wear')).backgroundImage, attr: g.hasAttribute('data-wear') }; });
+    const flip = layer => page.evaluate(l => document.querySelector(`input[data-layer="${l}"]`).click(), layer);
+    let s = await read();
+    check(s.blur.includes('blur') && s.tint !== 'rgba(0, 0, 0, 0)' && s.streams !== 'none' && s.plate !== 'rgba(0, 0, 0, 0)' && s.shadow.includes('inset') && s.wear === 'none' && !s.attr, 'anatomy: every layer is on and wear is off to begin with', JSON.stringify(s));
+    await flip('blur'); s = await read(); check(s.blur === 'none' && s.tint !== 'rgba(0, 0, 0, 0)', 'anatomy: switching off blur removes only the blur');
+    await flip('tint'); s = await read(); check(s.tint === 'rgba(0, 0, 0, 0)', 'anatomy: switching off the tint removes only the tint');
+    await flip('streams'); s = await read(); check(s.streams === 'none', 'anatomy: switching off streams hides the data layer');
+    await flip('plate'); s = await read(); check(s.plate === 'rgba(0, 0, 0, 0)', 'anatomy: switching off the plate removes the plate');
+    await flip('edge'); s = await read(); check(!s.shadow.includes('inset'), 'anatomy: switching off the edge removes the light and shade on the edge');
+    await flip('wear'); s = await read(); check(s.wear.includes('repeating-linear-gradient') && s.attr, 'anatomy: wear adds micro-scratches when asked', s.wear.slice(0, 40));
+    await page.context().close();
+  }
+
+  // ---- The data layer: a fresh reading pulses once and settles; under reduced motion it does not move.
+  for (const [name, motion] of [['motion allowed', 'no-preference'], ['reduced motion', 'reduce']]) {
+    const page = await openGlass('?theme=light', { reducedMotion: motion });
+    await page.evaluate(() => document.getElementById('fresh').click());
+    const a = await page.evaluate(() => { const w = getComputedStyle(document.querySelector('#reveal .stream--water')), p = getComputedStyle(document.querySelector('#reveal .stream--power')); return { name: w.animationName, count: w.animationIterationCount, dur: w.animationDuration, other: p.animationName, say: document.getElementById('fresh-say').textContent }; });
+    if (motion === 'no-preference') check(a.name === 'glass-pulse' && a.count === '1' && a.dur === '0.6s' && a.other === 'none', `${name}: a fresh reading pulses its own stream once, for 600ms, and no other`, JSON.stringify(a));
+    else check(a.name === 'none', `${name}: the pulse does not run`, a.name);
+    check(a.say === 'Fresh reading on the water stream.', `${name}: the fresh reading is announced in words`, a.say);
+    await page.context().close();
+  }
+
+  // ---- States, in light and dark.
+  for (const [name, q] of [['light', '?theme=light'], ['dark', '?theme=dark']]) {
+    const page = await openGlass(q);
+    const s = await page.evaluate(() => {
+      const g = st => document.querySelector(`[data-s="${st}"]`), cs = (e, p) => getComputedStyle(e, p), idle = +cs(document.documentElement.querySelector('.glass__streams path')).opacity;
+      const o = g('offline'), st = g('stale'), m = g('maintenance'), l = g('live');
+      return {
+        live: { haze: cs(l.querySelector('.glass__haze')).display, seam: cs(l.querySelector('.glass__seam')).display, opacity: +cs(l.querySelector('path')).opacity, blur: cs(l).backdropFilter },
+        stale: { haze: cs(st.querySelector('.glass__haze')).display, hazeAlpha: cs(st.querySelector('.glass__haze')).backgroundColor, opacity: +cs(st.querySelector('path')).opacity, anim: cs(st.querySelector('path')).animationName, blur: cs(st).backdropFilter },
+        offline: { blur: cs(o).backdropFilter, bg: cs(o).backgroundColor, streams: cs(o.querySelector('.glass__streams')).display, shadow: cs(o).boxShadow },
+        maint: { edge: parseFloat(cs(m).borderInlineStartWidth), seam: cs(m.querySelector('.glass__seam')).display, bg: cs(m.querySelector('.glass__seam')).backgroundImage, blur: cs(m).backdropFilter },
+        labels: ['live', 'stale', 'offline', 'maintenance'].map(x => g(x).querySelector('.state-label').textContent.trim().length > 4 && !!g(x).querySelector('.state-label .mark')), idle,
+      };
+    });
+    check(s.live.haze === 'none' && s.live.seam === 'none' && s.live.opacity === 0.2 && s.live.blur.includes('blur'), `${name}: live glass is clear, with its lines at idle opacity`, JSON.stringify(s.live));
+    check(s.stale.haze === 'block' && s.stale.hazeAlpha !== 'rgba(0, 0, 0, 0)' && s.stale.opacity === 0.1 && s.stale.anim === 'none' && s.stale.blur.includes('blur'), `${name}: stale glass clouds over, and its lines drop to 10% and stop`, JSON.stringify(s.stale));
+    check(s.offline.blur === 'none' && /^rgb\(/.test(s.offline.bg) && s.offline.streams === 'none' && s.offline.shadow === 'none', `${name}: offline glass is solid, recessed and has no data layer or shadow`, JSON.stringify(s.offline));
+    check(s.maint.edge === 3 && s.maint.seam === 'block' && s.maint.bg.includes('radial-gradient') && s.maint.blur.includes('blur'), `${name}: maintenance glass shows its seam and four fasteners and the 3px state edge`, JSON.stringify(s.maint));
+    check(s.labels.every(Boolean), `${name}: every glass state also carries a text label and a mark`, JSON.stringify(s.labels));
+    await page.context().close();
+  }
+
+  // ---- Fallbacks: the panel becomes a solid surface with no blur, no lines and no light.
+  const solid = page => page.evaluate(() => [...document.querySelectorAll('.glass:not([data-state="offline"])')].map(g => { const cs = getComputedStyle(g), pl = getComputedStyle(g.querySelector('.glass__plate')), s = g.querySelector('.glass__streams'); const a = c => (c.match(/rgba?\(([^)]+)\)/)[1].split(/[ ,\/]+/).map(Number)[3] ?? 1); return { blur: cs.backdropFilter, bg: a(cs.backgroundColor), plate: a(pl.backgroundColor), streams: s ? +getComputedStyle(s.querySelector('path')).opacity : 0, wear: getComputedStyle(g.querySelector('.glass__wear') ?? g).backgroundImage }; }));
+  const allSolid = (rows) => rows.every(r => r.blur === 'none' && r.bg === 1 && r.plate === 1 && r.streams === 0);
+  const sub = await (async () => { const page = await openGlass('?theme=light'); const r = await page.evaluate(() => Object.fromEntries([...document.querySelectorAll('[data-fb]')].map(g => { const cs = getComputedStyle(g), a = c => (c.match(/rgba?\(([^)]+)\)/)[1].split(/[ ,\/]+/).map(Number)[3] ?? 1); return [g.dataset.fb, { blur: cs.backdropFilter, bg: a(cs.backgroundColor), plate: a(getComputedStyle(g.querySelector('.glass__plate')).backgroundColor), streams: +getComputedStyle(g.querySelector('path')).opacity }]; }))); await page.context().close(); return r; })();
+  check(sub.Standard.blur.includes('blur') && sub.Standard.bg < 1 && sub.Standard.plate < 1 && sub.Standard.streams > 0, 'fallbacks: the standard panel is translucent, blurred, with visible lines', JSON.stringify(sub.Standard));
+  check(allSolid([sub['Reduced transparency']]) && allSolid([sub.Outdoor]), 'fallbacks: reduced transparency and outdoor panels, side by side with the standard one, are solid', JSON.stringify([sub['Reduced transparency'], sub.Outdoor]));
+  for (const [name, q, ctx, media] of [['reduced transparency', '?theme=light&transparency=reduced'], ['reduced transparency in dark', '?theme=dark&transparency=reduced'], ['outdoor', '?theme=outdoor'], ['forced colors', '?theme=light', { forcedColors: 'active' }], ['print', '?theme=dark', {}, 'print']]) {
+    const page = await openGlass(q, ctx ?? {}, media); const rows = await solid(page);
+    check(rows.length >= 20 && allSolid(rows), `fallbacks: on the whole page, ${name} makes every glass panel solid, with no blur and no lines`, JSON.stringify(rows.find(r => !(r.blur === 'none' && r.bg === 1 && r.plate === 1 && r.streams === 0))));
+    if (media === 'print') { const h = await page.evaluate(() => document.documentElement.scrollHeight); check(h < 20000, 'fallbacks: the glass page prints at a sensible length', `${h}px`); }
+    await page.context().close();
+  }
+
+  // ---- Reflow and direction.
+  {
+    const page = await openGlass('?theme=light', { viewport: { width: 720, height: 900 } });
+    const w = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    check(w <= 0, 'the glass page reflows at 200% zoom with no sideways scrolling', `${w}px`);
+    await shot(page, 'glass-zoom-200'); await page.context().close();
+    const rtl = await openGlass('?theme=light&dir=rtl');
+    const e = await rtl.evaluate(() => { const m = document.querySelector('[data-s="maintenance"]'), cs = getComputedStyle(m); return { right: parseFloat(cs.borderRightWidth), left: parseFloat(cs.borderLeftWidth), sideways: document.documentElement.scrollWidth - document.documentElement.clientWidth }; });
+    check(e.right === 3 && e.left === 1 && e.sideways <= 0, 'right to left: the maintenance edge moves to the right and nothing scrolls sideways', JSON.stringify(e));
+    await rtl.context().close();
+  }
+  for (const [file, q] of [['glass', '?theme=light'], ['glass-dark', '?theme=dark'], ['glass-outdoor', '?theme=outdoor']]) { const page = await openGlass(q); await shot(page, file); await page.context().close(); }
+}
+
 // Glass: frosted on screen, solid in outdoor and with reduced transparency.
 console.log('\nglass');
 {

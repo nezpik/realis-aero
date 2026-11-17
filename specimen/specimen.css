@@ -217,7 +217,6 @@ bdi { unicode-bidi: isolate; }
 .dialog { position: relative; background: var(--color-surface); border: var(--stroke-sm) solid var(--color-border-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-4); padding: var(--space-5); max-width: 340px; display: grid; gap: var(--space-3); }
 .atmosphere { border-radius: var(--radius-lg); padding: var(--space-6); min-height: 220px; display: grid; place-items: center;
   background: linear-gradient(160deg, var(--color-info), var(--color-surface-selected) 48%, var(--color-energy)); }
-.glass { background: var(--glass-frosted-bg); -webkit-backdrop-filter: var(--glass-blur-frosted); backdrop-filter: var(--glass-blur-frosted); border: var(--stroke-sm) solid var(--glass-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-3), var(--inner-highlight); padding: var(--space-5); max-width: 340px; display: grid; gap: var(--space-2); }
 
 /* ---------- Chart ---------- */
 /* A time axis reads left to right in every language, so charts keep their own direction. */
@@ -298,3 +297,29 @@ bdi { unicode-bidi: isolate; }
 .applybar--page { position: sticky; bottom: var(--space-3); z-index: 5; border: var(--stroke-sm) solid var(--color-border-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-3); }
 @media (max-width: 1100px) { .settings-grid { grid-template-columns: minmax(0, 1fr); } .settings-aside { position: static; } .setting { grid-template-columns: minmax(0, 1fr); } }
 @media print { .applybar--page, .settings-aside { display: none; } }
+
+/* ---------- Glass page ---------- */
+.scene { position: relative; display: grid; align-content: center; min-height: 200px; padding: var(--space-4); border-radius: var(--radius-lg); overflow: hidden; background: #8a97a0; }
+.scene canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.scene > .glass { position: relative; }
+.scene--tall { min-height: 300px; }
+.block-link { display: inline-flex; align-items: center; min-height: var(--density-control-h); color: var(--state-info-text); font-size: var(--text-body-sm); }
+.atmosphere .glass { max-width: 360px; }
+.matrix { display: grid; gap: var(--space-4); grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.matrix figure { margin: 0; display: grid; gap: var(--space-2); min-width: 0; }
+.matrix figcaption { font-size: var(--text-caption); color: var(--color-text-secondary); }
+.glass__bare { position: relative; z-index: 3; font-size: var(--text-body-sm); font-weight: 560; }
+.layers { display: flex; flex-wrap: wrap; gap: 0 var(--space-4); }
+.feed { position: relative; height: 300px; overflow: auto; border-radius: var(--radius-lg); border: var(--stroke-sm) solid var(--color-border-card); background: var(--color-surface); }
+.feed__row { display: flex; justify-content: space-between; gap: var(--space-3); align-items: center; height: var(--density-row-h); padding: 0 var(--space-4); font-size: var(--text-body-sm); }
+.feed__row[data-tone="dark"] { background: var(--graphite-900); color: var(--equilibrium-white-000); }
+.feed__row[data-tone="bright"] { background: var(--equilibrium-white-000); color: var(--graphite-950); }
+.feed__row[data-tone="mid"] { background: var(--aero-blue-600); color: var(--equilibrium-white-000); }
+.scene--tall { align-content: center; justify-items: start; }
+.feed .glass { position: sticky; top: var(--space-3); margin: var(--space-3); z-index: 5; }
+.legend { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); font-size: var(--text-caption); }
+.legend span { display: inline-flex; align-items: center; gap: var(--space-2); }
+.legend svg { width: 44px; height: 8px; overflow: visible; }
+.legend path { fill: none; stroke: var(--color-text-secondary); stroke-width: 2; stroke-linecap: round; }
+@media (max-width: 1100px) { .matrix { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .matrix { grid-template-columns: minmax(0, 1fr); } }

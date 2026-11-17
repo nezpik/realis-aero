@@ -19,7 +19,7 @@ export function parseBlocks(css) {
     } else if (ch === '}') {
       const top = stack.pop();
       if (!top.prelude.startsWith('@')) {
-        const media = stack.map(s => s.prelude).filter(p => p.startsWith('@media')).join(' ');
+        const media = stack.map(s => s.prelude).filter(p => p.startsWith('@media') || p.startsWith('@supports')).join(' ');
         const decls = Object.fromEntries(
           [...src.slice(top.from, i).matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)].map(m => [m[1], m[2].trim()]));
         out.push({ media, selectors: top.prelude.split(',').map(s => s.trim()), decls });
