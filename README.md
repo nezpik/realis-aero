@@ -23,6 +23,8 @@ npm run check:cvd      # chart series under simulated colour-vision deficiency
 npm install && npx playwright install chromium
 npm run check:render   # browser checks on the specimen; writes the screenshots
 npm run check:glyphs   # every drawn character is in a bundled face
+# Reproduce another machine's rendering, e.g. the CI runner's pixel-snapped glyph advances:
+RA_CHROMIUM_ARGS=--font-render-hinting=full npm run check:render
 npm run check          # all of the above
 ```
 

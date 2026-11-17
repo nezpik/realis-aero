@@ -29,7 +29,9 @@ function check(ok, label, detail = '') {
   if (!ok) console.log(`  FAIL ${label}${detail ? ' — ' + detail : ''}`);
 }
 
-const browser = await chromium.launch();
+// RA_CHROMIUM_ARGS reproduces another machine's rendering, e.g. the CI runner's pixel-snapped
+// glyph advances: RA_CHROMIUM_ARGS=--font-render-hinting=full npm run check:render
+const browser = await chromium.launch({ args: (process.env.RA_CHROMIUM_ARGS ?? '').split(/\s+/).filter(Boolean) });
 async function open(query, opts = {}) {
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, ...opts.context });
   const page = await context.newPage();
@@ -379,6 +381,7 @@ console.log('right to left');
 }
 
 // Type: bundled faces load, digits are tabular, weights are real, Arabic uses its own face.
+// Tabular digits are compared at 16px on purpose: equal widths survive pixel snapping.
 console.log('type');
 {
   const page = await open('?theme=light');
@@ -387,7 +390,9 @@ console.log('type');
     const w = id => document.getElementById(id).getBoundingClientRect().width;
     const family = id => getComputedStyle(document.getElementById(id)).fontFamily;
     // Width of the same text at different weights: a variable face gives a different width at each.
-    const probe = weight => { const s = document.createElement('span'); s.style.cssText = `position:absolute;visibility:hidden;white-space:nowrap;font-family:var(--font-sans);font-weight:${weight}`; s.textContent = 'Differential pressure 1.92 bar'; document.body.append(s); const x = s.getBoundingClientRect().width; s.remove(); return x; };
+    // Measured at 120px: with hinted rendering each glyph advance snaps to a whole pixel, which at 16px
+    // hides the ~1px difference between 560 and 600 (the CI runner does this).
+    const probe = weight => { const s = document.createElement('span'); s.style.cssText = `position:absolute;visibility:hidden;white-space:nowrap;font-family:var(--font-sans);font-weight:${weight};font-size:120px`; s.textContent = 'Differential pressure 1.92 bar'; document.body.append(s); const x = s.getBoundingClientRect().width; s.remove(); return x; };
     const sans = getComputedStyle(document.getElementById('t-sans'));
     return { loaded, ones: w('t-ones'), zeros: w('t-zeros'), mono: family('t-mono'), sansFamily: sans.fontFamily, weights: [400, 520, 560, 600].map(probe), label: getComputedStyle(document.getElementById('t-560')).fontWeight, heading: getComputedStyle(document.getElementById('t-520')).fontWeight,
       ar: await document.fonts.load('16px "Noto Sans Arabic"', 'الخزان').then(f => f.length), arCmp: getComputedStyle(document.getElementById('t-ar')).fontFamily };
