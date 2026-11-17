@@ -1,0 +1,25 @@
+{
+  "$description": "Spacing and size for the compact density.",
+  "density": {
+    "control-h": {
+      "$type": "dimension",
+      "$value": "28px"
+    },
+    "row-h": {
+      "$type": "dimension",
+      "$value": "32px"
+    },
+    "gap-intra": {
+      "$type": "dimension",
+      "$value": "4px"
+    },
+    "gap-inter": {
+      "$type": "dimension",
+      "$value": "12px"
+    },
+    "pad-x": {
+      "$type": "dimension",
+      "$value": "8px"
+    }
+  }
+}

@@ -24,3 +24,5 @@ jobs:
         run: npm run check:render -- --no-screenshots
       - name: Glyph coverage (every drawn character is in a bundled face)
         run: npm run check:glyphs
+      - name: Token export (fresh, valid DTCG, same values as the CSS, real Tailwind and Style Dictionary builds)
+        run: npm run check:export

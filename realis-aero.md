@@ -14,6 +14,7 @@ v0.5 adds the mechanics that dense and long-running products need. As in v0.4, e
 - **Layered state, undo and offline**: baseline, committed, queued and draft layers; Apply, Reset, Revert and Undo; offline as a whole-surface state; conflicts shown, not overwritten. See [Layered State, Undo and Offline](#layered-state-undo-and-offline).
 - **Typography as engineering**: bundled open-licensed faces (Source Sans 3, Source Code Pro, Noto Sans Arabic), tabular digits and real weights proven by checks, and a check that every character drawn is covered by a bundled face. See [Font Stack](#font-stack).
 - **Right to left**: the layout mirrors through logical properties, and numbers and dates are isolated. See [Internationalization and Right to Left](#internationalization-and-right-to-left).
+- **Token export**: DTCG JSON for Figma tooling, a Tailwind preset and a React Native module, generated from the token file and checked against it. See [Token Export](#token-export).
 - **The table model, completed**: range selection, copy and paste with a preview, column visibility, order and width with a keyboard alternative for every pointer action, middle truncation of paths, and a virtualized table of 12,408 rows with a measured budget. See [Tables & Data Grids](#tables--data-grids).
 - **The Ruled Sheet and the Writing Workspace, built and measured**: the sheet, the workspace and the reading pages are in a specimen, and 141 checks hold the document's claims to the browser. They found that the pattern could not ship in dark as specified. See [Ruled Sheet](#ruled-sheet-writing--reading).
 - **Glass, specified and measured**: bare glass carries no text, text sits on reading plates, and the plate's legibility is measured on real rendered pixels. All four variants are now tokens, and the internal data layer, glass states and wear are built. See [Glass](#glass).
@@ -1909,8 +1910,27 @@ createApp(App).mount("#app");
 - **Variants are limited**: Prefer `variant="primary | secondary | system | danger"` over open-ended visual customization.
 - **Theming stays semantic**: A component should not know whether the app is in light or dark mode; it should consume semantic tokens.
 
+### Token Export
+
+The token file is the only source. `npm run build:tokens` writes [`tokens/dist/`](tokens/dist/), and nobody edits those files by hand: the export check fails if they differ from what the exporter produces from the CSS.
+
+| Target | File | Use |
+|---|---|---|
+| **DTCG JSON** (Figma tooling, Style Dictionary) | `tokens/dist/dtcg/*.json` | Eight sets: `core` (primitives and mode-independent tokens), `light`, `dark`, `outdoor`, three densities and `reduced-motion`; `sets.json` lists them in load order. Semantic tokens are aliases such as `{primitive.aero-blue.800}`, so the link to the primitive survives. Load `core` + one theme + one density. |
+| **Tailwind v3** | `tokens/dist/tailwind.preset.cjs` | `presets: [require('./tokens/dist/tailwind.preset.cjs')]`. Every colour is `var(--…)`, so `bg-surface` follows `data-theme` and `data-density` at run time with no rebuild. Import `tokens/realis-aero.tokens.css` once. |
+| **React Native** | `tokens/dist/realis-aero.native.js` and `.d.ts` | Colours as strings, lengths and durations as numbers, shadows as style objects, one `themes` entry per theme. |
+
+**Decisions and limits, stated.**
+- **The Tailwind palette is replaced, not extended**, so `bg-white` or `text-gray-500` do not exist: an off-system colour should not be one class away. Colour utilities cannot take opacity modifiers (`bg-surface/50`), because the values are variables.
+- **Tailwind v4 is not covered**; the preset is for v3.
+- **Native shadows are approximations**: `shadowRadius` is half the CSS blur and `elevation` follows the vertical offset. Native has no `backdrop-filter`; `glassBlur` gives radii as a starting point for a blur view, and the plates and solid fallbacks carry the contrast.
+- **Native fonts**: the faces are bundled as WOFF2 for the web. React Native needs TTF or OTF files of the same faces, which are not bundled here.
+- **Figma was not opened.** The DTCG files are built to the format's rules and are read by an independent consumer (Style Dictionary) in the checks, but importing them into Figma, with Tokens Studio or another plugin, is untested. Check the first import by eye.
+- **React Native was not run** on a device or simulator; the module is checked as data.
+
 ### Figma Handoff Guidance
 
+- Import `tokens/dist/dtcg/` through a DTCG-aware plugin (the import itself is untested here), one collection per set, with `core` shared and `light`, `dark` and `outdoor` as modes.
 - Create token collections for color primitives, semantic colors, spacing, radius, elevation, blur, typography, and motion.
 - Separate light and dark semantic variables from primitives.
 - Build components with variants for state, density, platform, and theme.
@@ -1919,7 +1939,7 @@ createApp(App).mount("#app");
 
 ### Tailwind Mapping Guidance
 
-- Map primitives into `theme.extend.colors`.
+- Use the generated preset (see [Token Export](#token-export)); the primitives are `aero-blue-800` and so on, and the semantic groups are `surface`, `ink`, `edge`, `action`, `state`, `chart` and `glass`.
 - Map spacing to the 4px/8px scale rather than arbitrary values.
 - Create utility classes for glass materials only after validating contrast.
 - Keep motion tokens centralized and respect `motion-reduce`.
@@ -1995,19 +2015,20 @@ For tasks whose value is the text the user writes (work logs, reports, maintenan
 
 ## Verification
 
-The claims in the token, state, theme, table, layer and type sections are measured by four scripts. `npm run check` runs all four, and the workflow in `.github/workflows/checks.yml` runs them on every change to the tokens, the specimen or the tools.
+The claims in the token, state, theme, table, layer and type sections are measured by five scripts. `npm run check` runs all five, and the workflow in `.github/workflows/checks.yml` runs them on every change to the tokens, the specimen or the tools.
 
 | Check | Command | What it enforces |
 |---|---|---|
 | **Contrast** | `npm run check:tokens` | **Glass:** every tint's alpha is its token; over pure black and pure white every text role reaches 4.5:1 and every state mark 3:1 on a plate, for every variant in light and dark; every fallback (outdoor, reduced transparency, print, forced colors, no backdrop-filter) makes glass solid; and the envelope of bare glass is printed. **Tokens:** 144 token pairs in each of light, dark and outdoor: layers at least 1.12:1 from their neighbour; text at least 4.5:1 on every surface it can sit on; marks, control edges and focus rings at least 3:1; 7:1 and 4.5:1 in outdoor. Translucent tokens are composited over their surface. Also that the two dark blocks are identical. |
 | **Colour vision** | `npm run check:cvd` | The five family chart series stay at least 0.07 apart in OKLab under simulated protanopia, deuteranopia and tritanopia (Machado 2009), in every theme. |
 | **Rendering** | `npm run check:render` | In a real browser, on [`specimen/index.html`](specimen/index.html). **In each theme:** every state is drawn with a mark and a text label, and no two states share a mark; every run of painted text meets its target against the surface actually behind it; every control shows a focus ring of at least 2px and meets the density's height; disabled controls are focusable, explained and not faded; a dark panel inside another theme resolves its own tokens; pausing changes mark and text. **Density:** the three densities measure 36/28/44px controls and 40/32/48px rows, compact never drops below 24px, type size and rows are identical in all three, rows keep one height, a coarse pointer gets touch. **Table:** the keyboard model key by key (single tab stop, arrows, Home and End, Ctrl+Home and End, paging, header reach, sort, row selection, edit, cancel, commit, Tab while editing, unsaved marks and counts, restoring a value, leaving the grid, frozen key column). **Table, continued:** range selection, copy to the clipboard, paste preview with its skips and cancel, discard; columns (show, hide, reorder within a group, widths, drag and double click, the protected key column, persistence, reset); truncation (the start is cut, the tail stays, no decision value clips, the full text is reachable). **Large table:** 12,408 rows with about twenty in the page, true `aria-rowindex`, Ctrl+End to the last row, selection across scrolling, and the performance budget. **Layers:** every action, enabled and disabled, with the status it announces; offline queueing, partial sync, a conflict and its resolution. **Ruled sheet:** 21 areas of text measured on real pixels in light, dark and outdoor (lowest 5.38, 6.55 and 9.48:1); the geometry of the spec; growth, re-fit and the 120px margin; list continuation, quick picks and focus (a real border, no shadow, text that does not move, bar and label contrast, forced colors); validation and counters; the setup bar and both menus; the modal workspace, its focus trap and keys; drafts and the discard dialog; reading lines (56px, one tab stop, selection never changes a height); print (colour drops out, a signature box); density, right to left and 200% zoom. **Glass:** the glass page rendered with its text hidden, and the contrast of every plate text colour measured against the real pixels behind it, in light, dark, outdoor and reduced transparency (79 plate runs each) and over eight scroll positions of a moving list; the stress backdrops must make bare glass fail (15 of 32 bare runs in light, 19 in dark); no glass inside glass, no text on bare glass outside the stress samples; streams within 10% to 28% and 1px to 2px, eight categories with eight line styles, hidden from assistive technology; each layer switch removes its layer; a fresh reading pulses once on its own line and not under reduced motion; live, stale, offline and maintenance panels behave as specified; reduced transparency, outdoor, forced colors and print make every panel solid; and the page reflows and mirrors. **Settings:** staged until Apply, an inert preview, Reset, Apply and persistence, Revert to defaults, a locked setting with its owner, reordering with announcements, Find, scope, painted contrast and target sizes. **Type:** the bundled faces load, digits are tabular, the four weights differ. **Right to left:** edges, bar, frozen column, alignment, minus sign and date order, and chart text kept inside its frame. **Modes:** glass is solid in outdoor and with reduced transparency; the system preference picks the theme; forced-colors edges, buttons and marks; reduced motion; print is light, leaves out the large table and its controls, and stays under 20,000px tall; at 200% zoom nothing clips. |
+| **Export** | `npm run check:export` | The files in `tokens/dist/` are what the exporter produces from the CSS now. **DTCG:** every leaf typed, every alias resolves with no cycle, the eight sets hold all 240 tokens once each, and, in Chromium, every token in light, dark and outdoor, the compact and touch densities and reduced motion equals what the browser computes from the CSS. **Tailwind:** a real v3 build from the preset, rendered in a browser: 30 utilities equal their CSS variable in each theme, the same class changes colour with the theme and height with the density without a rebuild, the default palette is gone, and every variable the preset names exists. **Style Dictionary:** builds each theme with all 240 tokens resolved, and refuses a broken alias. **React Native:** type declarations for every export, shapes, every colour and state equal to the CSS, text contrast read back from the exported numbers, and the lengths, durations and densities. |
 | **Glyphs** | `npm run check:glyphs` | Every character the specimen, the settings page, the glass page and the ruled sheet draw, in each theme and in French and Arabic, is covered by the bundled face that draws it, read from the WOFF2 character maps. Nothing depends on a system font. |
 
 - **Lowest measured contrast at the time of writing**: text 4.58 (light), 4.50 (dark), 7.37 (outdoor); marks and edges 3.06 (light), 3.29 (dark), 4.69 (outdoor); layers 1.16 (light), 1.13 (dark), 1.18 (outdoor).
-- **Counts at the time of writing**: 464 contrast checks, 12 colour-vision checks, 2,195 render checks, 621 characters checked for coverage.
+- **Counts at the time of writing**: 464 contrast checks, 12 colour-vision checks, 2,195 render checks, 621 characters checked for coverage, 80 export checks.
 - **The render check can reproduce another machine's rendering**: `RA_CHROMIUM_ARGS=--font-render-hinting=full npm run check:render` gives the pixel-snapped glyph widths of the CI runner. The suite passes in both modes.
-- **The checks were tested against the defects they target**: a plate thinned to 45% or a stray text run on bare glass fails the glass checks, a focus bar drawn as `box-shadow`, the primitive `aero-blue-800` for the focus label, a list that rebuilds on selection, a 26px chip or a panel that stops trapping focus fails the sheet checks, and re-introducing an overflowing field, a state edge drawn with `box-shadow`, a paler muted text, a component token declared on the root alone, or a character missing from the bundled face makes them fail.
+- **The checks were tested against the defects they target**: a plate thinned to 45% or a stray text run on bare glass fails the glass checks, a focus bar drawn as `box-shadow`, the primitive `aero-blue-800` for the focus label, a list that rebuilds on selection, a 26px chip or a panel that stops trapping focus fails the sheet checks, a token edited without re-exporting, an alias pointing nowhere or a hand-edited exported colour fails the export checks, and re-introducing an overflowing field, a state edge drawn with `box-shadow`, a paler muted text, a component token declared on the root alone, or a character missing from the bundled face makes them fail.
 - **Review renders** are written to [`specimen/screenshots/`](specimen/screenshots/): each theme, grayscale, forced colors, print and 200% zoom. Grayscale is reviewed by eye.
 
 **What the checks cannot tell us.** Text on glass is now measured on real pixels, but only over procedural stress backdrops, not photographs, video or maps. Real sunlight on a real screen, colour perception by people rather than a simulation, how screen readers actually announce the grid and the status lines (the checks read the attributes, not the speech), whether Arabic readers find the mirrored layout right, performance on large tables and low-end devices, and a real sync conflict, the Ruled Sheet with a screen reader, an input method or a printer, and a real clipboard (paste is tested with a dispatched paste event carrying text) all need people and devices. The keyboard model is tested in Chromium only.
@@ -2116,7 +2137,7 @@ These are renders of the working specimen, written by `npm run check:render`.
 
 - **Done in v0.3 and v0.3.1**: tonal ladder, domain semantics, the Ruled Sheet and Writing Workspace.
 - **Done in v0.4**: state system, live values and data quality, three-tier tokens, dark and outdoor themes, forced colors, print, specimen and checks.
-- **Done in v0.5**: density, the table model (keyboard, range, copy and paste, columns, truncation, large tables), layered state and offline, bundled typography, right to left, settings, performance budgets, glass, the Ruled Sheet and Writing Workspace, and the smaller sections.
+- **Done in v0.5**: the token export, density, the table model (keyboard, range, copy and paste, columns, truncation, large tables), layered state and offline, bundled typography, right to left, settings, performance budgets, glass, the Ruled Sheet and Writing Workspace, and the smaller sections.
 - **Ruled Sheet, continued**: file attachment with upload and quota (the specimen only reveals the field), a screen-reader pass over the sheet and the reading pages, input-method composition, and a real print and photocopy test.
 - **Tables, continued**: multi-column sort, row grouping, filters inside a column, export (the large table points to it), and bringing table edits into the named-change Undo of the layers model.
 - **Measure on a device**: run the large-table budget on a low-end phone and a low-end laptop, and add frames per second while scrolling, which the check cannot see.
@@ -2128,7 +2149,7 @@ These are renders of the working specimen, written by `npm run check:render`.
 - **Automation**: provenance on values, staged changes, and the rule that the product works with automation off.
 - **Component specs**: Produce Figma variants for every component listed in this document.
 - **Icon library**: Extend the 16px state marks into a 24px icon grid with engineering-natural hybrid motifs.
-- **Token export**: Generate JSON tokens for Figma, Tailwind, and React Native from the token file.
+- **Token export, continued**: import the DTCG sets into Figma and check them by eye, run the native module on a device with TTF faces, and a Tailwind v4 theme.
 - **Content model**: Define standard data fields for metrics, timestamps, confidence, and source attribution.
 
 ---

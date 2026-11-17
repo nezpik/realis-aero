@@ -10,6 +10,7 @@ By Naji Zouiti.
 |---|---|
 | [`realis-aero.md`](realis-aero.md) | The document (v0.5): principles, tokens, tonal ladder, state system, density, tables, layered state and offline, themes, typography, components, implementation, verification |
 | [`tokens/realis-aero.tokens.css`](tokens/realis-aero.tokens.css) | Design tokens in three tiers (primitive, semantic, component) for light, dark and outdoor, with forced colors, print, reduced motion and reduced transparency |
+| [`tokens/dist/`](tokens/dist/) | Generated, not edited: DTCG JSON sets for Figma tooling and Style Dictionary, a Tailwind v3 preset and a React Native module, all from the token file |
 | [`fonts/`](fonts/) | The bundled faces (Source Sans 3, Source Code Pro, Noto Sans Arabic), their `@font-face` file and their SIL Open Font License texts |
 | [`specimen/index.html`](specimen/index.html) | A working page showing every surface and state, a keyboard-operable table (range selection, copy and paste with a preview, column controls, truncation), a virtualized table of 12,408 rows and a layered-state demo. Add `?theme=light`, `?theme=dark`, `?theme=outdoor`, `?transparency=reduced`, `?density=compact`, `?density=touch` or `?dir=rtl` |
 | [`specimen/settings.html`](specimen/settings.html) | A settings screen: staged until Apply, an inert preview, a locked setting with its owner, reordering without a pointer, find. Add nothing: it stores the applied settings in the browser |
@@ -26,6 +27,8 @@ npm run check:cvd      # chart series under simulated colour-vision deficiency
 npm install && npx playwright install chromium
 npm run check:render   # browser checks on the specimen, settings, glass and ruled-sheet pages; writes the screenshots
 npm run check:glyphs   # every drawn character, in French and Arabic too, is in a bundled face
+npm run build:tokens   # regenerate tokens/dist (DTCG JSON, Tailwind preset, React Native module)
+npm run check:export   # the export is fresh, valid, and equal to the CSS in a browser; real Tailwind and Style Dictionary builds
 # Reproduce another machine's rendering, e.g. the CI runner's pixel-snapped glyph advances:
 RA_CHROMIUM_ARGS=--font-render-hinting=full npm run check:render
 npm run check          # all of the above

@@ -1,0 +1,45 @@
+{
+  "$description": "Load core first, then one theme set, then one density set; reduced-motion overrides motion when the user asks for it. Aliases resolve across the sets that are loaded.",
+  "sets": [
+    {
+      "name": "core",
+      "kind": "core",
+      "file": "dtcg/core.json"
+    },
+    {
+      "name": "light",
+      "kind": "theme",
+      "file": "dtcg/light.json"
+    },
+    {
+      "name": "dark",
+      "kind": "theme",
+      "file": "dtcg/dark.json"
+    },
+    {
+      "name": "outdoor",
+      "kind": "theme",
+      "file": "dtcg/outdoor.json"
+    },
+    {
+      "name": "density-comfortable",
+      "kind": "density",
+      "file": "dtcg/density-comfortable.json"
+    },
+    {
+      "name": "density-compact",
+      "kind": "density",
+      "file": "dtcg/density-compact.json"
+    },
+    {
+      "name": "density-touch",
+      "kind": "density",
+      "file": "dtcg/density-touch.json"
+    },
+    {
+      "name": "reduced-motion",
+      "kind": "preference",
+      "file": "dtcg/reduced-motion.json"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "$description": "Motion durations when the user asks for reduced motion.",
+  "motion": {
+    "instant": {
+      "$type": "duration",
+      "$value": "0ms"
+    },
+    "fast": {
+      "$type": "duration",
+      "$value": "0ms"
+    },
+    "standard": {
+      "$type": "duration",
+      "$value": "0ms"
+    },
+    "slow": {
+      "$type": "duration",
+      "$value": "0ms"
+    },
+    "live-pulse": {
+      "$type": "duration",
+      "$value": "0ms"
+    }
+  }
+}
