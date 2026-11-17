@@ -160,7 +160,7 @@ for (const [name, q] of [['dusk', '?hour=dusk'], ['late', '?hour=late'], ['deep'
     if (!(ring.s !== 'none' && ring.w >= 2)) weak.push(sel);
   }
   check(weak.length === 0, 'a focused control of every kind shows a ring of at least 2px', weak.join(', '));
-  const small = await page.evaluate(() => [...document.querySelectorAll('button, select, input[type=text], .check')].filter(e => e.offsetParent && !e.closest('[hidden]')).map(e => { const r = e.getBoundingClientRect(); return { t: (e.textContent || e.id).trim().slice(0, 20), h: r.height, w: r.width, tag: e.tagName }; }).filter(x => x.h < 43.5 && !(x.tag === 'LABEL')));
+  const small = await page.evaluate(() => [...document.querySelectorAll('button, select, input[type=text], .check')].filter(e => e.offsetParent && !e.closest('[hidden]') && !e.closest('.nb__read')).map(e => { const r = e.getBoundingClientRect(); return { t: (e.textContent || e.id).trim().slice(0, 20), h: r.height, w: r.width, tag: e.tagName }; }).filter(x => x.h < 43.5 && !(x.tag === 'LABEL')));
   check(small.length === 0, 'every button and field is at least 44px tall', small.slice(0, 3).map(x => `${x.t} ${x.h}`).join(', '));
   check(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'no horizontal scroll at 1280px');
   await page.ctx.close();
@@ -201,63 +201,126 @@ for (const [name, q] of [['dusk', '?hour=dusk'], ['late', '?hour=late'], ['deep'
   await clock.close();
 }
 
-// 2d. Field, List, Path and the Spark.
+// 2d. Notebook, Graph, List, Trail and the Spark.
 {
-  const page = await open({}); const A = page.locator('#announce');
+  const page = await open({}); const A = page.locator('#announce'); const say = () => page.waitForTimeout(120);
   const total = await page.locator('#plane .node').count(), lit0 = await page.locator('#plane .node.lit').count();
-  check(total === 9 && lit0 === 3 && lit0 / total < 0.4, 'the Field opens mostly dark (3 of 9 lit); dark is the default', `${lit0} of ${total}`);
-  check(await page.evaluate(() => !/locked|%|\bof \d+\b|complete|behind/i.test(document.querySelector('#field').innerText.replace(/Not yet/g, ''))), 'the Field shows no lock, percentage, "x of y", completeness or "behind"');
-  check(await page.locator('#plane .node').evaluateAll(els => els.every(e => !e.disabled && e.getAttribute('aria-disabled') !== 'true')), 'no item is locked behind another');
+  check(await page.locator('#pages li').count() === 9 && total === 9, 'the Notebook lists nine pages and the Graph shows the same nine');
+  check(lit0 === 3 && lit0 / total < 0.4, 'the Graph opens mostly dark (3 of 9 lit); dark is the default', `${lit0} of ${total}`);
+  check(await page.evaluate(() => !/locked|%|\bof \d+\b|complete|behind|orphan|unlinked|isolated/i.test(document.querySelector('#field').innerText.replace(/Not yet/g, ''))), 'the Graph shows no lock, percentage, "x of y", completeness, "behind" or orphan label');
+  check(await page.locator('#plane .node').evaluateAll(els => els.every(e => !e.disabled && e.getAttribute('aria-disabled') !== 'true')), 'no page is locked behind another');
   const dark = page.locator('#plane .node:not(.lit)').first();
-  check((await dark.evaluate(e => getComputedStyle(e).borderTopStyle)) === 'dashed' && (await dark.locator('.state').innerText()) === 'Not yet', 'a dark item is shown by a dashed edge and the words "Not yet", not by colour alone');
-  // keyboard
-  const before = await page.evaluate(() => JSON.parse(localStorage.getItem('rp.field.v1') || 'null'));
+  check((await dark.evaluate(e => getComputedStyle(e).borderTopStyle)) === 'dashed' && (await dark.locator('.state').innerText()) === 'Not yet', 'a dark page is shown by a dashed edge and the words "Not yet", not by colour alone');
+  check(await page.locator('#links line').count() === 2, 'the two threads written in the text are drawn in the Graph (Entropy to Information, Probability to Bayes’ rule)');
+  // keyboard and pointer
   const node = page.locator('#plane .node[data-id="sleep"]'); await node.focus(); const x0 = await node.evaluate(e => parseFloat(e.style.left));
   await page.keyboard.press('ArrowRight'); await page.keyboard.press('Shift+ArrowRight'); const x1 = await node.evaluate(e => parseFloat(e.style.left));
-  check(Math.abs(x1 - x0 - 5) < 0.01, 'the arrow keys move the focused item by 1% and Shift by 4%', `${x0} to ${x1}`);
-  // pointer drag
+  check(Math.abs(x1 - x0 - 5) < 0.01, 'the arrow keys move the focused page by 1% and Shift by 4%', `${x0} to ${x1}`);
   const box = await node.boundingBox(); await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await page.mouse.down(); await page.mouse.move(box.x + box.width / 2 + 120, box.y + box.height / 2 - 60, { steps: 6 }); await page.mouse.up();
-  check((await node.evaluate(e => parseFloat(e.style.left))) > x1 + 5 && !(await page.locator('#detail').isVisible()), 'dragging moves an item and does not open it');
-  // reload keeps the person's arrangement
+  check((await node.evaluate(e => parseFloat(e.style.left))) > x1 + 5 && (await page.inputValue('#page-title')) === 'Entropy', 'dragging moves a page and does not open it');
   const pos = await node.evaluate(e => [e.style.left, e.style.top]); await page.reload(); await page.waitForTimeout(100);
   check(same(await page.locator('#plane .node[data-id="sleep"]').evaluate(e => [e.style.left, e.style.top]), pos), 'nothing is rearranged without the person: positions survive a reload');
-  // tidy and undo
   const snap = () => page.evaluate(() => [...document.querySelectorAll('#plane .node')].map(n => [n.dataset.id, n.style.left, n.style.top].join(':')).join('|'));
   const s0 = await snap(); await page.click('#tidy'); const s1 = await snap();
-  const links = await page.locator('#links line').count();
-  check(s1 !== s0 && links === 2 && !(await page.locator('#untidy').isDisabled()), 'Tidy rearranges and keeps every link, and offers Undo', `${links} links`);
+  check(s1 !== s0 && await page.locator('#links line').count() === 2 && !(await page.locator('#untidy').isDisabled()), 'Tidy rearranges and keeps every thread, and offers Undo');
   await page.click('#untidy'); check(await snap() === s0 && await page.locator('#untidy').isDisabled(), 'Undo tidy restores every position exactly');
-  // Link from the Field: one Spark
-  await page.click('#plane .node[data-id="entropy"]'); check(await page.locator('#detail').isVisible(), 'opening an item shows its detail');
-  await page.selectOption('#link-to', 'compression'); await page.click('#link-do'); await page.waitForTimeout(100);
-  check(await page.locator('.spark').count() === 1, 'making a link shows one Spark');
-  check((await A.innerText()).includes('Linked: Entropy and Compression.'), 'the link is announced in words, so the moment is not carried by light alone', await A.innerText());
-  check(await page.locator('#plane .node[data-id="compression"]').evaluate(e => e.classList.contains('lit')), 'both ends of a link are lit: light is where the person has been');
-  await page.click('#plane .node[data-id="probability"]'); await page.selectOption('#link-to', 'memory'); await page.click('#link-do');
-  check(await page.locator('.spark').count() === 1, 'a second link leaves one Spark, never a stack');
+
+  // Writing a thread: the person's own words make a link, one Spark, announced in words.
+  check((await page.inputValue('#page-title')) === 'Entropy' && (await page.inputValue('#page-body')).includes('[[Information]]'), 'the Notebook opens on Entropy, with its thread written in the text');
+  check((await page.locator('#backlinks li').allInnerTexts()).join() === 'Nothing links here yet. That is fine.', 'a page nothing links to says "Nothing links here yet. That is fine."');
+  await page.fill('#page-body', (await page.inputValue('#page-body')) + ' Related: [[Compression]].'); await say();
+  check(await page.locator('.spark').count() === 1, 'writing a new [[link]] shows one Spark');
+  check((await A.innerText()).includes('Linked: Entropy and Compression.'), 'the thread is announced in words, so the moment is not carried by light alone', await A.innerText());
+  check(await page.locator('#plane .node[data-id="compression"]').evaluate(e => e.classList.contains('lit')) && await page.locator('#links line').count() === 3, 'both pages are lit and the Graph gains the thread: light is where the person has been');
+  await page.click('#pages .pg[data-id="probability"]'); await page.selectOption('#link-to', 'memory'); await page.click('#link-do'); await say();
+  check(await page.locator('.spark').count() === 1 && (await page.inputValue('#page-body')).includes('[[Memory]]'), 'linking with the control writes [[Memory]] into the text and leaves one Spark, never a stack');
   check(await page.evaluate(() => !/\d+\s*sparks?|sparks?\s*(this|today|so far|:)/i.test(document.body.innerText) && !document.querySelector('[class*="spark-count"], [data-sparks]')), 'Sparks are not counted or summarised anywhere on the page');
-  await page.waitForTimeout(2600); check(await page.locator('.spark').count() === 0 && await page.locator('#links line').count() === 4, 'the flash passes; the links stay');
-  // The List is the same content
+  await page.waitForTimeout(2600); check(await page.locator('.spark').count() === 0 && await page.locator('#links line').count() === 4, 'the flash passes; the threads stay');
+  // reading: the same text, links as links, backlinks in the other direction
+  await page.click('#pages .pg[data-id="compression"]'); await page.click('[data-mode-btn="read"]');
+  check((await page.locator('#backlinks li').allInnerTexts()).join() === 'Entropy', 'Compression shows that Entropy links to it ("Linked from")');
+  await page.click('#pages .pg[data-id="entropy"]'); await page.click('[data-mode-btn="read"]');
+  check(await page.locator('#page-read .wl').count() === 2, 'in Read, each [[link]] in the text is a button');
+  await page.locator('#page-read .wl', { hasText: 'Compression' }).click(); check((await page.inputValue('#page-title')) === 'Compression', 'following a link opens that page');
+  await page.click('[data-mode-btn="edit"]');
+  // renaming keeps the threads
+  await page.fill('#page-title', 'Compression and cost'); await page.click('#pages .pg[data-id="entropy"]');
+  check((await page.inputValue('#page-body')).includes('[[Compression and cost]]') && await page.locator('#links line').count() === 4, 'renaming a page rewrites the links that point to it, and every thread stays');
+  // the List and the Trail are the same pages
   await page.click('[data-view-btn="list"]');
-  const listItems = await page.locator('#list li').count(), listLinks = await page.evaluate(() => [...document.querySelectorAll('#list li')].filter(li => /Linked to/.test(li.textContent)).length);
-  check(listItems === 9 && listLinks >= 6 && await page.locator('#list li.lit').count() === await page.locator('#plane .node.lit').count(), 'the List has the same nine items, the same links and the same lit state as the Field', `${listItems} items, ${listLinks} with links`);
-  await page.click('#list .open >> text=Sleep'); await page.selectOption('#link-to', 'memory'); await page.click('#link-do'); await page.waitForTimeout(100);
-  check(await page.locator('.spark').count() === 1 && (await A.innerText()).includes('Linked: Sleep and Memory.'), 'a link made from the List gives its Spark and its words too');
-  await page.click('[data-view-btn="field"]'); check(await page.locator('#links line').count() === 5, 'a link made in the List appears in the Field');
-  await page.click('[data-view-btn="path"]'); check(await page.locator('#pathlist li').count() === 9 && await page.locator('#pathlist li.walked').count() >= 3, 'the Path shows the same nine items, lit as far as the person has been');
-  // keyboard only: open and link without a pointer
+  const listItems = await page.locator('#list li').count(), withThreads = await page.evaluate(() => [...document.querySelectorAll('#list li')].filter(li => /Linked to/.test(li.textContent)).length);
+  check(listItems === 9 && withThreads >= 6 && await page.locator('#list li.lit').count() === await page.locator('#plane .node.lit').count(), 'the List has the same nine pages, the same threads and the same lit state as the Graph', `${listItems} pages, ${withThreads} with threads`);
+  check((await page.locator('#list li', { hasText: 'Sleep' }).innerText()).includes('No threads yet'), 'a page with no threads says "No threads yet", not "orphan"');
+  await page.click('[data-view-btn="path"]'); check(await page.locator('#pathlist li').count() === 9 && await page.locator('#pathlist li.walked').count() >= 4, 'the Trail shows the same nine pages, lit as far as the person has walked');
+  // a new page
+  await page.click('#new-page'); check(await page.locator('#pages li').count() === 10 && await page.evaluate(() => document.activeElement.id) === 'page-title', 'a new page opens with its title ready to type');
+  await page.click('[data-view-btn="field"]');
+  // per-page words and questions
+  await page.click('#pages .pg[data-id="information"]'); await page.fill('#tag', 'stuck'); await page.click('#tag-add'); await page.fill('#tag', 'quiet'); await page.keyboard.press('Enter');
+  check(same(await page.locator('#chips li').allInnerTexts().then(a => a.map(s => s.replace('×', '').trim())), ['stuck', 'quiet']), 'the person\'s own words become tags on that page, exactly as written');
+  await page.click('#pages .pg[data-id="memory"]'); check(await page.locator('#chips li').count() === 0, 'words belong to the page they were written on');
+  check(await page.locator('#questions').isHidden() && (await page.locator('#ask').getAttribute('aria-expanded')) === 'false', 'the open questions are hidden until the person asks for them');
+  await page.click('#ask'); check(await page.locator('#questions li').count() === 3 && await page.locator('#questions').isVisible(), 'asking shows the three questions');
+  await page.reload(); await page.waitForTimeout(100); await page.click('#pages .pg[data-id="information"]');
+  check(await page.locator('#chips li').count() === 2 && await page.locator('#pages li').count() === 10, 'pages, links and words survive a reload, on this device');
+  // keyboard only
   const kb = await open(); await kb.locator('#plane .node[data-id="bayes"]').focus(); await kb.keyboard.press('Enter');
-  await kb.locator('#link-to').focus(); await kb.keyboard.press('ArrowDown'); await kb.locator('#link-do').focus(); await kb.keyboard.press('Enter');
-  check(await kb.locator('.spark').count() === 1, 'an item can be opened and linked with the keyboard alone');
+  check((await kb.inputValue('#page-title')) === 'Bayes’ rule', 'a page is opened from the Graph with Enter');
+  await kb.locator('#link-to').focus(); await kb.keyboard.press('ArrowDown'); await kb.locator('#link-do').focus(); await kb.keyboard.press('Enter'); await kb.waitForTimeout(100);
+  check(await kb.locator('.spark').count() === 1, 'a thread can be made with the keyboard alone');
   await kb.ctx.close(); await page.ctx.close();
 
   // Reduced motion: a Spark that stays still, no breath, short fades.
-  const rm = await open({ reducedMotion: 'reduce' }); await rm.click('#plane .node[data-id="entropy"]'); await rm.selectOption('#link-to', 'compression'); await rm.click('#link-do');
-  const sp = rm.locator('.spark'); await rm.waitForTimeout(2200);
-  check(await sp.count() === 1 && (await sp.evaluate(e => getComputedStyle(e).animationName)) === 'none', 'with reduced motion the Spark is a still mark that stays on the link');
+  const rm = await open({ reducedMotion: 'reduce' }); await rm.fill('#page-body', 'See [[Information]] and [[Compression]].'); await rm.waitForTimeout(2200);
+  const sp = rm.locator('.spark');
+  check(await sp.count() === 1 && (await sp.evaluate(e => getComputedStyle(e).animationName)) === 'none', 'with reduced motion the Spark is a still mark that stays beside the page');
   check((await rm.locator('.lantern').evaluate(e => getComputedStyle(e).animationName)) === 'none', 'with reduced motion the Lantern does not breathe');
   check((await rm.evaluate(() => parseFloat(getComputedStyle(document.querySelector('.btn')).transitionDuration))) <= 0.101, 'with reduced motion transitions are 100ms or less');
   await rm.ctx.close();
+}
+
+// 2d2. Keeps: an address and the person's own words. Nothing is fetched.
+{
+  const requests = []; const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } }); const page = await ctx.newPage();
+  page.on('request', r => { if (!r.url().startsWith('file:') && !r.url().startsWith('data:')) requests.push(r.url()); });
+  await page.goto(url); await page.waitForTimeout(100);
+  check(await page.locator('#keeplist li').count() === 2, 'two Keeps to begin with, each an address and a line of the person\'s own');
+  const a = page.locator('#keeplist li').first().locator('a.keep__title');
+  check((await a.getAttribute('rel')) === 'noopener noreferrer' && (await a.getAttribute('target')) === '_blank' && (await a.getAttribute('href')).startsWith('https://'), 'a Keep opens in a new tab with rel="noopener noreferrer", and only on a click');
+  check((await page.locator('#page-keeps li').allInnerTexts()).join() === 'What is entropy, really?', 'the Keep attached to Entropy is listed on the Entropy page');
+  await page.fill('#keep-url', 'nonsense'); await page.click('#keep-add'); await page.waitForTimeout(100);
+  check(await page.locator('#keeplist li').count() === 2 && (await page.locator('#keep-url').getAttribute('aria-invalid')) === 'true' && (await page.locator('#announce').innerText()).includes('does not look like an address'), 'an address that is not one is refused in words, with aria-invalid, and nothing is lost');
+  await page.fill('#keep-url', 'https://example.org/a-long-read'); await page.fill('#keep-note', 'Come back to the second half.'); await page.click('#keep-add'); await page.waitForTimeout(100);
+  check(await page.locator('#keeplist li').count() === 3 && (await page.locator('#keeplist li').first().locator('.keep__title').innerText()) === 'example.org' && (await page.locator('#announce').innerText()).includes('Nothing was fetched'), 'a new Keep is added at the top, named after its host when the person gives no name, and says nothing was fetched');
+  await page.locator('#keeplist li').first().locator('select').selectOption('memory'); await page.click('#pages .pg[data-id="memory"]');
+  check((await page.locator('#page-keeps li').allInnerTexts()).join() === 'example.org', 'attaching a Keep to a page lists it on that page');
+  await page.reload(); await page.waitForTimeout(100);
+  check(await page.locator('#keeplist li').count() === 3, 'Keeps survive a reload, on this device');
+  await page.locator('#keeplist li').first().getByRole('button', { name: /Forget/ }).click(); check(await page.locator('#keeplist li').count() === 2, 'a Keep can be forgotten');
+  check(await page.evaluate(() => !/score|grade|mood|sentiment|streak|badge|xp\b|points|reading time|read count|views/i.test(document.body.innerText)), 'no score, grade, mood, streak, badge, points, read count or reading time anywhere on the page');
+  check(!(await page.locator('#glimmer').isVisible()) && !(await page.isChecked('#glimmers')), 'Glimmers are off until the person allows one');
+  await page.check('#glimmers'); check(await page.locator('#glimmer').isVisible() && await page.locator('#glimmer .glimmer__dot').count() === 1, 'allowing Glimmers shows one quiet Glimmer, with no badge and no count');
+  check(requests.length === 0, 'nothing leaves the browser: no request to any server, a Keep\'s address included', requests.slice(0, 3).join(', '));
+  await ctx.close();
+}
+
+// 2d3. Sketch: an idea diagram, with kinds told apart by line style.
+{
+  const page = await open({});
+  check(await page.locator('#sketchplane .box').count() === 4 && await page.locator('#arrows line').count() === 3, 'the Sketch opens with four boxes and three arrows');
+  const leads = await page.locator('#arrows line.sk-leads').evaluateAll(l => l.map(x => [x.getAttribute('marker-end'), getComputedStyle(x).strokeDasharray])), rel = await page.locator('#arrows line.sk-relates').evaluateAll(l => l.map(x => [x.getAttribute('marker-end'), getComputedStyle(x).strokeDasharray]));
+  check(leads.length === 2 && leads.every(l => l[0] && l[1] === 'none') && rel.length === 1 && !rel[0][0] && rel[0][1] !== 'none', 'a "leads to" arrow is solid with a head; a "might relate" line is dashed with none, so the kinds differ by form, not colour');
+  check((await page.locator('#arrow-list li').allInnerTexts()).join('|').includes('Question leads to What I know') && await page.locator('#arrow-list li').count() === 3, 'every arrow is also written out in words below the diagram');
+  const b = page.locator('#sketchplane .box[data-id="n"]'); await b.focus(); const x0 = await b.evaluate(e => parseFloat(e.style.left)); await page.keyboard.press('ArrowLeft'); await page.keyboard.press('Shift+ArrowLeft');
+  check(Math.abs(x0 - (await b.evaluate(e => parseFloat(e.style.left))) - 5) < 0.01, 'the arrow keys move a box by 1% and Shift by 4%');
+  await page.fill('#box-text', 'Something I read'); await page.click('#box-add'); check(await page.locator('#sketchplane .box').count() === 5, 'a box can be added');
+  await page.selectOption('#arrow-from', 'u'); await page.selectOption('#arrow-to', 'n'); await page.selectOption('#arrow-kind', 'relates'); await page.click('#arrow-add');
+  check(await page.locator('#arrows line').count() === 4 && (await page.locator('#arrow-list li').last().innerText()).startsWith('What I’m unsure of might relate to Next small step'), 'an arrow can be drawn from the controls, and is written out');
+  await page.reload(); await page.waitForTimeout(100); check(await page.locator('#sketchplane .box').count() === 5 && await page.locator('#arrows line').count() === 4, 'the Sketch survives a reload');
+  await page.locator('#arrow-list li').first().getByRole('button').click(); check(await page.locator('#arrows line').count() === 3, 'an arrow can be removed');
+  const fc = await open({ forcedColors: 'active' }); const dash = await fc.locator('#arrows line.sk-relates').evaluate(x => getComputedStyle(x).strokeDasharray), ldash = await fc.locator('#arrows line.sk-leads').first().evaluate(x => getComputedStyle(x).strokeDasharray);
+  check(dash !== 'none' && ldash === 'none', 'in forced colours the two kinds of arrow still differ by dashed and solid');
+  await fc.ctx.close(); await page.ctx.close();
 }
 
 // 2e. Forced colours.
@@ -282,26 +345,6 @@ for (const [name, q] of [['dusk', '?hour=dusk'], ['late', '?hour=late'], ['deep'
   check(await page.evaluate(async () => { await document.fonts.ready; return document.fonts.check('18px "Source Serif 4"'); }), 'Source Serif 4 is loaded from the bundled file');
   await page.click('#bench-exit'); check(!(await page.evaluate(() => document.body.classList.contains('is-bench'))), 'the exit leaves the Bench');
   await page.ctx.close();
-}
-
-// 2g. Still, Glimmers and what stays on the device.
-{
-  const requests = []; const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } }); const page = await ctx.newPage();
-  page.on('request', r => { if (!r.url().startsWith('file:') && !r.url().startsWith('data:')) requests.push(r.url()); });
-  await page.goto(url); await page.waitForTimeout(100);
-  check(await page.locator('#questions').isHidden() && (await page.locator('#ask').getAttribute('aria-expanded')) === 'false', 'the open questions are hidden until the person asks for them');
-  await page.click('#ask'); check(await page.locator('#questions li').count() === 3 && await page.locator('#questions').isVisible(), 'asking shows the three questions');
-  await page.fill('#still-text', 'I read it three times and the third time it was a different paragraph.');
-  check((await page.locator('#now').innerText()).startsWith('I read it three times'), 'what is written appears beside the earlier note, with no score between them');
-  await page.fill('#tag', 'stuck'); await page.click('#tag-add'); await page.fill('#tag', 'quiet'); await page.keyboard.press('Enter');
-  check(same(await page.locator('#chips li').allInnerTexts().then(a => a.map(s => s.replace('×', '').trim())), ['stuck', 'quiet']), 'the person\'s own words become tags, exactly as written');
-  await page.reload(); await page.waitForTimeout(100);
-  check((await page.inputValue('#still-text')).startsWith('I read it three times') && await page.locator('#chips li').count() === 2, 'the page and its words survive a reload, on this device');
-  check(await page.evaluate(() => !/score|grade|mood|sentiment|streak|badge|xp\b|points/i.test(document.body.innerText)), 'no score, grade, mood, streak, badge or points anywhere on the page');
-  check(!(await page.locator('#glimmer').isVisible()) && !(await page.isChecked('#glimmers')), 'Glimmers are off until the person allows one');
-  await page.check('#glimmers'); check(await page.locator('#glimmer').isVisible() && await page.locator('#glimmer .glimmer__dot').count() === 1, 'allowing Glimmers shows one quiet Glimmer, with no badge and no count');
-  check(requests.length === 0, 'nothing leaves the browser: no request to any server during the whole session', requests.slice(0, 3).join(', '));
-  await ctx.close();
 }
 
 await browser.close();

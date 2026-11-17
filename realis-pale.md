@@ -1,14 +1,16 @@
 ---
 name: Realis Pale
-version: 0.2.2
+version: 0.3.0
 type: design-direction
 status: draft
 author: Naji Zouiti
 derived-from: Ednocte v0.2 (nezpik/realis-aero, pull request 1)
+use-cases: [notebook, bookmarks, wiki, knowledge-graph, idea-diagram, personal-use]
 summary: >-
-  A dusk-native design direction for learning alone, late. Solitude, resilience
-  and dim hope: knowing more at your own pace, in dim light that follows the
-  hour, with ideas that spark, knowledge that is allowed to be a mess, and room
+  A dusk-native design direction for personal knowledge tools: notebooks,
+  bookmarks, wikis, knowledge graphs and idea diagrams, used alone, late. Solitude,
+  resilience and dim hope: knowing more at your own pace, in dim light that follows
+  the hour, with ideas that spark, knowledge that is allowed to be a mess, and room
   to contemplate yourself and what you know.
 tags: [edtech, dusk-ui, design-system, brand-philosophy, realis]
 tokens:
@@ -52,7 +54,7 @@ tokens:
     ease: cubic-bezier(0.25, 0.6, 0.3, 1)
 ---
 
-# REALIS PALE: Design Direction v0.2
+# REALIS PALE: Design Direction v0.3
 
 > *6:40 PM, late in the year. The light has mostly gone from the sky but not
 > all of it: a pale band stays along the roofline. On the steps outside the
@@ -80,22 +82,38 @@ person's own pace, and a place to be still.
 |---|---|
 | Late, in dim light, at the right time | Three hours of light, **Dusk, Late and Deep**, that dim with the evening if the person asks (section 3.6) |
 | The sparkling of ideas | A **Spark**: one brief point of light where the person connects two things (section 11.1) |
-| Chaos in knowledge, at your own pace | The **Field**: knowledge laid out unordered, with the dark as its default and no required sequence (section 11.2) |
-| Dealing with yourself, contemplating yourself and your knowledge | **Still**: a private page for the person's own words, then and now, with no scoring and no inference (section 11.3) |
+| Chaos in knowledge, at your own pace | The **Graph** and the **Sketch**: knowledge laid out unordered, dark by default, with no required sequence (sections 11.2 and 11.6) |
+| Dealing with yourself, contemplating yourself and your knowledge | The **Notebook**: private pages for the person's own words, with no scoring and no inference (section 11.3) |
 | Resilience | The **Wick** marks returns, not streaks; every difficulty state leaves a way back (sections 10 and 14) |
-| Solitude | Unobserved by default (section 14) |
+| Solitude | Unobserved by default, owned by the person (section 14) |
+
+**What it is for.** Realis Pale is for **personal knowledge tools**, where the person is
+both the author and the only reader:
+
+| Tool | The job | What Realis Pale adds |
+|---|---|---|
+| **Notebook** | Writing pages in your own words | Dim light that follows the hour, a page that is allowed to be blank, words of your own for how it is going |
+| **Bookmarks (Keeps)** | Finding again what you found | An address plus *why you kept it*, never a fetched preview or a read count |
+| **Wiki** | Pages that link to each other | Threads written in the text, backlinks, a trail of where you have walked |
+| **Knowledge graph** | Seeing how what you know connects | A graph that opens mostly dark, is never arranged for you, and has a List with the same content |
+| **Idea diagram (Sketch)** | Thinking in boxes and arrows | No imposed order; kinds of arrow told apart by their form, not their colour |
+
+It is not a learning platform. Courses, lessons, grades, streaks and progress bars belong
+to Ednocte's world and are left out on purpose (section 1.4).
 
 Realis Pale is the quiet sibling of [Realis Aero](realis-aero.md). Realis Aero
 is for systems that are measured and maintained in daylight. Realis Pale is for
-the person who is trying to get better at something, alone, after the day's
-obligations have ended, with little certainty that it will work. It keeps the
+the person who is trying to understand something, alone, after the day's
+obligations have ended, with little certainty that it will work, and who keeps their
+own notes, bookmarks and links to show for it. It keeps the
 Realis rule that every optimistic cue is backed by something real, and applies
 it to hope: **the hope in Realis Pale is the smallest light that is still on,
 and it is never promised to be bigger.**
 
 This document derives from Ednocte, the night-study direction in pull request
 1. It keeps the person, the solitude and the outdoors, and it changes the hour,
-the temperature, the light and the attitude. Section 1 explains how.
+the temperature, the light, the attitude and, from v0.3, the product: personal
+knowledge tools, not education technology. Section 1 explains how.
 
 ---
 
@@ -149,13 +167,14 @@ them differently.
 
 | | Ednocte | Realis Pale |
 |---|---|---|
+| **Product** | Education technology: courses, lessons, streaks, a learner and a platform | Personal knowledge tools: notebook, bookmarks, wiki, graph, sketch. One person, their own material. |
 | **Hour** | After midnight: 11:47 PM, 2 AM | Dusk into the small hours. Three hours of light, Dusk, Late and Deep, that dim as the night goes on, at the person's choice. |
 | **Place** | Park bench, diner booth, wet city street | Library steps, bus shelter, a balcony, a park path, a school wall. Quiet edges of a town, lit by one lamp. |
 | **Attitude** | Rogue, rebellious, off-map | Unobserved, unhurried, unpressured. Persistence, not rebellion. |
 | **Light** | Neon: cyan, magenta, violet, 6 accents, glows to 64px | Lamp and sunset: pale amber, a rose-amber horizon and a violet sky, 3 working accents plus 2 quiet ones, glow capped low |
 | **Surfaces** | Near-black night blue (`#070A12` and up) | A visible dusk blue with violet in it (`#1B2133` and up): lighter, softer, never black, so the sunset stays in the picture |
 | **Hope** | Energy and ignition | A small steady flame: *Kindle*, not *ignite*. Ideas arrive as brief sparks. |
-| **Effort** | Ambition at midnight | Slow, honest effort: progress shown as what is lit, never as what is missing. Knowledge is a Field that may be a mess. |
+| **Effort** | Ambition at midnight | Slow, honest effort: progress shown as what is lit, never as what is missing. Knowledge is a Graph that may be a mess. |
 | **Motion** | Light sweeps, neon flicker | Slower and gentler: kindling, a slow breath, a path drawing itself |
 | **Reward** | Lamplight streak that fades | A *Wick* that marks returns, dims and never goes out, with no loss messaging. A *Spark* belongs to the idea, not to a score. |
 | **Voice** | Late-night, a little rogue | Evening, plain and kind, a little tired, never cheerful on command |
@@ -167,6 +186,32 @@ flicker, the rotated rogue sticker, magenta "flare" and cyan as a brand colour,
 and the `dusk` colour that Ednocte itself had to restrict because it failed
 contrast for body text.
 
+### 1.4 From education to personal knowledge
+
+In v0.1 and v0.2 this direction followed Ednocte into education technology: learning paths,
+lessons, a person studying. Version 0.3 moves it to the tools a person uses for their own
+thinking, which is where its mood fits best. Three things follow.
+
+1. **The person is the author.** In an education product the material comes from outside and
+   the person progresses through it. In a notebook, a wiki or a graph the material is the
+   person's own, so there is nothing to grade, finish or catch up on. Progress, completion,
+   scores and "learner" language go; ownership comes in.
+2. **Structure is made by use.** A course is ordered in advance. A personal graph is made by
+   writing: a link written in the text *is* the thread. So the Graph is derived from the
+   pages, never maintained separately.
+3. **The vision is unchanged.** Solitude, resilience, dim hope, knowing at your own pace and
+   dealing with yourself all apply more directly to a notebook at night than to a course.
+
+| Ednocte or Realis Pale v0.2 | Realis Pale v0.3 |
+|---|---|
+| Route, Path (progress along a course) | **Trail**: the pages you have walked through, lit as far as you have been |
+| Window, Pane (a dashboard card) | **Pane**, for a page in progress or a Keep |
+| Booth, Bench (focus mode) | **Bench**: reading a page with nothing else on screen |
+| Lamplight, Wick (consistency) | **Wick**: coming back, never a streak |
+| Field (knowledge, scattered) | **Graph**: pages and the threads between them |
+| Still (a private page) | **Notebook**: every page is private; there is no other kind |
+| (new) | **Keep**, **Thread**, **Sketch** |
+
 ---
 
 ## 2. Manifesto
@@ -174,9 +219,10 @@ contrast for body text.
 **Realis Pale** = *Realis* (the feasible, the real) + *pale* (the colour that is
 left when the light is going, and the state of a thing that is not yet lit).
 
-A design direction for people who study and work at something alone, outdoors,
-in the evening, with no one supervising and no deadline pressing, and who keep
-going anyway.
+A design direction for the tools a person uses to hold their own thinking: notebooks,
+bookmarks, wikis, knowledge graphs and idea diagrams, used alone, in the evening and
+late, with no one supervising and no deadline pressing, by someone who keeps going
+anyway.
 
 ### The ten beliefs
 
@@ -276,14 +322,18 @@ to reread a paragraph under a lamp when no one would ever know if they gave up.
 | Name | Meaning | Replaces (Ednocte) |
 |---|---|---|
 | **Lantern** | Primary action: the lit sign that says "continue here" | Beacon |
-| **Path** | A learning path: a dotted line with lamp-posts at milestones, lit as far as you have walked | Route |
+| **Notebook** | The person's pages, in their own words; every page is private | (new) |
+| **Page** | One note or wiki entry, with a title and text | (new) |
+| **Thread** | A link between two pages, written in the text as `[[Another page]]` | (new) |
+| **Keep** | A bookmark: an address and the person's own line about why they kept it | (new) |
+| **Graph** | Pages and their threads, laid out as the person likes, dark by default | Route |
+| **Trail** | The pages walked through, in order, lit as far as the person has been | Route |
+| **Sketch** | An idea diagram: boxes and arrows with no order imposed | (new) |
+| **Pane** | A card: a page in progress, a Keep | Window |
+| **Wick** | Coming back: a small flame that marks returns and is still there after a gap | Lamplight |
+| **Spark** | The moment two ideas meet: one brief point of light, then the thread stays | (new) |
 | **Glimmer** | A notification: a faint, brief light, off by default | Signal |
-| **Bench** | Focus and reading mode: the lamp over the door and nothing else | Booth |
-| **Pane** | A dashboard card: one lit window in a quiet building | Window |
-| **Wick** | Coming back: a small flame that marks returns, dims when you are away and is still there when you return | Lamplight |
-| **Spark** | The moment two ideas meet: one brief point of light on the link the person made | (new) |
-| **Field** | Knowledge laid out unordered, dark by default, lit where the person has been | (new) |
-| **Still** | A private page for the person's own words, then and now | (new) |
+| **Bench** | Reading a page with nothing else on screen | Booth |
 | **Hour** | How dim the light is: Dusk, Late or Deep | (new) |
 
 ---
@@ -482,7 +532,7 @@ violet between, the low rose-amber, and the glow of a sun that has just gone.
   picture, not only in the tokens.
 - `--rp-stars` sets how many stars show (0.15, 0.3, 0.5 at the three hours).
   `--rp-silhouette` is the dark of people, roofs and doors against the lit sky.
-- A faint warm glow rises from the bottom of the page and the Field's floor, in the sky's
+- A faint warm glow rises from the bottom of the page and the Graph's floor, in the sky's
   low colour; it is decorative, removed under reduced transparency, and never behind text
   that is not on a surface.
 
@@ -587,7 +637,7 @@ A flat dark surface feels sterile. Realis Pale surfaces carry a little *air*, an
 only a little:
 
 - **The sky**: the sunset in the illustrations and, as a faint warm glow, along the bottom
-  of the page and the floor of the Field (section 3.7). It is the main atmosphere, not a
+  of the page and the floor of the Graph (section 3.7). It is the main atmosphere, not a
   band that dims away: the dusk must stay visible. Decorative, and never behind text that
   is not on a surface.
 - **Grain**: SVG noise, 2% opacity at most, `mix-blend-mode: overlay`, fixed.
@@ -665,14 +715,14 @@ there; it just stops moving.
 - *Lit* variant: a 3px `lantern` bar on the inline-start edge as a real border,
   for the one item that is in progress. Never more than one per list.
 
-### Path (progress)
-- One of three ways to look at knowledge (Path, Field and List, section 11.2). It is
-  optional and built by the person or offered as a suggestion; nothing is locked
-  behind it.
+### Trail (where you have walked)
+- Called the **Trail**: the pages walked through, in the order they were walked. One of three
+  ways to look at pages (Graph, Trail and List, section 11.2). It is made by use and nothing
+  is locked behind it.
 - A dotted line (2px dots, 8px gap, `mist`), with a lamp-post node at every
   milestone.
 - Walked nodes: filled `lantern` with `glow-1`. The current node: `skyline`, with
-  a slow breath. Nodes ahead: outline only. **The path is lit as far as the person
+  a slow breath. Nodes ahead: outline only. **The trail is lit as far as the person
   has walked, and no further.** There is no count of what is left, no percentage
   by default and no estimate of time behind them.
 
@@ -747,57 +797,112 @@ a brief light on the link the person has just made.
 - **The product never schedules a Spark.** Ideas follow the person; the product
   cannot promise one, and does not fake one.
 
-### 11.2 Field: chaos in knowledge, at your own pace
+### 11.2 Graph: chaos in knowledge, at your own pace
 
-Knowledge is not a staircase. The **Field** lays out what the person knows, wonders
-and has noted, as lamps and points on a quiet plane, in whatever arrangement they
-like.
+Knowledge is not a staircase. The **Graph** shows the person's pages as lamps on a quiet
+plane, joined by the threads they have written, in whatever arrangement they like.
 
-- **Dark is the default.** Unexplored areas are simply dark. They are not
-  "incomplete", "locked" or "behind". Light is where the person has been, and a
-  Field mostly dark is not a failing one.
-- **No required order.** Nothing is locked unless the person set a prerequisite. No
-  completeness percentage, no "x of y", no red marks for gaps.
-- **Chaos with craft.** The content may scatter, overlap and drift; the chrome around
-  it, the grid, controls and navigation, stays steady, so the mess has a calm frame.
-  The person can *tidy*, which gathers related lamps and keeps every link, and
-  *undo* it.
-- **Three views of one thing**: **Field** (scattered), **Path** (a sequence, built by
-  the person or suggested) and **List** (flat, sortable by recent and by links).
-  The same items appear in all three. **List is mandatory** and is the accessible
-  route: a spatial plane is hard to use with a keyboard or a screen reader, so the
-  List carries the same content, the same links and the same actions. That
-  equivalence is a requirement here and has not been built or tested.
-- **Pace is the person's.** Nothing decays or expires and nothing is rearranged
-  without their say. A node untouched for a year looks exactly as it did.
-- **Links are drawn, not inferred.** The product does not invent connections between
-  the person's notes and present them as the person's own insight. A suggestion, if
-  offered, is marked as one and can be dismissed.
+- **Made from the text.** A thread exists because the person wrote `[[Another page]]` in a
+  page. The Graph is derived from the pages and never edited separately, so it cannot
+  disagree with them. Renaming a page rewrites the links that point to it.
+- **Dark is the default.** Pages not opened for a while are simply dark. They are not
+  "incomplete", "locked", "stale" or "behind". Light is where the person has been, and a
+  Graph mostly dark is not a failing one. There is **no orphan label**: a page with no
+  threads says "No threads yet".
+- **No required order.** Nothing is locked, no completeness percentage, no "x of y", no red
+  marks for gaps.
+- **Never arranged for the person.** Positions are theirs and survive a reload. There is no
+  force-directed layout that moves things while they look. *Tidy* gathers related pages
+  and keeps every thread; *Undo tidy* puts everything back exactly.
+- **Chaos with craft.** The pages may scatter and overlap; the chrome around them, the grid,
+  controls and navigation, stays steady, so the mess has a calm frame.
+- **Kinds are told apart by form.** When a graph has more than one kind of thread, they
+  differ by line style (solid, dashed, dotted) and a written label, never by colour alone.
+- **Large graphs.** Past what a screen can show, show the pages around the one the person
+  is on (a local graph), keep every label readable at the size it is drawn, and let the
+  person search; never shrink labels to fit.
+- **Three views of one thing**: **Graph** (scattered), **Trail** (the pages walked, in order)
+  and **List** (flat, sortable by title). The same pages, threads and lit state appear in
+  all three. **The List is mandatory** and is the accessible route: a spatial plane is hard
+  to use with a keyboard or a screen reader, so the List carries the same content and the
+  same actions. That equivalence is a requirement and has been tested only with a keyboard.
+- **Pace is the person's.** Nothing decays or expires and nothing is rearranged without
+  their say. A page untouched for a year looks exactly as it did.
+- **Links are drawn, not inferred.** The product does not invent connections between the
+  person's pages and present them as the person's own insight. A suggestion, if offered, is
+  marked as one and can be dismissed.
 
-### 11.3 Still: contemplating yourself and what you know
+### 11.3 Notebook: contemplating yourself and what you know
 
-**Still** is a private page for the person's own words. It is the place to deal with
-yourself.
+The **Notebook** is where the person deals with themselves: private pages in their own
+words, one at a time.
 
-- **What is on it**: a blank page with the person's writing, margin notes, and an
-  optional set of open questions that appear only when the person opens them, such
-  as *"What stayed with you?"*, *"What still doesn't fit?"* and *"What are you
-  carrying tonight?"*. Blank is a valid way to use it.
-- **Then and now**: the person can place an earlier note beside a later one, to see
-  how their own understanding or their own mood changed. There is no score, grade
-  or arrow between them.
-- **Their names for how they feel.** The person may tag a page with words of their
-  own (*stuck*, *tired*, *lost*, *quiet*). The tags are theirs, stay on their pages
-  and are not analysed.
-- **No inference.** The product does not guess a mood from behaviour, typing speed or
-  hours, does not run sentiment analysis on what is written, and does not adapt its
-  voice to a guess about how the person feels. Reading someone's feelings from their
-  behaviour is surveillance, and it contradicts the rest of this document.
-- **The quietest surface.** In Still the Bench is at its dimmest, there is one lit
-  thing (the page), motion is at its slowest, and there is nothing to dismiss. It is
-  never interrupted by a Glimmer.
-- **Private by construction.** Still is not shared, exported or summarised by default.
-  Where a product offers export, it is the person's own action.
+- **Every page is private.** There is no shared page, no public page and no "visible to"
+  setting. A product that also shares must do so in a separate surface, by the person's own
+  act, and mark it.
+- **What is on a page**: a title, text, and the threads, Keeps and words attached to it. A
+  blank page is valid.
+- **Write and Read.** Write is plain text with \`[[links]]\`. Read shows the same text with
+  each link as a button; a link to a page that does not exist is shown as such, in words,
+  and nothing is created until the person asks.
+- **Linked from.** Each page lists the pages that link to it, or says "Nothing links here
+  yet. That is fine."
+- **Their names for how they feel.** The person may tag a page with words of their own
+  (*stuck*, *tired*, *lost*, *quiet*). The words belong to that page, stay on it and are not
+  analysed.
+- **Open questions.** Questions such as *"What stayed with you?"*, *"What still doesn't
+  fit?"* and *"What are you carrying tonight?"* appear only when the person asks for them.
+- **Then and now** (specified, not built in the specimen): the person can place an earlier
+  page beside a later one to see how their understanding or mood changed, with no score,
+  grade or arrow between them.
+- **No inference.** The product does not guess a mood from behaviour, typing speed or hours,
+  does not run sentiment analysis on what is written, and does not adapt its voice to a
+  guess about how the person feels. Reading someone's feelings from their behaviour is
+  surveillance, and it contradicts the rest of this document.
+- **The quietest surface.** In the Notebook at the Bench the lights are lowest, there is one
+  lit thing (the page), motion is at its slowest and nothing needs dismissing.
+
+### 11.4 Wiki pages and threads
+
+A wiki page is a Notebook page the person has linked. Nothing else is added to it.
+
+- **Threads are written, not clicked into being.** Typing `[[Title]]` makes a thread; the
+  *Link this page to* control writes the same text, so the keyboard and the pointer make the
+  same thing. Completing a new thread is the one thing that causes a Spark (section 11.1).
+- **Backlinks are quiet.** *Linked from* lists titles. It does not rank, count or rate them,
+  and it does not suggest links the person has not written.
+- **Trail.** The pages the person has opened, in order, are the Trail. It is the person's
+  own history, local to the device, and never summarised into "pages read" or "time spent".
+
+### 11.5 Keeps: bookmarks in the person's words
+
+A **Keep** is an address and a line of the person's own about why they kept it.
+
+- **Nothing is fetched.** A Keep does not load the page, a preview image, a title or a
+  summary; the person gives a name, or the host is used. Nothing about it leaves the device
+  until the person follows the link, which opens in a new tab with no referrer and no
+  opener.
+- **No counters.** No "saved N times", no read count, no reading time, no "unread" badge.
+- **Attached by the person.** A Keep belongs to a page if the person says so, and is listed
+  on that page; a Keep with no page is allowed.
+- **Forgetting is easy and real.** *Forget* removes a Keep; there is no archive the person
+  has not asked for.
+- **A bad address is refused in words**, with the field marked invalid, and nothing the person
+  typed is lost.
+
+### 11.6 Sketch: ideas in boxes and arrows
+
+A **Sketch** is an idea diagram with no order imposed.
+
+- **Free placement.** Boxes sit where the person puts them, by dragging or by the arrow keys,
+  and stay there.
+- **Two kinds of arrow, told apart by form.** A *leads to* arrow is solid with a head; a
+  *might relate* line is dashed with none. Colour is never the only difference, so it survives
+  forced colours and print.
+- **Every arrow is also written out** ("Question leads to What I know") below the diagram,
+  with a way to remove it, so the diagram has a text equivalent.
+- **Boxes and arrows are made by the person.** The product does not generate or rearrange a
+  diagram.
 
 ---
 
@@ -840,10 +945,11 @@ offers a next step and lets the person feel what they feel.
 
 ---
 
-## 14. Pressure-free rules
+## 14. Pressure-free and personal-use rules
 
 These are the behavioural counterpart of the colour rules, and they are hard
-gates in the same way:
+gates in the same way. The first ten keep study pressure-free; the last six are what makes
+a personal tool the person's own.
 
 1. **No supervision channel.** No teacher, parent or manager view, no leaderboard,
    no peer comparison, no public profile, no "who else is studying" by default.
@@ -870,6 +976,19 @@ gates in the same way:
    not choose, and the product never presents a gap in what they know as a failing.
 10. **Dimming is the person's.** The light follows the hour only when the person turns
     that on, and they can override it at any time.
+11. **Owned.** Pages, Keeps and sketches are the person's, kept where they can reach them
+    (on the device by default) and exportable in a plain, open format at any time.
+12. **Local first.** The product works with no account and no network, and nothing is sent
+    anywhere unless the person starts it.
+13. **No tracking of reading.** No analytics on what is opened, how long, how often or in what
+    order; no "recently read" fed to anyone; the Trail is only the person's own.
+14. **No social layer.** No likes, followers, public profiles, feeds or comments; sharing is a
+    separate, deliberate act with its own surface.
+15. **No machine reading by default.** No automatic summary, tagging, linking or "insight"
+    over the person's pages; any assistive feature is off until asked for, says what it will
+    read, and its output is marked as not the person's.
+16. **No lock-in.** Leaving costs nothing: export is complete (pages, threads, Keeps, sketches,
+    tags) and the exported files can be read without the product.
 
 These are product commitments, not visual properties. They can only be shown to
 hold by testing a real product with real accounts; nothing in this document
@@ -902,8 +1021,8 @@ Dim palettes fail accessibly by default. These rules are hard gates:
   figures shown there.
 - Semantic HTML, real labels, and screen-reader text for any meaningful light.
   Atmosphere layers are hidden from assistive technology.
-- **Sparks and the Field** carry their meaning in text: the link's label for a Spark,
-  and the mandatory List for the Field (section 11.2). A change of hour is a
+- **Sparks and the Graph** carry their meaning in text: the link's label for a Spark,
+  and the mandatory List for the Graph (section 11.2). A change of hour is a
   cross-fade over 20 minutes, with no flash, and under reduced motion it is a single
   step the person is not surprised by.
 - **Dim interfaces and brightness**: outdoors in the evening, an uncomfortably
@@ -1127,10 +1246,10 @@ What was done:
   document and the tokens cannot drift apart without the check failing.
 - **A specimen**, [`specimen/pale.html`](specimen/pale.html), built from the
   tokens: the three hours and Last Light, Follow my evening, the hero scene, the
-  parts (Lantern, Pane, Wick, Glimmer, Path), the Bench, the Field with its Path and
-  List views, the Spark, Tidy and Undo, and Still. Illustrations are drawn in code
+  parts (Lantern, Pane, Wick, Glimmer, Trail), the Bench, the Notebook with Write and Read and threads, Keeps, the Graph with its Trail and
+  List views, the Spark, Tidy and Undo, and the Sketch. Illustrations are drawn in code
   from the tokens ([`specimen/pale-art.html`](specimen/pale-art.html)).
-- **163 checks in a real browser** (`npm run check:pale`), described in section 20.
+- **188 checks in a real browser** (`npm run check:pale`), described in section 20.
   They were tested against defects: a text colour dimmed below 4.5:1, Sparks that
   stack, a second Lantern, a count written next to a link, and a removed focus ring
   each make them fail. The check also found a wrong figure in this document (6.48
@@ -1160,13 +1279,19 @@ What has **not** been done, and should not be assumed:
   of light that rises over 600ms and fades over 1400ms reads as an idea meeting an
   idea, or as a notification, or as nothing, has not been tried on anyone. In a
   real product the trigger (the person's own link) has to exist.
-- **The Field and the List are built and keyboard-tested, not screen-reader
+- **The Graph and the List are built and keyboard-tested, not screen-reader
   tested.** They carry the same nine items, links and lit state, and an item can
   be opened and linked with a keyboard alone. How they are announced by a real
   screen reader has not been listened to.
-- **Still stores nothing off the device**, which the checks confirm for the
-  specimen (no request leaves the browser). Whether people want a private page
-  like this, and whether its open questions help or intrude, needs the people.
+- **The Notebook and Keeps store nothing off the device**, which the checks confirm for the
+  specimen (no request leaves the browser, a Keep's address included). Whether people want
+  these tools made this way, and whether the open questions help or intrude, needs the people.
+- **Export, import and sync are not built.** Rules 11, 12 and 16 (owned, local first, no
+  lock-in) are commitments for a product; the specimen keeps data in the browser only and
+  has no export, so it does not meet rule 11 yet.
+- **The Sketch and the Graph are small.** Nine pages and five boxes say nothing about
+  hundreds. The large-graph rules in section 11.2 are unbuilt and untested.
+- **Then and now** (section 11.3) is specified and not built.
 - **The dim hope mood itself is untested with people.** Whether the palette,
   motion and voice read as hope and not as sadness is a design hypothesis. It
   needs interviews with people who actually study this way.
@@ -1195,10 +1320,12 @@ What has **not** been done, and should not be assumed:
 - [x] Contrast computed in CI for Dusk, Late, Deep and Last Light, from the token file
 - [x] Spark: triggered only by the person's own link, one at a time, static under
       reduced motion, with a text label
-- [ ] Field with a mandatory List view carrying the same content, links and actions:
+- [ ] Graph with a mandatory List view carrying the same content, links and actions:
       built and keyboard-tested; a screen reader test is still to do
-- [x] Still: private by default, no inference, no sentiment analysis, no summary (in
+- [x] Notebook: private by default, no inference, no sentiment analysis, no summary (in
       the specimen; a product has to keep it so)
+- [ ] Export in a plain open format, complete, and importable (rules 11 and 16)
+- [ ] A large-graph view: a local graph, readable labels, search
 - [ ] Interviews with people who study alone late, before v0.3
 
 ---
@@ -1211,7 +1338,7 @@ evening* moves the light with the clock (use the demo clock to watch it). The
 illustrations are on [`specimen/pale-art.html`](specimen/pale-art.html). Everything a
 person types stays in the browser.
 
-`npm run check:pale` runs **163 checks**: the contrast of every token pair in every
+`npm run check:pale` runs **188 checks**: the contrast of every token pair in every
 hour; that the figures printed in section 3.6 are the computed ones and that the CSS
 block in section 17 is the token file; that the sky stays lit and warm at the horizon at
 every hour, in the tokens and in the painted picture; that text uses several colours and
@@ -1220,11 +1347,13 @@ run of text against the colour painted behind it, in each hour and in Last Light
 Lantern; a focus ring of at least 2px on every kind of control; targets of at least
 44px; no horizontal scroll at a phone width; the hours and the cross-fade; Follow my
 evening with a controlled clock (Late at 21:15, Deep at 23:45, off once the person
-chooses); the Field opening mostly dark, with no lock, percentage or "behind"; keys
+chooses); the Graph opening mostly dark, with no lock, percentage, "behind" or orphan label; keys
 and dragging; positions surviving a reload; Tidy and Undo; one Spark, announced in
-words; the same items in the Field, Path and List; reduced motion; forced colours;
-the Bench; Still staying on the device with no network request; and no score, mood,
-streak or badge anywhere.
+words, made by writing a thread; the same pages in the Notebook, Graph, Trail and List;
+renaming a page keeping its threads; Keeps opened only on a click and never fetched; the
+Sketch's two kinds of arrow differing by form; reduced motion; forced colours; the Bench;
+nothing leaving the browser; and no score, mood, streak, badge, read count or reading time
+anywhere.
 
 Review renders are in [`specimen/pale/screenshots/`](specimen/pale/screenshots/):
 `hero-` and `page-` for each hour and Last Light, `illustrations-` for each,
@@ -1235,7 +1364,7 @@ and two phone renders. They are regenerated by `node tools/capture-pale.mjs`.
 
 ![Realis Pale, Deep](specimen/pale/screenshots/hero-deep.png)
 
-![The Spark in the Field, Late](specimen/pale/screenshots/field-spark-late.png)
+![A thread written in the Notebook, with its Spark and the Graph, Late](specimen/pale/screenshots/notebook-spark-late.png)
 
 ---
 
