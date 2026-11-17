@@ -1,9 +1,26 @@
-# Realis Aero Design System v0.2
+# Realis Aero Design System v0.3
 
-**Version**: 0.2  
-**Date**: May 2026  
+**Version**: 0.3.1  
+**Date**: October 2026 (v0.3: October 2026, v0.2: May 2026)  
 **Vision Holder**: Naji Zouiti  
 **Purpose**: Product-ready UI/UX, brand, and implementation specification for a feasible-future aesthetic.
+
+## What Changed in v0.3
+
+v0.3 keeps every v0.2 palette family and principle. It adds the missing rule for **how surfaces stack**, measured on the first desktop product built with the system:
+
+- **Tonal ladder**: five named layers (rail, canvas, card, inset, overlay) with measured separation targets. In v0.2 most adjacent layers sat at 1.03–1.08:1 and merged into one cream field.
+- **Dark aerospace rail** for desktop navigation, as the Navigation and Color sections already intended ("dark navigation", "anchor trust in aerospace blue").
+- **Readable metadata**: muted text darkened to meet AA on every light surface (v0.2 graphite-500 measured 3.6–4.3:1).
+- **Identifiable controls**: a 3:1 control edge for inputs and checkboxes (v0.2 borders measured 1.39:1).
+- **Honest overlays**: solid surfaces over a defined scrim; glass only where content moves beneath it.
+- **Danger that can be read and acted on**: coral-700 for danger text and destructive buttons.
+- **Domain semantics**: how the palette families map onto a product outside energy and ecology.
+- **Automated contrast check**: every pair below is meant to be asserted in code against the live tokens.
+
+### v0.3.1: the Ruled Sheet
+
+v0.3.1 adds one pattern, found while building a daily work log: the **Ruled Sheet**, a surface for writing and reading long text that borrows the *structure* of a working notebook (margin, ruled lines, an order of parts) without its texture. Form boxes ask for "a few words"; a ruled page invites the writing the task really needs. See [Ruled Sheet (Writing & Reading)](#ruled-sheet-writing--reading) and [Writing Workspace](#writing-workspace).
 
 ## Executive Definition
 
@@ -158,9 +175,12 @@ White is the equilibrium layer: it creates breathing room, calibration, glass re
 | Token | Hex | Role |
 |---|---|---|
 | **equilibrium-white-000** | `#FFFEFA` | Pure equilibrium white, readable glass reflection |
-| **equilibrium-white-050** | `#FAF7F0` | Primary breathable background |
+| **equilibrium-white-050** | `#FAF7F0` | Breathable highlight; hover on white surfaces |
+| **equilibrium-white-075** | `#F3EDE1` | Workspace canvas (v0.3) |
 | **equilibrium-white-100** | `#F2EBDD` | Warm calibrated surface |
 | **equilibrium-white-200** | `#E3D9C7` | Soft mineral border and disabled surface |
+| **equilibrium-white-300** | `#D9CDB6` | Card hairline (v0.3) |
+| **mineral-500** | `#8F8574` | Control edge: inputs, checkboxes, drop zones (v0.3) |
 | **aero-blue-950** | `#071D2B` | Deep aerospace night, primary dark anchor |
 | **aero-blue-900** | `#0D2F45` | Cockpit surface, dark navigation |
 | **aero-blue-800** | `#174A63` | Primary engineering blue |
@@ -191,7 +211,9 @@ White is the equilibrium layer: it creates breathing room, calibration, glass re
 | **bio-green-600** | `#5E8156` | Ecological success |
 | **bio-green-400** | `#9CB58D` | Soft restoration highlight |
 | **bio-green-100** | `#E4ECD8` | Pale ecological proof surface |
-| **signal-coral-600** | `#B85F52` | Critical fault, urgent maintenance |
+| **signal-coral-800** | `#85402F` | Destructive fill, hover (v0.3) |
+| **signal-coral-700** | `#9A4A3D` | Danger text and destructive fill (v0.3) |
+| **signal-coral-600** | `#B85F52` | Critical fault, urgent maintenance; icons, edges and tints |
 | **signal-coral-300** | `#E08A7B` | Soft critical highlight |
 
 #### Neutral Palette
@@ -207,7 +229,8 @@ White is the equilibrium layer: it creates breathing room, calibration, glass re
 | **graphite-900** | `#172126` | Dark text and dark neutral surface |
 | **graphite-800** | `#263238` | Secondary dark surface |
 | **graphite-600** | `#58666B` | Muted text and forecast line |
-| **graphite-500** | `#6F7C80` | Muted metadata and tertiary text |
+| **graphite-550** | `#5F6C70` | Muted metadata, AA on every light surface (v0.3) |
+| **graphite-500** | `#6F7C80` | Large decorative labels only (fails AA at body size) |
 | **graphite-400** | `#A9B4B5` | Metadata, disabled text, cool divider |
 | **graphite-100** | `#E0E6E5` | Pale cool separator |
 
@@ -215,13 +238,24 @@ White is the equilibrium layer: it creates breathing room, calibration, glass re
 
 | Role | Light Mode | Dark Mode | Notes |
 |---|---|---|---|
-| **background** | `#FAF7F0` | `#071D2B` | Equilibrium canvas / aerospace night |
-| **surface** | `#FFFEFA` | `#0D2F45` | Primary readable surfaces |
+| **background** | `#F3EDE1` | `#071D2B` | L1 canvas / aerospace night (v0.3: was `#FAF7F0`) |
+| **surface** | `#FFFEFA` | `#0D2F45` | L2 cards and overlays |
+| **surface-inset** | `#F2EBDD` | — | L3 regions inside cards: table heads, section rows, tracks |
+| **surface-hover** | `#FAF7F0` | — | Row and item hover on white |
+| **surface-selected** | `#D9EAF1` | — | Selected item: rail entry, focused grid row, active filter |
+| **text-muted-on-selected** | `#58666B` | — | Muted text inside a selected item (4.82:1; graphite-550 gives 4.40) |
 | **surface-raised** | `#F2EBDD` | `#174A63` | Raised cards, panels, and controls |
 | **surface-material** | `#EFE3D2` | `#3A2A1E` | Infrastructure and maintenance surfaces |
 | **text-primary** | `#11181C` | `#FFFEFA` | Body and headings |
 | **text-secondary** | `#58666B` | `#E0E6E5` | Supporting text |
-| **text-muted** | `#6F7C80` | `#A9B4B5` | Metadata |
+| **text-muted** | `#5F6C70` | `#A9B4B5` | Metadata, labels, hints, placeholders (v0.3) |
+| **danger-text** | `#9A4A3D` | `#E08A7B` | Error text and destructive buttons (v0.3) |
+| **border-subtle** | `#F2EBDD` | — | Row dividers inside cards |
+| **border-card** | `#D9CDB6` | — | Card hairlines, structural dividers |
+| **border-control** | `#8F8574` | — | Inputs, checkboxes, drop zones (≥ 3:1) |
+| **scrim** | `rgba(7, 29, 43, 0.40)` | — | Behind dialogs and side panels |
+| **disabled-fill / disabled-text** | `#F2EBDD` / `#58666B` | — | Disabled primary actions |
+| **rail** | `#0D2F45` | — | L0 desktop navigation |
 | **action-primary** | `#174A63` | `#235F7A` | Primary buttons, active nav, engineering trust |
 | **action-primary-hover** | `#0D2F45` | `#2D6F8E` | Hover and selected emphasis |
 | **focus-ring** | `#B87912` | `#F3C766` | High-visibility solar focus |
@@ -270,6 +304,56 @@ White is the equilibrium layer: it creates breathing room, calibration, glass re
 | **Teal/cyan live systems** | 3–6% | Sensors, flow, real-time updates, data streams |
 | **Bio green** | 2–4% | Verified ecological success and restoration only |
 | **Signal coral** | <2% | Critical operational states |
+
+### Surface Layering (Tonal Ladder) — v0.3
+
+Depth is communicated by tone first, then hairline, then shadow. Each layer has one job and a measured distance from its neighbours.
+
+| Layer | Role | Token | Measured separation |
+|---|---|---|---|
+| **L0 Rail** | Persistent navigation, the stable frame | `rail` (aero-blue-900, solid) | 11.9:1 vs canvas; labels 13.8:1 |
+| **L1 Canvas** | Workspace behind all content | `background` `#F3EDE1` | — |
+| **L2 Card** | Panels, steps, toasts, dialogs | `surface` + `border-card` + elevation-1 | 1.16:1 vs canvas |
+| **L3 Inset** | Regions inside a card: table heads, section rows, preview tracks, drop zones | `surface-inset` | 1.18:1 vs card |
+| **L4 Overlay** | Side panels and dialogs | solid `surface` over `scrim`, elevation-4 | 2.8:1 vs the dimmed page |
+
+**Targets** (asserted by the automated check): layers ≥ 1.12:1 from their neighbour; control edges and focus rings ≥ 3:1; all text ≥ 4.5:1 on every surface it can sit on.
+
+**Rules**
+
+- **Components placed on the canvas use the white surface**, not `surface-raised`: a raised track on the canvas measures 1.02:1 and disappears (segmented controls, chips, selects).
+- **Inside an overlay, repeat the ladder**: a side panel is a workspace (canvas + white step cards) with a solid white header.
+- **Glass only over moving content**: toasts and sticky elements over scrolling lists. A sidebar or header over a flat canvas is solid; blur that reveals nothing is decoration (see Honest Translucency) and costs rendering time.
+- **One filled action per surface.** Primary is filled aerospace blue; a dialog's destructive answer is filled coral-700; everything else is outlined or ghost.
+- **Disabled is neutral**: mineral fill and graphite text, never a faded primary that still looks clickable.
+- **Selected items re-point muted text**: on `surface-selected` the muted token steps up to `text-muted-on-selected`, so metadata inside a selected row or card stays AA without per-element overrides.
+- **Placeholders use the muted token**, never the browser default grey (3.9:1 on inset surfaces).
+- **Table rows keep one height**: a list inside a cell (tags, groups, assignees) stays on one line, shows the first items and a "+N" toggle, and opens a detail row in the inset band below, grouped by meaning (e.g. members by team). The toggle keeps the same label open or closed and the detail never widens the columns, so nothing re-flows. A remainder of one is shown rather than "+1"; items matching the current search come first and are outlined.
+- **Dense grids may identify cells by structure**: editable cells in a data-entry grid use an inset fill with a card edge, the control edge on hover and the solar ring on focus, so 35 rows do not turn into a wall of dark borders.
+
+**Dark rail details**: labels graphite-100; strong labels white; hover white 6%; active `rgba(156, 198, 216, 0.18)` with a 3px aero-blue-300 bar; focus ring solar-300; role pill aero-blue-300 on the active tint; dividers white 10%.
+
+### Domain Semantics: Mapping the Palette to a Product
+
+The family rules above were written for energy and ecological systems. A product in another domain (records, scheduling, education, operations) keeps each family's *intent* and maps its own concepts onto it:
+
+| Family | Intent | Meaning in a general product |
+|---|---|---|
+| **Aerospace blue** | Structure and trust | Navigation, primary action, selection; the product's everyday record type |
+| **Umber** | Material, weight, record | The formal or archival record type, when the product distinguishes one from everyday work |
+| **Solar** | Energy and thresholds | Focus, attention, in-progress, unsaved drafts, warnings and thresholds |
+| **Bio green** | Verified proof | Confirmed by the system of record: saved, completed, published |
+| **Signal coral** | Critical states | Faults, invalid input, destructive actions |
+| **Teal** | Live systems | Reserved for a live sync indicator; never decoration |
+
+**Rules**
+
+- **Map once, in writing**: each product records its mapping next to its tokens. A family never carries two unrelated meanings in the same product.
+- **Status follows the same table**: *planned* is neutral (nothing to signal yet), *partial* or *needs attention* is solar, *done and recorded* is bio green.
+- **Coverage views**: paint what exists in aerospace blue, leave gaps on the inset tone, and use one solar marker per row that has nothing recorded. Colour is never the only signal; counts and labels stay.
+- **Do not borrow a family for variety**: if a product has more categories than families, distinguish them by label, icon or position rather than by new colours.
+
+Long-form records are written and read on the [Ruled Sheet](#ruled-sheet-writing--reading); its highlighted part is the one the record's audience reads first (for example, the action expected before the next session).
 
 ### Spacing
 
@@ -362,7 +446,7 @@ Materials should feel like they belong to instruments, vehicles, public infrastr
 | Material | Background | Blur | Border | Shadow | Use |
 |---|---|---:|---|---|---|
 | **Clear Operational Glass** | `rgba(255, 254, 250, 0.58)` | 8px | `rgba(255, 254, 250, 0.42)` | elevation-2 | Compact controls, live labels |
-| **Frosted System Glass** | `rgba(242, 235, 221, 0.72)` | 14px | `rgba(255, 254, 250, 0.34)` | elevation-3 | Cards and panels |
+| **Frosted System Glass** | `rgba(242, 235, 221, 0.72)` | 14px | `rgba(255, 254, 250, 0.34)` | elevation-3 | Panels over imagery or moving content (a sign-in card over a photographic background); not over a flat canvas (v0.3) |
 | **Dense Hardware Glass** | `rgba(7, 29, 43, 0.72)` | 18px | `rgba(156, 198, 216, 0.28)` | elevation-3 | Dark instrument panels |
 | **Alert Glass** | `rgba(255, 254, 250, 0.78)` | 12px | semantic warning/danger border | elevation-3 | Alerts, maintenance states |
 | **Reduced Transparency Surface** | solid semantic surface | 0px | standard border | elevation-1 | Accessibility fallback |
@@ -447,7 +531,8 @@ Navigation should feel like an instrument panel: clear, stable, spatially consis
 
 - **Desktop**: Left side rail for persistent systems; top bar for global status and account.
 - **Mobile**: Bottom navigation for primary sections; avoid more than five items.
-- **Active state**: Aerospace-blue accent bar plus label weight change; reserve teal/cyan for live system indicators.
+- **Active state**: Aerospace-blue accent bar plus label weight change; reserve teal/cyan for live system indicators. On the dark rail (v0.3) the bar is aero-blue-300 over a pale blue tint.
+- **Desktop rail (v0.3)**: solid aero-blue-900, the L0 layer of the tonal ladder.
 - **System status**: Global sync, offline, maintenance, or alert state must be visible without opening a menu.
 - **Breadcrumbs**: Use for deep technical or settings flows.
 
@@ -504,6 +589,81 @@ Forms should feel precise and serviceable.
 - **Focus**: Solar ring plus clear border change.
 - **Units**: Use fixed unit labels inside or adjacent to numeric inputs.
 - **Critical inputs**: Require confirmation when changing automation, safety, energy, or maintenance settings.
+
+- **Long text**: When the user writes prose, steps or notes rather than a value, use the [Ruled Sheet](#ruled-sheet-writing--reading) instead of stacked text boxes.
+
+### Ruled Sheet (Writing & Reading)
+
+A working notebook is one of the most feasible, repairable tools there is: a margin, ruled lines and an agreed order of parts let anyone write quickly and anyone else read it later. The Ruled Sheet takes that *structure*, which is what makes notebooks work, and leaves out the nostalgia. It is Feasibility Is Beauty applied to writing: the form gives way to a page that invites the amount of text the task needs.
+
+**Use it for**: long free text written in parts: work logs, observations, reports, maintenance and incident notes, handovers. Use the same sheet to read what was written.  
+**Do not use it for**: short structured input (names, numbers, dates, choices). Those belong in controls, and in a writing task they go in the setup bar above the sheet.
+
+#### Anatomy
+
+| Element | Specification |
+|---|---|
+| **Sheet** | L2 surface (white) on the L1 canvas; card hairline, `radius-md`, `shadow-2`; max width about 900px (≈ 75 characters at 15px), centred |
+| **Margin** | A label column (156px; 120px below 1100px) holding each part's name: caption size, uppercase, 0.05em tracking, muted text, right-aligned |
+| **Margin rule** | 1px in the card border tone, running down the whole sheet through every part |
+| **Ruled lines** | 1px `border-subtle` at the foot of each 28px line, drawn *behind* the text and scrolling with it |
+| **Writing text** | 15px on a 28px line (the line pitch), primary text colour, no box, no inner border |
+| **Heading line** | The sheet's main field (the title or subject of the entry): body-lg, weight 520, a single control-tone underline instead of a box |
+| **Highlighted part** | At most one per sheet, for the part its audience reads first: inset tone with a 3px aerospace-blue bar |
+| **Secondary fields** | Offered on demand as a link line ("+ Add a public title", "Attach a file") that reveals the field |
+
+#### Behaviour
+
+- **Grows with the text**: parts have no inner scrollbar; the page scrolls. Each part re-fits as it is written, when the sheet's width changes (window resized or snapped) and once fonts load. Minimum height follows the expected length: 1 line for short parts, 3 for typical, 4 for long ones.
+- **Lists continue**: Enter at the end of a line starting `1.`, `1)` or `-` starts the next item (`2. `, `- `); Enter on an empty item ends the list. Anywhere else Enter is a plain new line.
+- **Quick picks**: frequent values sit as small chips above a part (for an activity type: Inspection, Repair, Calibration, Review). A chip adds or removes its value; the text stays free.
+- **Placeholders are questions or instructions, in italics**: "What should be true when this work is finished?", "start with “1.”". Never example content that could read as already written.
+- **Focus**: the focused part's margin label turns aerospace blue and a 2px blue bar marks the part's inner edge, so focus is shown by shape as well as colour.
+- **Progress without pressure**: a single line ("3 of 6 parts filled, all optional") instead of "optional" on every part; a character counter only appears near a limit.
+- **Validation**: inline, under the part, in danger text; the control edge turns coral. Submitting moves focus to the first invalid field.
+
+#### Variants
+
+- **Writing**: as above, inside the [Writing Workspace](#writing-workspace).
+- **Reading (pages)**: the same sheet, one page per day or group. Each item is one fixed-height ruled line: who and where in the margin, the content on the line, its state at the end. The full text opens in a side pane; lines never expand in place.
+- **Print**: colour drops out (black text, hairline rules); each item avoids page breaks; the sheet ends with a signature or approval box. A printed sheet must photocopy and take a signature.
+
+#### Do / Don't
+
+| Do | Don't |
+|---|---|
+| Borrow the notebook's structure: margin, lines, order of parts | Imitate paper: grain, torn edges, shadows of a binding, coffee stains |
+| Keep the system font and tokens | Use handwriting or novelty "notebook" fonts |
+| Draw the margin rule in the card border tone | Draw a red margin (coral is reserved for faults) |
+| Let parts grow and the page scroll | Fixed-height boxes with their own scrollbars |
+| Keep setup (who, when) out of the page | Mix pickers and calendars into the writing column |
+| Highlight one part at most | Colour every part differently |
+
+#### Accessibility
+
+- Every part has a real `<label for>` (the margin label), so it is named without its placeholder.
+- Ruled lines and the margin rule are decoration, not information; they sit behind the text and never lower its contrast (text keeps ≥ 4.5:1 on the sheet and on the highlighted part).
+- Placeholders use the muted token (≥ 4.5:1); italics are a second cue that they are not content.
+- Tab moves between parts; list continuation never traps Enter (a second Enter on an empty item leaves the list).
+- Revealing a secondary field moves focus into it, or keeps it in the panel, so keyboard shortcuts keep working.
+
+#### Reference CSS
+
+```css
+.sheet { max-width: 900px; margin: 0 auto; background: var(--color-surface);
+  border: 1px solid var(--color-border-card); border-radius: var(--radius-md); box-shadow: var(--shadow-2); }
+.part { --line: 28px; display: grid; grid-template-columns: 156px minmax(0, 1fr); }
+.part__label { border-right: 1px solid var(--color-border-card); text-align: right;
+  font: 560 var(--text-caption) / var(--line) var(--font-sans); letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--color-text-muted); }
+.part:focus-within .part__label { color: var(--aero-blue-800); }
+.part:focus-within .part__body { box-shadow: inset 2px 0 0 var(--aero-blue-600); }
+.ruled { width: 100%; border: none; outline: none; resize: none; overflow: hidden; padding: 0;
+  font: 400 15px / var(--line) var(--font-sans); color: var(--color-text-primary); background-color: transparent;
+  background-image: linear-gradient(to bottom, transparent calc(var(--line) - 1px), var(--color-border-subtle) calc(var(--line) - 1px));
+  background-size: 100% var(--line); background-attachment: local; }
+.ruled::placeholder { font-style: italic; color: var(--color-text-muted); }
+```
 
 ### Toggles, Sliders & Controls
 
@@ -606,7 +766,8 @@ Realis Aero must remain usable when glass, color, motion, and environmental imag
 
 ### Requirements
 
-- **Contrast**: Body text must meet WCAG 2.2 AA minimum contrast. Large text, icons, and controls must be tested on final glass backgrounds.
+- **Contrast**: Body text must meet WCAG 2.2 AA minimum contrast. Large text, icons, and controls must be tested on final glass backgrounds. From v0.3, every token pair of the tonal ladder should be asserted by an automated test that reads the live tokens, computes WCAG ratios (compositing translucent tokens over the surface they sit on) and fails the build when a pair drops below its target.
+- **Non-text contrast**: Input and checkbox edges, focus rings and the active-navigation bar reach 3:1 against their surface (WCAG 1.4.11).
 - **Glass fallback**: Provide reduced-transparency surfaces for low vision, high contrast, battery saver, or unsupported backdrop blur.
 - **Keyboard**: All interactive components must be reachable, visible, and operable by keyboard.
 - **Focus**: Focus states must be at least 2px and not rely on glow alone.
@@ -632,8 +793,11 @@ Solar generation: 42 kilowatt-hours today, up 8 percent from yesterday. Last upd
 :root {
   --equilibrium-white-000: #fffefa;
   --equilibrium-white-050: #faf7f0;
+  --equilibrium-white-075: #f3ede1;
   --equilibrium-white-100: #f2ebdd;
   --equilibrium-white-200: #e3d9c7;
+  --equilibrium-white-300: #d9cdb6;
+  --mineral-500: #8f8574;
 
   --aero-blue-950: #071d2b;
   --aero-blue-900: #0d2f45;
@@ -670,6 +834,8 @@ Solar generation: 42 kilowatt-hours today, up 8 percent from yesterday. Last upd
   --bio-green-400: #9cb58d;
   --bio-green-100: #e4ecd8;
 
+  --signal-coral-800: #85402f;
+  --signal-coral-700: #9a4a3d;
   --signal-coral-600: #b85f52;
   --signal-coral-300: #e08a7b;
 
@@ -677,17 +843,40 @@ Solar generation: 42 kilowatt-hours today, up 8 percent from yesterday. Last upd
   --graphite-900: #172126;
   --graphite-800: #263238;
   --graphite-600: #58666b;
+  --graphite-550: #5f6c70;
   --graphite-500: #6f7c80;
   --graphite-400: #a9b4b5;
   --graphite-100: #e0e6e5;
 
-  --color-background: var(--equilibrium-white-050);
+  /* Tonal ladder: L0 rail → L1 canvas → L2 surface → L3 inset → L4 overlay */
+  --color-background: var(--equilibrium-white-075);
   --color-surface: var(--equilibrium-white-000);
+  --color-surface-hover: var(--equilibrium-white-050);
+  --color-surface-inset: var(--equilibrium-white-100);
   --color-surface-raised: var(--equilibrium-white-100);
   --color-surface-material: var(--umber-100);
+  --color-border-subtle: var(--equilibrium-white-100);
+  --color-border-card: var(--equilibrium-white-300);
+  --color-border-control: var(--mineral-500);
+  --color-scrim: rgba(7, 29, 43, 0.40);
+  --color-disabled-fill: var(--equilibrium-white-100);
+  --color-disabled-text: var(--graphite-600);
   --color-text-primary: var(--graphite-950);
   --color-text-secondary: var(--graphite-600);
-  --color-text-muted: var(--graphite-500);
+  --color-text-muted: var(--graphite-550);
+  --color-danger-text: var(--signal-coral-700);
+  --color-surface-selected: var(--aero-blue-100);
+  --color-text-muted-on-selected: var(--graphite-600);
+
+  --color-rail: var(--aero-blue-900);
+  --color-rail-text: var(--graphite-100);
+  --color-rail-text-strong: var(--equilibrium-white-000);
+  --color-rail-muted: var(--graphite-400);
+  --color-rail-hover: rgba(255, 254, 250, 0.06);
+  --color-rail-active: rgba(156, 198, 216, 0.18);
+  --color-rail-accent: var(--aero-blue-300);
+  --color-rail-divider: rgba(255, 254, 250, 0.10);
+  --color-rail-focus: var(--solar-300);
   --color-action-primary: var(--aero-blue-800);
   --color-action-primary-hover: var(--aero-blue-900);
   --color-focus-ring: var(--solar-700);
@@ -700,6 +889,19 @@ Solar generation: 42 kilowatt-hours today, up 8 percent from yesterday. Last upd
   --color-live-data: var(--teal-system-500);
 
   --font-sans: "Frutiger", "Aptos", "Segoe UI", "Inter", "SF Pro Text", system-ui, sans-serif;
+
+  --text-display-xl: 64px;
+  --text-display-lg: 48px;
+  --text-heading-xl: 36px;
+  --text-heading-lg: 28px;
+  --text-heading-md: 22px;
+  --text-body-lg: 18px;
+  --text-body-md: 16px;
+  --text-body-sm: 14px;
+  --text-metric-lg: 40px;
+  --text-metric-md: 28px;
+  --text-label-md: 13px;
+  --text-caption: 12px;
 
   --space-1: 4px;
   --space-2: 8px;
@@ -724,10 +926,21 @@ Solar generation: 42 kilowatt-hours today, up 8 percent from yesterday. Last upd
   --blur-md: 14px;
   --blur-lg: 24px;
 
+  --opacity-glass-clear: 0.72;
+  --opacity-glass-frosted: 0.82;
+  --opacity-disabled: 0.42;
+
+  --stroke-hairline: 0.5px;
+  --stroke-sm: 1px;
+  --stroke-md: 1.5px;
+  --stroke-lg: 2px;
+
   --shadow-1: 0 1px 2px rgba(7, 29, 43, 0.08);
   --shadow-2: 0 4px 12px rgba(7, 29, 43, 0.10);
   --shadow-3: 0 10px 28px rgba(7, 29, 43, 0.14);
   --shadow-4: 0 20px 54px rgba(7, 29, 43, 0.18);
+  --inner-highlight: inset 0 1px 0 rgba(255, 254, 250, 0.42);
+  --inner-depth: inset 0 -1px 0 rgba(7, 29, 43, 0.10);
 
   --ease-engineered: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-press: cubic-bezier(0.3, 0, 0.2, 1);
@@ -1108,6 +1321,16 @@ createApp(App).mount("#app");
 - **Cards**: Stack vertically; avoid dense multi-chart layouts.
 - **Live updates**: Use badges and timestamps instead of constant animation.
 
+### Writing Workspace
+
+For tasks whose value is the text the user writes (work logs, reports, maintenance notes):
+
+- **Side panel, not a modal**: wide (up to about 1240px), over the current screen; the canvas shows around the sheet.
+- **Setup bar**: everything that is a choice (who, what, when, how long) fits one row of compact controls above the sheet. Pickers open as menus (a grouped list, the month grid); Escape closes a menu before the panel. Status or state stays in the header.
+- **The page**: a [Ruled Sheet](#ruled-sheet-writing--reading) takes the rest of the height and scrolls.
+- **Footer**: one filled action (Create / Save), Cancel, the keyboard shortcuts and the progress line.
+- **Drafts**: unfinished new entries are kept locally and offered back; leaving an edited entry asks before discarding.
+
 ### Hardware / Kiosk UI
 
 - **Contrast**: Higher than standard due to lighting variability.
@@ -1168,6 +1391,7 @@ A design qualifies as Realis Aero if it meets these standards:
 - **Metrics**: Units, timestamps, and confidence are shown where needed.
 - **Navigation**: Current location and system status are visible.
 - **Forms**: Errors are specific and recoverable.
+- **Writing**: Long text is written on a Ruled Sheet: parts grow with their text (no inner scrollbar, also after a window resize), lists continue on Enter, placeholders are questions in italics, setup sits in one bar above the page.
 - **Loading**: Progress is honest and does not hide failure.
 
 ### Accessibility QA
@@ -1177,6 +1401,7 @@ A design qualifies as Realis Aero if it meets these standards:
 - **Screen reader**: Metrics and charts have meaningful alternatives.
 - **Reduced motion**: No essential information depends on animation.
 - **Reduced transparency**: Glass panels have solid-surface fallbacks.
+- **Ruled Sheet**: Every part has a visible label tied to its field; focus shows as a bar, not colour alone; ruled lines never reduce text contrast.
 
 ## Visual Examples
 
@@ -1189,16 +1414,20 @@ A design qualifies as Realis Aero if it meets these standards:
 ![Component Library Showcase](attachments/Generated Image.jpg)  
 *Atomic components: buttons, cards, gauges, icons, navigation, and system states.*
 
-## Recommended v0.3 Next Steps
+## Recommended v0.4 Next Steps
 
+- **Done in v0.3**: tonal ladder, contrast validation of the light palette with an automated check, domain semantics.
+- **Done in v0.3.1**: the Ruled Sheet pattern and the Writing Workspace.
+- **Ruled Sheet in dark mode**: measure line and margin-rule tones on the dark ladder before shipping a dark theme.
+- **Dark mode ladder**: measure the dark-mode roles against the same layer and text targets before shipping a dark theme.
 - **Component specs**: Produce Figma variants for every component listed in this document.
 - **Icon library**: Define a 24px icon grid with engineering-natural hybrid motifs.
 - **Motion prototypes**: Create reduced-motion and standard-motion examples for live updates.
-- **Contrast testing**: Validate final palette on real glass backgrounds and imagery.
+- **Glass on imagery**: Validate glass panels on real photographic backgrounds.
 - **Design examples**: Build one landing page, one dashboard, one mobile flow, and one maintenance flow.
 - **Token export**: Generate JSON tokens for Figma, CSS, Tailwind, and React Native.
 - **Content model**: Define standard data fields for metrics, timestamps, confidence, and source attribution.
 
 ---
 
-**Realis Aero v0.2 is a feasible-future system: optimistic because it is measurable, beautiful because it is honest, and calm because it is built to be maintained.**
+**Realis Aero v0.3 is a feasible-future system: optimistic because it is measurable, beautiful because it is honest, and calm because it is built to be maintained.**
