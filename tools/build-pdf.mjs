@@ -26,7 +26,22 @@ renderer.heading = function ({ tokens, depth }) {
   if (depth === 2) toc.push({ id, text });
   return `<h${depth} id="${id}">${text}</h${depth}>\n`;
 };
-renderer.image = ({ href, text }) => `<figure><img src="${pathToFileURL(root + href).href}" alt="${text}"><figcaption>${text}</figcaption></figure>`;
+// The review renders are full-page captures, three times taller than a page. One image that tall cannot be placed
+// on a page, so it spilled over and left pages with a caption alone. Cut each into slices that fit under a heading,
+// at the same width, so nothing is shrunk below what can be read.
+const sliceDir = mkdtempSync(join(tmpdir(), 'realis-aero-slices-'));
+const slices = {};
+for (const href of new Set([...md.matchAll(/!\[[^\]]*\]\(([^)]+)\)/g)].map(m => m[1]))) {
+  slices[href] = JSON.parse(execFileSync('python3', ['-I', '-c', `import sys, json, pypdf
+from PIL import Image
+src, out, base = sys.argv[1:4]
+im = Image.open(src).convert('RGB'); w, h = im.size
+step = round(2130 * w / 1440); n = max(1, -(-h // step)); files = []
+for i in range(n):
+    f = f'{out}/{base}-{i}.png'; im.crop((0, i * step, w, min(h, (i + 1) * step))).save(f); files.append(f)
+print(json.dumps(files))`.replace('import sys, json, pypdf', 'import sys, json'), root + href, sliceDir, href.replace(/[^\w]/g, '_')], { encoding: 'utf8' }));
+}
+renderer.image = ({ href, text }) => slices[href].map((f, i, all) => `<figure><img src="${pathToFileURL(f).href}" alt="${text}"><figcaption>${text}${all.length > 1 ? ` (${i + 1} of ${all.length})` : ''}</figcaption></figure>`).join('');
 const body = marked.parse(md.slice(md.indexOf('\n## ') + 1), { renderer, gfm: true });
 
 const css = readFileSync(root + 'fonts/realis-aero.fonts.css', 'utf8').replace(/url\("/g, `url("${pathToFileURL(root + 'fonts/').href}`);
@@ -42,7 +57,7 @@ code { font: 8.6pt "Source Code Pro", monospace; background: #f3ede1; padding: 0
 pre { background: #f3ede1; padding: 7pt; border-radius: 3pt; white-space: pre-wrap; overflow-wrap: anywhere; break-inside: avoid-page; } pre code { background: none; padding: 0; font-size: 8pt; line-height: 1.4; }
 table { border-collapse: collapse; width: 100%; margin: 8pt 0; font-size: 8.6pt; } th, td { border: .5pt solid #b8ac96; padding: 3pt 5pt; vertical-align: top; text-align: start; }
 th { background: #f3ede1; } tr { break-inside: avoid; } thead { display: table-header-group; }
-figure { margin: 10pt 0; break-inside: avoid; } img { max-width: 100%; border: .5pt solid #b8ac96; } figcaption { font-size: 8.5pt; color: #3b474c; }
+figure { margin: 10pt 0; break-inside: avoid; text-align: center; } img { max-width: 80%; border: .5pt solid #b8ac96; } figcaption { font-size: 8.5pt; color: #3b474c; }
 blockquote { margin: 8pt 0; padding-inline-start: 10pt; border-inline-start: 2pt solid #b87912; }
 .cover { height: 250mm; display: flex; flex-direction: column; justify-content: center; break-after: page; }
 .cover .kicker { font: 560 10pt "Source Sans 3"; letter-spacing: .12em; text-transform: uppercase; color: #235f7a; }
