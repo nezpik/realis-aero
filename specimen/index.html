@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Realis Aero specimen</title>
+<script>
+  // ?theme=light|dark|outdoor sets the theme; with no theme the system preference decides.
+  // ?transparency=reduced replaces glass with solid surfaces.
+  (function () {
+    var q = new URLSearchParams(location.search), t = q.get('theme');
+    if (t) document.documentElement.dataset.theme = t;
+    if (q.get('transparency') === 'reduced') document.documentElement.dataset.reducedTransparency = 'true';
+  })();
+</script>
+<link rel="stylesheet" href="../tokens/realis-aero.tokens.css">
+<link rel="stylesheet" href="specimen.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="m-live" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="2.6" fill="currentColor"/></symbol>
+    <symbol id="m-paused" viewBox="0 0 16 16"><rect x="3.5" y="3" width="3" height="10" rx="0.5" fill="currentColor"/><rect x="9.5" y="3" width="3" height="10" rx="0.5" fill="currentColor"/></symbol>
+    <symbol id="m-stale" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M8 4.6V8l2.4 1.6"/></g></symbol>
+    <symbol id="m-offline" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6"/><path d="M3.8 3.8l8.4 8.4"/></g></symbol>
+    <symbol id="m-degraded" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2a6 6 0 0 0 0 12z" fill="currentColor"/></symbol>
+    <symbol id="m-maintenance" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M8 1.6l5.5 3.2v6.4L8 14.4l-5.5-3.2V4.8z"/><circle cx="8" cy="8" r="2.2"/></g></symbol>
+    <symbol id="m-success" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M5.2 8.3l2 2 3.6-4.3"/></g></symbol>
+    <symbol id="m-uncertain" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6" stroke-dasharray="2 2.2"/><path d="M6.4 6.5a1.7 1.7 0 1 1 2.5 1.5c-.6.4-.9.7-.9 1.4"/></g><circle cx="8" cy="11.5" r="0.9" fill="currentColor"/></symbol>
+    <symbol id="m-error" viewBox="0 0 16 16"><path fill="currentColor" fill-rule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM7.2 4h1.6v5H7.2zM8 10.3a1.1 1.1 0 1 0 0 2.2 1.1 1.1 0 0 0 0-2.2z"/></symbol>
+    <symbol id="m-warning" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.2l6.3 11.3H1.7z"/><path d="M8 6.6v3.2"/></g><circle cx="8" cy="11.6" r="0.9" fill="currentColor"/></symbol>
+    <symbol id="m-info" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6"/><path d="M8 7.4v3.8"/></g><circle cx="8" cy="5" r="0.9" fill="currentColor"/></symbol>
+    <symbol id="m-dirty" viewBox="0 0 16 16"><circle cx="8" cy="8" r="3.2" fill="currentColor"/></symbol>
+    <symbol id="m-queued" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 11V3.4M4.8 6.4L8 3.2l3.2 3.2M3.5 13.5h9"/></g></symbol>
+  </defs>
+</svg>
+
+<div class="app">
+  <nav class="rail" aria-label="Sections">
+    <div class="rail__brand">Realis Aero</div>
+    <div class="rail__section">Specimen</div>
+    <a href="#states" aria-current="page">States</a>
+    <a href="#quality">Data quality</a>
+    <a href="#editing">Editing</a>
+    <a href="#selection">Selection</a>
+    <a href="#chart">Chart</a>
+    <a href="#ladder">Layers</a>
+  </nav>
+
+  <main class="canvas">
+    <div class="topbar">
+      <div>
+        <h1>Realis Aero specimen</h1>
+        <p class="secondary small">Every surface and state of v0.4, on live tokens.</p>
+      </div>
+      <div class="topbar__status">
+        <span class="state-label" id="feed" data-state="live" role="status"><svg class="mark" aria-hidden="true"><use href="#m-live"/></svg><span id="feed-text">Live · 14:02:31</span></span>
+        <button class="btn btn--secondary" id="pause" type="button" aria-pressed="false">Pause updates</button>
+      </div>
+      <nav class="themes" aria-label="Theme">
+        <a href="?">System</a><a href="?theme=light">Light</a><a href="?theme=dark">Dark</a><a href="?theme=outdoor">Outdoor</a><a href="?transparency=reduced">Reduced transparency</a>
+      </nav>
+    </div>
+
+    <section class="section" id="states" aria-labelledby="h-states">
+      <header><h2 id="h-states">Product states</h2><p class="muted small">Each state has a mark, a text label and, where it needs one, an edge. Colour only reinforces.</p></header>
+      <div class="grid">
+        <article class="card metric is-fresh" data-state="live">
+          <span class="state-label"><svg class="mark" aria-hidden="true"><use href="#m-live"/></svg><span>Live · 14:02:31</span></span>
+          <span class="metric__name">Roof array output</span>
+          <span class="metric__value">42.6 <span class="metric__unit">kW</span></span>
+          <span class="metric__meta">Measured · roof array sensor</span>
+        </article>
+        <article class="card metric" data-state="paused">
+          <span class="state-label"><svg class="mark" aria-hidden="true"><use href="#m-paused"/></svg><span>Paused · 34 updates pending</span></span>
+          <span class="metric__name">Feeder load</span>
+          <span class="metric__value">18.4 <span class="metric__unit">kW</span></span>
+          <span class="metric__meta">Frozen at 14:01:57 · resume to update</span>
+        </article>
+        <article class="card metric" data-state="stale">
+          <span class="state-label"><svg class="mark" aria-hidden="true"><use href="#m-stale"/></svg><span>Stale · 18 min</span></span>
+          <span class="metric__name">Reservoir level</span>
+          <span class="metric__value">71.2 <span class="metric__unit">%</span></span>
+          <span class="metric__meta">Expected every 5 min · last 13:44</span>
+        </article>
+        <article class="card metric" data-state="offline">
+          <span class="state-label"><svg class="mark" aria-hidden="true"><use href="#m-offline"/></svg><span>Offline · last sync 13:44</span></span>
+          <span class="metric__name">Battery reserve</span>
+          <span class="metric__value">64 <span class="metric__unit">%</span></span>
+          <span class="metric__meta">Last known value · 3 changes queued</span>
+        </article>
+        <article class="card metric" data-state="degraded">
+          <span class="state-label"><svg class="mark" aria-hidden="true"><use href="#m-degraded"/></svg><span>Degraded · 71% of expected</span></span>
+          <span class="metric__name">Heat pump 2</span>
+          <span class="metric__value">5.1 <span class="metric__unit">kW</span></span>
+          <span class="metric__meta">Expected 7.2 kW at this outdoor temperature</span>
+        </article>
+        <article class="card metric" data-state="maintenance">
+          <span class="state-label"><svg class="mark" aria-hidden="true"><use href="#m-maintenance"/></svg><span>Maintenance · scheduled 16:00</span></span>
+          <span class="metric__name">Inverter 2</span>
+          <span class="metric__value">0.0 <span class="metric__unit">kW</span></span>
+          <span class="metric__meta">Filter change · R. Amrani · back about 17:30</span>
+        </article>
+        <article class="card metric" data-state="success">
+          <span class="state-label"><svg class="mark" aria-hidden="true"><use href="#m-success"/></svg><span>Verified · saved 14:02</span></span>
+          <span class="metric__name">Water recovered today</span>
+          <span class="metric__value">1,240 <span class="metric__unit">L</span></span>
+          <span class="metric__meta">+8% vs yesterday · metered</span>
+        </article>
+        <article class="card metric" data-state="uncertain">
+          <span class="state-label"><svg class="mark" aria-hidden="true"><use href="#m-uncertain"/></svg><span>Uncertain · sensor drift</span></span>
+          <span class="metric__name">Indoor air quality</span>
+          <span class="metric__value">≈ 38 <span class="metric__unit">AQI</span></span>
+          <span class="metric__meta">Estimate from 2 of 3 sensors</span>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="quality" aria-labelledby="h-quality">
+      <header><h2 id="h-quality">Values and data quality</h2><p class="muted small">The mark sits in a fixed slot before the name, so digits stay aligned. A bad value is never shown as current.</p></header>
+      <div class="card">
+        <div class="readings" role="table" aria-label="Readings">
+          <div class="reading reading--head" role="row"><span></span><span role="columnheader">Reading</span><span role="columnheader" style="text-align:right">Value</span><span role="columnheader">Limit</span><span role="columnheader">Quality</span></div>
+          <div class="reading" data-state="good" role="row">
+            <span></span>
+            <span role="cell">Feed pressure</span>
+            <span class="reading__value" role="cell">2.14 <span class="metric__unit">bar</span></span>
+            <span class="reading__limit" role="cell">≤ 2.20 bar</span>
+            <span class="state-label" role="cell">GOOD</span>
+          </div>
+          <div class="reading" data-state="uncertain" role="row">
+            <svg class="mark" aria-hidden="true"><use href="#m-uncertain"/></svg>
+            <span role="cell">Permeate conductivity</span>
+            <span class="reading__value" role="cell">412 <span class="metric__unit">µS/cm</span></span>
+            <span class="reading__limit" role="cell">≤ 450 µS/cm</span>
+            <span class="state-label" role="cell">UNCERTAIN · calibration due</span>
+          </div>
+          <div class="reading" data-state="stale" role="row">
+            <svg class="mark" aria-hidden="true"><use href="#m-stale"/></svg>
+            <span role="cell">Tank temperature</span>
+            <span class="reading__value" role="cell">18.4 <span class="metric__unit">°C</span></span>
+            <span class="reading__limit" role="cell">16–22 °C</span>
+            <span class="state-label" role="cell">STALE · 12 min</span>
+          </div>
+          <div class="reading" data-state="bad" role="row">
+            <svg class="mark" aria-hidden="true"><use href="#m-offline"/></svg>
+            <span role="cell">Flow meter 3</span>
+            <span class="reading__value" role="cell">— <span class="metric__unit"></span></span>
+            <span class="reading__limit" role="cell">≥ 40 L/min</span>
+            <span class="state-label" role="cell">BAD · comm lost 00:42 · last good 46 L/min</span>
+          </div>
+          <div class="reading" data-state="warning" role="row">
+            <svg class="mark" aria-hidden="true"><use href="#m-warning"/></svg>
+            <span role="cell">Differential pressure</span>
+            <span class="reading__value" role="cell">1.92 <span class="metric__unit">bar</span></span>
+            <span class="reading__limit" role="cell">≤ 1.80 bar</span>
+            <span class="state-label" role="cell">WARNING · above limit</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="editing" aria-labelledby="h-editing">
+      <header><h2 id="h-editing">Editing states</h2><p class="muted small">Unsaved is an ink dot, never solar, so solar only means attention.</p></header>
+      <div class="card"><div class="card__body">
+        <div class="fields">
+          <div class="field" data-state="rest">
+            <label class="field__label" for="f-rest">Setpoint</label>
+            <div class="field__control"><input id="f-rest" value="21.5" inputmode="decimal"><span class="field__unit">°C</span></div>
+            <span class="field__message">Range 16–26 °C</span>
+          </div>
+          <div class="field" data-state="placeholder">
+            <label class="field__label" for="f-ph">Note for the next shift</label>
+            <div class="field__control"><input id="f-ph" placeholder="What should they check first?"></div>
+            <span class="field__message">Optional</span>
+          </div>
+          <div class="field" data-state="error">
+            <label class="field__label" for="f-err">Flow limit</label>
+            <div class="field__control"><input id="f-err" value="480" aria-invalid="true" aria-describedby="f-err-m"><span class="field__unit">L/min</span></div>
+            <span class="field__message" id="f-err-m"><svg class="mark" aria-hidden="true"><use href="#m-error"/></svg><span>Above the pump maximum of 400 L/min. Enter 400 or less.</span></span>
+          </div>
+          <div class="field" data-state="warning">
+            <label class="field__label" for="f-warn">Night setback</label>
+            <div class="field__control"><input id="f-warn" value="15.5" aria-describedby="f-warn-m"><span class="field__unit">°C</span></div>
+            <span class="field__message" id="f-warn-m"><svg class="mark" aria-hidden="true"><use href="#m-warning"/></svg><span>Below the recommended 16 °C. Allowed, but pipes may cool.</span></span>
+          </div>
+          <div class="field" data-state="dirty">
+            <label class="field__label" for="f-dirty">Tariff window <svg class="mark" aria-hidden="true"><use href="#m-dirty"/></svg></label>
+            <div class="field__control"><input id="f-dirty" value="22:00–06:00" aria-describedby="f-dirty-m"></div>
+            <span class="field__message" id="f-dirty-m"><span>Unsaved · was 23:00–06:00</span></span>
+          </div>
+          <div class="field" data-state="queued">
+            <label class="field__label" for="f-queued">Meter reading <svg class="mark" aria-hidden="true"><use href="#m-dirty"/></svg></label>
+            <div class="field__control"><input id="f-queued" value="18,402" aria-describedby="f-queued-m"><span class="field__unit">kWh</span></div>
+            <span class="field__message" id="f-queued-m"><svg class="mark" aria-hidden="true"><use href="#m-queued"/></svg><span>Queued · syncs when the network returns</span></span>
+          </div>
+          <div class="field" data-state="disabled">
+            <label class="field__label" for="f-dis">Grid export limit</label>
+            <div class="field__control"><input id="f-dis" value="6.0" readonly aria-disabled="true" aria-describedby="f-dis-m"><span class="field__unit">kW</span></div>
+            <span class="field__message" id="f-dis-m"><span>Set by the grid operator · request a change</span></span>
+          </div>
+          <div class="field" data-state="readonly">
+            <span class="field__label" id="f-ro-l">Computed daily yield</span>
+            <div class="field__control"><input aria-labelledby="f-ro-l" value="212.4" readonly><span class="field__unit">kWh</span></div>
+            <span class="field__message">From today's readings</span>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn btn--primary" type="button">Apply changes</button>
+          <button class="btn btn--secondary" type="button">Reset</button>
+          <button class="btn btn--danger" type="button">Shut down pump</button>
+          <button class="btn btn--primary" type="button" aria-disabled="true" aria-describedby="why-disabled">Publish report</button>
+          <span class="caption muted" id="why-disabled">Publish is unavailable: 1 error to fix.</span>
+        </div>
+        <div class="actions">
+          <span class="state-label" data-state="info"><svg class="mark" aria-hidden="true"><use href="#m-info"/></svg><span>Info · firmware 2.4 is available</span></span>
+          <span class="state-label" data-state="success"><svg class="mark" aria-hidden="true"><use href="#m-success"/></svg><span>Saved · 14:02</span></span>
+          <span class="state-label" data-state="error"><svg class="mark" aria-hidden="true"><use href="#m-error"/></svg><span>1 error</span></span>
+          <span class="state-label" data-state="warning"><svg class="mark" aria-hidden="true"><use href="#m-warning"/></svg><span>1 warning</span></span>
+          <span class="state-label" data-state="dirty"><svg class="mark" aria-hidden="true"><use href="#m-dirty"/></svg><span>2 unsaved</span></span>
+          <span class="state-label" data-state="queued"><svg class="mark" aria-hidden="true"><use href="#m-queued"/></svg><span>1 queued</span></span>
+        </div>
+      </div></div>
+    </section>
+
+    <section class="section" id="selection" aria-labelledby="h-selection">
+      <header><h2 id="h-selection">Selection, hover and focus</h2><p class="muted small">Selection is a pale blue fill with a leading bar. Focus is always an offset solar ring.</p></header>
+      <div class="two">
+        <div class="card">
+          <div class="list" role="listbox" aria-label="Subsystems">
+            <div class="list__item" role="option" aria-selected="false" tabindex="0"><span>Roof array <span class="muted">· 24 panels</span></span><span class="state-label" data-state="live"><svg class="mark" aria-hidden="true"><use href="#m-live"/></svg><span>Live</span></span></div>
+            <div class="list__item is-hover" role="option" aria-selected="false" tabindex="-1"><span>Heat pump 2 <span class="muted">· hover</span></span><span class="state-label" data-state="degraded"><svg class="mark" aria-hidden="true"><use href="#m-degraded"/></svg><span>Degraded</span></span></div>
+            <div class="list__item" role="option" aria-selected="true" tabindex="-1" id="selected-row"><span>Inverter 2 <span class="muted">· selected</span></span><span class="state-label" data-state="maintenance"><svg class="mark" aria-hidden="true"><use href="#m-maintenance"/></svg><span>Maintenance</span></span></div>
+            <div class="list__item" role="option" aria-selected="false" tabindex="-1"><span>Flow meter 3 <span class="muted">· east loop</span></span><span class="state-label" data-state="error"><svg class="mark" aria-hidden="true"><use href="#m-error"/></svg><span>Fault</span></span></div>
+          </div>
+        </div>
+        <div class="card" data-theme="dark" id="subtree">
+          <div class="card__body">
+            <h3>A panel in another theme</h3>
+            <p class="small secondary">This card sets <code>data-theme="dark"</code> on itself; the rest of the page keeps its theme.</p>
+            <span class="state-label" data-state="warning"><svg class="mark" aria-hidden="true"><use href="#m-warning"/></svg><span>Warning · threshold at 80 kW</span></span>
+            <div class="actions"><button class="btn btn--primary" type="button">Acknowledge</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="chart" aria-labelledby="h-chart">
+      <header><h2 id="h-chart">Chart series</h2><p class="muted small">Each series has its own line style and a direct label. Limits are labelled lines, never coloured series.</p></header>
+      <div class="card"><div class="card__body">
+        <svg class="chart" viewBox="0 0 720 260" role="img" aria-labelledby="chart-t chart-d">
+          <title id="chart-t">Site energy, today 06:00 to 18:00</title>
+          <desc id="chart-d">Generation peaks at 86 kW near 13:00, above the 80 kW warning limit. Storage rises through the day. A fault is marked on inverter 2 at 13:20. The forecast after 15:00 is dotted with a confidence band.</desc>
+          <g class="grid"><path d="M40 40H600M40 90H600M40 140H600M40 190H600M40 230H600"/></g>
+          <text x="34" y="44" text-anchor="end">100</text><text x="34" y="144" text-anchor="end">50</text><text x="34" y="234" text-anchor="end">0</text>
+          <text x="40" y="250">06:00</text><text x="320" y="250" text-anchor="middle">12:00</text><text x="600" y="250" text-anchor="end">18:00</text>
+          <path class="storage-area" d="M40 200L130 190L220 168L310 140L400 112L460 100V230H40z"/>
+          <path class="series storage" d="M40 200L130 190L220 168L310 140L400 112L460 100"/>
+          <path class="series generation" d="M40 222L130 170L220 104L310 70L370 58L460 96"/>
+          <path class="series flow" d="M40 150L130 158L220 146L310 152L400 142L460 148"/>
+          <g class="flow-dot"><circle cx="40" cy="150" r="2.5"/><circle cx="130" cy="158" r="2.5"/><circle cx="220" cy="146" r="2.5"/><circle cx="310" cy="152" r="2.5"/><circle cx="400" cy="142" r="2.5"/><circle cx="460" cy="148" r="2.5"/></g>
+          <path class="series eco" d="M40 214L130 210L220 204L310 196L400 190L460 186"/>
+          <path class="series material" d="M40 120L130 122L220 126L310 124L400 128L460 126"/>
+          <path class="forecast-band" d="M460 86L600 150V214L460 106z"/>
+          <path class="series forecast" d="M460 96L530 140L600 184"/>
+          <path class="threshold" d="M40 80H600"/>
+          <use href="#m-warning" x="44" y="62" width="14" height="14" style="color: var(--chart-threshold)"/>
+          <text class="threshold-label" x="62" y="74">Warning limit 80 kW</text>
+          <circle class="fault" cx="385" cy="62" r="7"/>
+          <text class="fault-label" x="398" y="52">Fault 13:20 · inverter 2</text>
+          <text class="series-label l-generation" x="610" y="100">Generation</text>
+          <text class="series-label l-storage" x="610" y="118">Storage</text>
+          <text class="series-label l-material" x="610" y="136">Load</text>
+          <text class="series-label l-flow" x="610" y="154">Flow</text>
+          <text class="series-label l-eco" x="610" y="190">Recovery</text>
+          <text class="series-label l-forecast" x="610" y="172">Forecast</text>
+        </svg>
+      </div></div>
+    </section>
+
+    <section class="section" id="ladder" aria-labelledby="h-ladder">
+      <header><h2 id="h-ladder">Layers, overlay and glass</h2><p class="muted small">Tone first, then hairline, then shadow. Glass only where content sits behind it.</p></header>
+      <div class="two">
+        <div class="ladder">
+          <span class="caption muted">L1 canvas</span>
+          <div class="card"><div class="card__body">
+            <span class="caption muted">L2 card</span>
+            <div class="inset"><span class="caption muted">L3 inset · table heads, tracks, drop zones</span></div>
+          </div></div>
+        </div>
+        <div class="overlay-demo">
+          <div class="overlay-demo__page card"><div class="card__body"><span class="caption muted">Page behind the scrim</span></div></div>
+          <div class="overlay-demo__scrim"></div>
+          <div class="dialog">
+            <h3>L4 overlay</h3>
+            <p class="small secondary">A solid surface over a defined scrim. No blur: nothing moves behind it.</p>
+          </div>
+        </div>
+        <div class="atmosphere">
+          <div class="glass" id="glass">
+            <h3>Frosted system glass</h3>
+            <p class="small">Used over imagery or moving content. It becomes a solid surface in outdoor, print, forced colors and reduced transparency.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  // Pausing is explicit and labelled; the indicator changes shape as well as text.
+  (function () {
+    var btn = document.getElementById('pause'), feed = document.getElementById('feed'), text = document.getElementById('feed-text');
+    btn.addEventListener('click', function () {
+      var paused = btn.getAttribute('aria-pressed') !== 'true';
+      btn.setAttribute('aria-pressed', String(paused));
+      btn.textContent = paused ? 'Resume updates' : 'Pause updates';
+      feed.dataset.state = paused ? 'paused' : 'live';
+      feed.querySelector('use').setAttribute('href', paused ? '#m-paused' : '#m-live');
+      text.textContent = paused ? 'Paused · 34 updates pending' : 'Live · 14:02:31';
+    });
+  })();
+</script>
+</body>
+</html>

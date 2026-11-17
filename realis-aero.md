@@ -1,9 +1,27 @@
-# Realis Aero Design System v0.3
+# Realis Aero Design System v0.4
 
-**Version**: 0.3.1  
-**Date**: October 2026 (v0.3: October 2026, v0.2: May 2026)  
+**Version**: 0.4  
+**Date**: November 2026 (v0.3: October 2026, v0.2: May 2026)  
 **Vision Holder**: Naji Zouiti  
 **Purpose**: Product-ready UI/UX, brand, and implementation specification for a feasible-future aesthetic.
+
+## What Changed in v0.4
+
+v0.4 turns four promises of earlier versions into specifications. Each one is backed by a token file, a working specimen and automated checks that live beside this document.
+
+- **State system**: every product and editing state now has a mark, a text label and, where needed, an edge, with collision rules for the states that share a colour family. See [State System](#state-system).
+- **Live values and data quality**: how freshness, pausing and good, uncertain, stale and bad readings are shown on the value itself. See [Live Values and Data Quality](#live-values-and-data-quality).
+- **Tokens in three tiers**: primitives, semantic and component tokens in [`tokens/realis-aero.tokens.css`](tokens/realis-aero.tokens.css), which is now the source of truth. See [Token Architecture](#token-architecture).
+- **Themes and modes**: a measured dark ladder, an outdoor theme held to AAA, forced colors, print, reduced transparency, and themes that can be set on any element. See [Themes and Modes](#themes-and-modes).
+- **Verification**: three scripts measure the tokens and the rendered specimen. See [Verification](#verification).
+
+Measuring found defects in v0.3, corrected here:
+
+- **Focus ring on a selected item** measured 2.94:1 (solar-700 on aero-blue-100). Focus now re-points to a darker solar on selected surfaces (3.47:1), as muted text already did.
+- **Chart colours** failed twice. On a card, the generation and live-flow colours measured 2.12:1 and 2.29:1. Under simulated deuteranopia, ecological gain and material collapsed into each other (OKLab distance 0.022 against a 0.07 target). Charts now use dedicated series tokens per theme.
+- **Unsaved state used solar**, the family that also means focus and warning. Unsaved is now an ink dot.
+- **Disabled contradicted itself** (neutral fill in one section, reduced opacity in another). Neutral fill is the rule; opacity is for imagery only.
+- **Motion durations** were specified but missing from the CSS. They are tokens now, and drop to 0ms under reduced motion.
 
 ## What Changed in v0.3
 
@@ -127,7 +145,24 @@ Every major product surface should define:
 - **Success state**: A measurable improvement occurred.
 - **Uncertainty state**: Confidence is low; communicate why.
 
+How each state is drawn is specified in [State System](#state-system).
+
 ## Design Tokens
+
+### Token Architecture
+
+Tokens live in [`tokens/realis-aero.tokens.css`](tokens/realis-aero.tokens.css) in three tiers. The tables in this document describe them; the file is the source of truth, and the checks read the file.
+
+| Tier | Naming | Example | Rule |
+|---|---|---|---|
+| **Primitive** | `--<family>-<step>` | `--aero-blue-800`, `--solar-700` | Raw ramps. Never used by components. |
+| **Semantic** | `--color-*`, `--state-*`, `--chart-*`, `--glass-*` | `--color-surface-inset`, `--state-warning-text` | Meaning. Themes re-point these and nothing else. |
+| **Component** | `--c-*` | `--c-button-primary-bg`, `--c-row-selected-edge` | Named slots, mapped to semantic tokens. |
+
+- **Components use semantic and component tokens only.** A component that names a primitive cannot follow a theme.
+- **A product may adjust primitives** within the measured targets. It does not repurpose a semantic token or add a family.
+- **Derived tokens are declared on every themed element.** A token that points at a semantic token (a shadow that uses the theme's shadow tint, every `--c-*` token) is computed where it is declared. Declared on `:root` alone, it would keep the root theme's value inside a panel that sets another theme. The token file declares them on `:root, [data-theme]`, and the render check proves it on a dark panel inside a light page.
+- **State tokens come in three roles**: `-mark` for icons and edges (3:1), `-text` for labels (4.5:1), `-tint` for a fill behind text.
 
 ### Typography
 
@@ -216,6 +251,30 @@ White is the equilibrium layer: it creates breathing room, calibration, glass re
 | **signal-coral-600** | `#B85F52` | Critical fault, urgent maintenance; icons, edges and tints |
 | **signal-coral-300** | `#E08A7B` | Soft critical highlight |
 
+#### Primitives Added in v0.4
+
+Every one of these exists because a measured pair needed it.
+
+| Token | Hex | Role |
+|---|---|---|
+| **aero-blue-975** | `#030E16` | Dark rail |
+| **aero-blue-925** | `#092437` | Dark inset |
+| **aero-blue-875** | `#123A53` | Dark hover, row divider, disabled fill |
+| **aero-blue-750** | `#2A546C` | Dark card edge |
+| **aero-blue-450** | `#6F93A6` | Dark control edge |
+| **solar-750** | `#A86E10` | Warning mark; focus ring on selected surfaces |
+| **umber-200** | `#C6AF93` | Maintenance text on dark |
+| **bio-green-300** | `#A2B994` | Success text on dark |
+| **bio-green-900** | `#2C5035` | Success text, outdoor |
+| **teal-system-900** | `#0B514F` | Live text, outdoor |
+| **signal-coral-100** | `#F6E3DD` | Error tint |
+| **signal-coral-200** | `#E6A194` | Danger text on dark |
+| **signal-coral-900** | `#723728` | Danger text and destructive fill, outdoor |
+| **signal-coral-950** | `#5A2A1E` | Destructive hover, outdoor |
+| **mineral-600** / **mineral-700** | `#6D6454` / `#5F574A` | Outdoor card edge / control edge |
+| **graphite-700** | `#3B474C` | Outdoor muted text |
+| **graphite-975** | `#0A1014` | Outdoor primary text |
+
 #### Neutral Palette
 
 | Token | Hex | Role |
@@ -240,25 +299,29 @@ White is the equilibrium layer: it creates breathing room, calibration, glass re
 |---|---|---|---|
 | **background** | `#F3EDE1` | `#071D2B` | L1 canvas / aerospace night (v0.3: was `#FAF7F0`) |
 | **surface** | `#FFFEFA` | `#0D2F45` | L2 cards and overlays |
-| **surface-inset** | `#F2EBDD` | — | L3 regions inside cards: table heads, section rows, tracks |
-| **surface-hover** | `#FAF7F0` | — | Row and item hover on white |
-| **surface-selected** | `#D9EAF1` | — | Selected item: rail entry, focused grid row, active filter |
-| **text-muted-on-selected** | `#58666B` | — | Muted text inside a selected item (4.82:1; graphite-550 gives 4.40) |
+| **surface-inset** | `#F2EBDD` | `#092437` | L3 regions inside cards: table heads, section rows, tracks |
+| **surface-hover** | `#FAF7F0` | `#123A53` | Row and item hover on white |
+| **surface-selected** | `#D9EAF1` | `#174A63` | Selected item: rail entry, focused grid row, active filter |
+| **text-muted-on-selected** | `#58666B` | `#E0E6E5` | Muted text inside a selected item (4.82:1; graphite-550 gives 4.40) |
 | **surface-raised** | `#F2EBDD` | `#174A63` | Raised cards, panels, and controls |
 | **surface-material** | `#EFE3D2` | `#3A2A1E` | Infrastructure and maintenance surfaces |
 | **text-primary** | `#11181C` | `#FFFEFA` | Body and headings |
 | **text-secondary** | `#58666B` | `#E0E6E5` | Supporting text |
 | **text-muted** | `#5F6C70` | `#A9B4B5` | Metadata, labels, hints, placeholders (v0.3) |
-| **danger-text** | `#9A4A3D` | `#E08A7B` | Error text and destructive buttons (v0.3) |
-| **border-subtle** | `#F2EBDD` | — | Row dividers inside cards |
-| **border-card** | `#D9CDB6` | — | Card hairlines, structural dividers |
-| **border-control** | `#8F8574` | — | Inputs, checkboxes, drop zones (≥ 3:1) |
-| **scrim** | `rgba(7, 29, 43, 0.40)` | — | Behind dialogs and side panels |
-| **disabled-fill / disabled-text** | `#F2EBDD` / `#58666B` | — | Disabled primary actions |
-| **rail** | `#0D2F45` | — | L0 desktop navigation |
+| **danger-text** | `#9A4A3D` | `#E6A194` | Error text and destructive buttons (v0.3) |
+| **border-subtle** | `#F2EBDD` | `#123A53` | Row dividers inside cards |
+| **border-card** | `#D9CDB6` | `#2A546C` | Card hairlines, structural dividers |
+| **border-control** | `#8F8574` | `#6F93A6` | Inputs, checkboxes, drop zones (≥ 3:1) |
+| **scrim** | `rgba(7, 29, 43, 0.40)` | `rgba(0, 0, 0, 0.55)` | Behind dialogs and side panels |
+| **disabled-fill / disabled-text** | `#F2EBDD` / `#58666B` | `#123A53` / `#A9B4B5` | Disabled primary actions |
+| **rail** | `#0D2F45` | `#030E16` | L0 desktop navigation; the darkest layer in dark |
 | **action-primary** | `#174A63` | `#235F7A` | Primary buttons, active nav, engineering trust |
 | **action-primary-hover** | `#0D2F45` | `#2D6F8E` | Hover and selected emphasis |
 | **focus-ring** | `#B87912` | `#F3C766` | High-visibility solar focus |
+| **focus-ring-on-selected** | `#A86E10` | `#F3C766` | Focus on a selected item (v0.4: solar-700 measured 2.94:1 there) |
+| **selected-edge** | `#174A63` | `#9CC6D8` | The 3px leading bar of a selected item (v0.4) |
+| **text-on-action** | `#FFFEFA` | `#FFFEFA` | Label on a filled action (v0.4) |
+| **action-danger / hover** | `#9A4A3D` / `#85402F` | `#9A4A3D` / `#85402F` | Destructive fill (v0.4) |
 | **energy** | `#D79520` | `#F3C766` | Generation, progress, sunlight, instrument highlight |
 | **material** | `#65462F` | `#B79A78` | Infrastructure, repair, tactile systems |
 | **success** | `#5E8156` | `#9CB58D` | Verified ecological gain only |
@@ -267,19 +330,31 @@ White is the equilibrium layer: it creates breathing room, calibration, glass re
 | **info** | `#2D6F8E` | `#9CC6D8` | Atmospheric/system information |
 | **live-data** | `#35BDB2` | `#8FE1D8` | Real-time streams only |
 
+The family accents from **energy** to **live-data** are for icons, edges and fills, never text: several of them sit below 4.5:1 on a card. Text and marks that carry a state use the [state tokens](#state-tokens). Outdoor values for every role are in [Themes and Modes](#themes-and-modes) and the token file.
+
 #### Data Visualization Colors
 
-| Meaning | Color | Secondary Encoding |
-|---|---|---|
-| **Generation / output** | `#E3A72F` | Solid solar line |
-| **Storage / reserve** | `#174A63` | Filled aerospace-blue area |
-| **Live flow / sensor stream** | `#35BDB2` | Thin glowing line |
-| **Ecological gain** | `#5E8156` | Leaf marker or rounded cap |
-| **Material / load / infrastructure** | `#8B6848` | Dashed umber line |
-| **Energy peak** | `#F3C766` | Bright marker and label |
-| **Warning threshold** | `#B87912` | Triangle marker |
-| **Fault / critical** | `#B85F52` | Strong outline and icon |
-| **Forecast / uncertainty** | `#58666B` | Dotted line and confidence band |
+Charts use their own series tokens. The family accents cannot be used directly: on a card, solar-500 measures 2.12:1 and teal-500 2.29:1, and bio-green-600 and umber-500 are 0.022 apart in OKLab under simulated deuteranopia.
+
+| Meaning | Token | Light | Dark | Outdoor | Secondary encoding (required) |
+|---|---|---|---|---|---|
+| **Generation / output** | `chart-generation` | `#B87912` | `#D79520` | `#734A04` | Solid 2px line |
+| **Storage / reserve** | `chart-storage` | `#0D2F45` | `#659BB3` | `#2D6F8E` | Solid line over a 16% filled area |
+| **Live flow / sensor stream** | `chart-flow` | `#1B817B` | `#D9F4F0` | `#0D5C5A` | Thin 1.5px line with a dot at each reading |
+| **Ecological gain** | `chart-eco` | `#3C6443` | `#A2B994` | `#223F2A` | Round-capped dotted line |
+| **Material / load / infrastructure** | `chart-material` | `#4C3524` | `#967554` | `#291D15` | Long-dashed line |
+| **Forecast / uncertainty** | `chart-forecast` | `#58666B` | `#A9B4B5` | `#3B474C` | Dotted line and confidence band |
+| **Warning limit** | `chart-threshold` | warning mark | warning mark | warning mark | Dashed horizontal line with a triangle and a text label |
+| **Fault / critical** | `chart-fault` | error mark | error mark | error mark | Ring marker with a text label |
+| **Selected point or entity** | `chart-selected` | selected edge | selected edge | selected edge | Outlined marker; the same edge as a selected row |
+
+**Rules**
+
+- **Measured**: every series reaches 3:1 on a card and on an inset (4.5:1 in outdoor), and the five family series stay at least 0.07 apart in OKLab under simulated protanopia, deuteranopia and tritanopia, in every theme.
+- **Line style is not optional.** Colour separates the series for most readers; the line style and a direct label at the end of each series separate them for everyone, in grayscale and in forced colors.
+- **Limits and faults are marks, not series.** A warning limit is a labelled line; a fault is a labelled ring. Status colours never colour a data series.
+- **Energy peak** is a labelled marker on the generation series, not a colour of its own.
+- **More than five series** means small multiples or direct labels, not more hues.
 
 #### Color Rules
 
@@ -341,7 +416,7 @@ The family rules above were written for energy and ecological systems. A product
 |---|---|---|
 | **Aerospace blue** | Structure and trust | Navigation, primary action, selection; the product's everyday record type |
 | **Umber** | Material, weight, record | The formal or archival record type, when the product distinguishes one from everyday work |
-| **Solar** | Energy and thresholds | Focus, attention, in-progress, unsaved drafts, warnings and thresholds |
+| **Solar** | Energy and thresholds | Focus, attention, in-progress, warnings and thresholds. Not unsaved work (v0.4): that is an ink dot, see [State System](#state-system) |
 | **Bio green** | Verified proof | Confirmed by the system of record: saved, completed, published |
 | **Signal coral** | Critical states | Faults, invalid input, destructive actions |
 | **Teal** | Live systems | Reserved for a live sync indicator; never decoration |
@@ -407,7 +482,7 @@ Shadows should feel physical, soft, and directional. They should not create floa
 | **blur-lg** | 24px | Large background glass |
 | **opacity-glass-clear** | 0.72 | Clear operational glass |
 | **opacity-glass-frosted** | 0.82 | Frosted system glass |
-| **opacity-disabled** | 0.42 | Disabled elements |
+| **opacity-disabled** | 0.42 | Disabled imagery and illustrations only; controls use `disabled-fill` and `disabled-text` (v0.4) |
 | **stroke-hairline** | 0.5px | High-density visualizations |
 | **stroke-sm** | 1px | Standard borders |
 | **stroke-md** | 1.5px | Active controls |
@@ -471,6 +546,158 @@ Glass panels may reveal low-intensity system lines beneath the surface.
 - **Meaning**: Every stream must map to a real category: power, water, air, heat, carbon, network, maintenance, or movement.
 - **Animation**: Idle streams should barely move or remain still; live updates may pulse once.
 
+## State System
+
+A state is never a colour alone. Each one has a **mark** (a shape), a **text label**, and where it needs one an **edge** (a real border). Colour reinforces. The test: every state on the specimen can still be told apart in the grayscale and forced-colors renders.
+
+Marks are drawn as vector shapes on a 16px grid with a 1.5px stroke, so they do not depend on the device's fonts. The specimen holds the set in [`specimen/index.html`](specimen/index.html).
+
+### Product States
+
+The seven required product states, plus paused. These describe a system, a subsystem or a whole surface.
+
+| State | Mark | Label pattern | Edge and surface | Family |
+|---|---|---|---|---|
+| **Live** | Ring with a filled centre | "Live · 14:02:31" | None | Teal |
+| **Paused** | Two bars | "Paused · 34 updates pending" | None | Neutral |
+| **Stale** | Clock | "Stale · 18 min" (the age is required) | Dashed border in the control tone; value in secondary text | Neutral |
+| **Offline** | Circle with a slash | "Offline · last sync 13:44" | Inset fill, no shadow, no glass; value in secondary text | Neutral |
+| **Degraded** | Half-filled circle | "Degraded · 71% of expected" | 3px leading edge | Solar |
+| **Maintenance** | Hexagonal nut | "Maintenance · scheduled 16:00" (who and when) | 3px leading edge | Umber |
+| **Success** | Circle with a check, outlined | "Verified · saved 14:02" | None | Bio green |
+| **Uncertain** | Dotted circle with a question mark | "Uncertain · sensor drift" (the reason is required) | 2px dotted border; value prefixed "≈" | Neutral |
+
+- **The label says what the mark cannot**: the age of stale data, the reason for uncertainty, who is doing the maintenance and until when.
+- **Maintenance is umber, not solar.** It is planned human work on a repairable system, which is what the umber family means. v0.3's reference component painted it as a warning.
+- **Live pulses once.** A fresh reading may pulse its mark once (`motion-live-pulse`, 600ms) and settle. Nothing loops. Under reduced motion the pulse is removed and the label carries the state.
+
+### Live Values and Data Quality
+
+A product state describes a surface; data quality describes one value. Both can be present.
+
+- **Freshness is visible.** A live region shows when it last updated and whether updates are running: "Live · 14:02:31" or "Paused · 34 updates pending".
+- **Pausing is allowed and explicit.** The user can freeze a live view to read it. The control is labelled, its pressed state is exposed, and the indicator changes shape (ring to bars) as well as text.
+- **A fixed marker slot sits before the name**, one mark wide, on every row. Digits stay aligned whether or not a mark is present.
+- **Every value carries a text quality label** where quality matters:
+
+| Quality | Shown as |
+|---|---|
+| **Good** | The value, plainly. No mark. |
+| **Uncertain** | The value with a dotted underline, the uncertain mark and the reason ("calibration due") |
+| **Stale** | The value in secondary text, the clock mark and its age ("12 min") |
+| **Bad or communication lost** | The value is replaced by "—". The label gives the age of the failure and the last good value ("comm lost 00:42 · last good 46 L/min"). The last good value is never shown as if it were current. |
+
+- **The limit sits beside the value** it constrains ("1.92 bar" next to "≤ 1.80 bar"), so a reading can be judged without opening anything.
+- **In charts**, limits are labelled lines and faults are labelled rings (see [Data Visualization Colors](#data-visualization-colors)).
+
+### Editing and Interaction States
+
+| State | Treatment | Family |
+|---|---|---|
+| **Hover** | `surface-hover` fill | Neutral |
+| **Selected** | `surface-selected` fill and a 3px leading bar in `selected-edge`; muted text and the focus ring re-point | Aerospace blue |
+| **Focus** | 2px solar ring, offset 2px outside the element (inset inside list rows). Never removed, never a fill. | Solar |
+| **Editable** | Surface fill with a 1px control edge (3:1) | Neutral |
+| **Read-only / computed** | No edge; takes the surface it sits on | Neutral |
+| **Unsaved** | A filled ink dot after the field's label, and "Unsaved · was …" under the field | Ink |
+| **Queued (offline)** | The unsaved dot, plus an up-arrow mark and "Queued · syncs when the network returns" | Ink |
+| **Error** | Coral control edge with a 3px leading edge; filled circle with an exclamation mark; a message that says how to fix it | Signal coral |
+| **Warning** | Solar control edge; outlined triangle; a message. The value is allowed. | Solar |
+| **Info** | Outlined circle with an "i" | Aerospace blue |
+| **Disabled** | `disabled-fill` and `disabled-text`, card-tone edge. Never reduced opacity. The control stays focusable (`aria-disabled="true"`, not the native attribute) and its reason is tied to it with `aria-describedby`. | Neutral |
+
+### Collision Rules
+
+Realis Aero has more meanings than families, so some states share a colour. These rules keep them apart.
+
+- **Focus, warning and degraded are all solar.** They differ by shape: focus is always an offset ring and nothing else; warning is always a triangle with a border *on* the control; degraded is always a half-filled circle with a leading edge on a card. Solar is never a fill behind text for any of them.
+- **Unsaved is ink, not solar.** A screen full of edits must not look like a screen full of warnings.
+- **Selected, info and the primary action are all aerospace blue.** Selected is a pale fill with a bar; info is an outlined mark with text; primary is a filled button. Blue text on its own always means a link or info, never selection.
+- **Live and success are neighbours in hue** and close under colour-vision deficiency. Live is a ring with a centre and a time; success is a check and a past-tense word.
+- **Stale, uncertain and forecast are all neutral.** Stale is dashed and has an age; uncertain is dotted and has a reason; forecast is a dotted line with a band, in charts only.
+- **Maintenance is not a fault.** Umber with a nut means planned work; coral with a filled circle means something broke.
+- **Error outranks warning.** One mark per message; when a value has both, the error is shown and the warning is counted.
+- **Offline wins over glass.** An offline surface is solid and recessed, whatever material it used when live.
+- **A disabled primary loses its fill.** A filled button looks actionable, and disabled text on aerospace blue is unreadable.
+- **On a selected item, re-point; do not override.** `text-muted` becomes `text-muted-on-selected` and the focus ring becomes `focus-ring-on-selected`, once, on the selected element.
+- **Edges are borders, and only where the state is.** A state edge is drawn with `border`, never `box-shadow`, and no transparent edge is reserved on items that do not have the state: forced colors removes shadows and paints transparent borders.
+
+### State Tokens
+
+| State | Mark (≥ 3:1) | Text (≥ 4.5:1) | Tint |
+|---|---|---|---|
+| **live** | teal-system-700 | teal-system-800 | — |
+| **success** | bio-green-600 | bio-green-800 | bio-green-100 |
+| **warning** / **degraded** | solar-750 | solar-800 | solar-100 |
+| **error** | signal-coral-600 | signal-coral-700 | signal-coral-100 |
+| **maintenance** | umber-600 | umber-700 | umber-100 |
+| **info** | aero-blue-600 | aero-blue-700 | — |
+| **neutral** (paused, stale, offline, uncertain, bad) | graphite-600 | text-secondary | — |
+| **dirty** (unsaved, queued) | text-primary | text-primary | — |
+
+Light values are shown; dark and outdoor values are in the token file. Each text token is measured on the canvas, card, hover, inset, raised and selected surfaces and on its own tint, and each mark on the canvas, card, inset and selected surfaces.
+
+## Themes and Modes
+
+| Theme or mode | Purpose | How it differs |
+|---|---|---|
+| **Light** | Default | The v0.3 tonal ladder |
+| **Dark** | User preference, evening and low light | Designed, not inverted: see the dark ladder below |
+| **Outdoor** | Direct sunlight, field and site work | Held to WCAG AAA: 7:1 for text, 4.5:1 for marks and control edges. Layers are separated by strong edges. Glass is solid. |
+| **Forced colors** | Windows High Contrast and similar | Tokens map to system colours; borders, marks and text carry everything |
+| **Print** | Reports, logs, sheets | Always light, whatever the screen showed. No glass, no shadows, no navigation. |
+| **Reduced transparency** | Low vision, battery saver, user setting | Glass becomes the solid surface of its layer |
+| **Reduced motion** | Motion sensitivity | Motion tokens drop to 0ms; the live pulse is removed |
+
+### Setting a Theme
+
+- `data-theme="light | dark | outdoor"` on **any element** sets the theme for that subtree, so one panel can be shown in another theme (a dark instrument panel on a light page, a preview in settings).
+- With no `data-theme` on the root, the system preference decides between light and dark.
+- `data-reduced-transparency="true"` on the root is the user-facing setting; `prefers-reduced-transparency` is honoured where the browser supports it.
+- Dark values are declared for screens only, so printing a dark screen gives a light page without a second set of values.
+
+### Dark Ladder
+
+In dark, higher layers are lighter, the inset is recessed darker, and the rail is the darkest layer. State colours are lighter and less saturated. There is no pure black.
+
+| Layer | Token | Dark value | Measured separation |
+|---|---|---|---|
+| **L0 Rail** | `rail` | `#030E16` | 1.13:1 vs canvas; labels 15.4:1 |
+| **L1 Canvas** | `background` | `#071D2B` | — |
+| **L2 Card** | `surface` + `border-card` `#2A546C` | `#0D2F45` | 1.24:1 vs canvas |
+| **L3 Inset** | `surface-inset` | `#092437` | 1.14:1 vs card |
+| **Selected** | `surface-selected` + bar `#9CC6D8` | `#174A63` | 1.45:1 vs card; bar 5.23:1 on its fill |
+| **L4 Overlay** | solid `surface` over `scrim` `rgba(0, 0, 0, 0.55)` | `#0D2F45` | — |
+
+- **Control edge** `#6F93A6`: 4.24:1 on a card, 4.85:1 on an inset.
+- **Focus ring** solar-300: 6.00:1 or more on every surface.
+- **Lowest text pair**: muted text on the raised surface, 4.50:1. It passes with no margin; do not lighten `surface-raised` or darken `text-muted` in dark without re-running the check.
+- **The Ruled Sheet in dark** uses the same ladder: sheet on `surface`, ruled lines in `border-subtle`, margin rule in `border-card`. It is not yet in the specimen.
+
+### Outdoor
+
+- **Surfaces**: canvas `#F2EBDD`, card `#FFFEFA`, card edge `#6D6454`, control edge `#5F574A` (6.00:1 or more).
+- **Text**: primary `#0A1014`, secondary `#263238`, muted `#3B474C`. The lowest text pair measures 7.37:1.
+- **Actions**: primary fill aero-blue-900; destructive fill signal-coral-900.
+- **State text** steps one or two stops darker than light (teal-900, bio-green-900, solar-900, coral-900, umber-800, aero-blue-800).
+- **No glass, and tints are not relied on**: in sunlight a pale tint is invisible, so marks, edges and text do the work.
+- Sunlight on a real screen still has to be tested on a device; the check proves the ratios, not the readability.
+
+### Forced Colors
+
+The system replaces author colours, drops backgrounds and removes shadows. Glass, tints and elevation all disappear, so Realis Aero is more exposed here than a flat system would be.
+
+- **Every state survives because it never depended on a fill**: marks take the system text colour, edges are real borders, and labels are text.
+- **Filled buttons become outlined**: the primary and destructive buttons are marked by a 3px border; a disabled button by a dashed one.
+- **Selection uses the system highlight**, and everything inside a selected item takes the highlight text colour.
+- **The scrim is removed**; the overlay is separated by its border.
+
+### Print
+
+- Light values, solid surfaces, no shadows; cards take the control-tone edge because printers drop pale tints.
+- State edges, marks and labels print. Hover, focus and navigation do not.
+- Cards and metric panels avoid page breaks.
+
 ## Component Library
 
 ### Buttons
@@ -490,7 +717,7 @@ Glass panels may reveal low-intensity system lines beneath the surface.
 | **Primary** | Main action | Aerospace-blue fill, refined solar highlight, high-contrast label |
 | **Secondary** | Supporting action | Glass surface, aerospace-blue border, dark text |
 | **Tertiary** | Low emphasis | Text or subtle glass chip |
-| **Danger** | Destructive/critical | Coral border/fill, icon required |
+| **Danger** | Destructive/critical | Filled `action-danger` (coral-700) with the on-action label; in a dialog it is the one filled action |
 | **System** | Operational control | Dense hardware glass, compact label |
 
 #### States
@@ -502,7 +729,7 @@ Glass panels may reveal low-intensity system lines beneath the surface.
 | **Pressed** | Scale to 0.98, shadow compresses, inner depth increases |
 | **Focus** | 2px solar ring with 2px offset |
 | **Loading** | Preserve button width, show real task label when possible |
-| **Disabled** | Reduced opacity plus reason when critical |
+| **Disabled** | Neutral fill and text (`disabled-fill`, `disabled-text`), no filled colour, never reduced opacity. Stays focusable (`aria-disabled`) with its reason tied to it |
 | **Offline** | Disable action and show last-known sync context |
 
 ### Cards & Panels
@@ -578,6 +805,9 @@ Charts should be clear first, atmospheric second.
 - **Forecasts**: Dotted or dashed with confidence band.
 - **Anomalies**: Annotate with reason when known.
 - **Live updates**: Animate only the changed segment, not the entire chart.
+- **Series**: Use the `chart-*` tokens, each with its own line style and a direct label at the end of the line; see [Data Visualization Colors](#data-visualization-colors).
+- **Limits and faults**: A limit is a labelled dashed line; a fault is a labelled ring. Neither is a coloured series.
+- **Text alternative**: Every chart has a title and a description that states what the chart shows, including limits crossed and faults.
 
 ### Forms & Inputs
 
@@ -745,6 +975,8 @@ Empty states should be useful and honest.
 | **motion-slow** | 360ms | Large layout shifts |
 | **motion-live-pulse** | 600ms | Single live data pulse |
 
+These durations are tokens (`--motion-instant` to `--motion-live-pulse`) and components use the tokens, never literal times.
+
 ### Easing
 
 ```css
@@ -759,6 +991,7 @@ Empty states should be useful and honest.
 - Replace animated transitions with opacity or instant state changes.
 - Preserve live updates through labels, badges, and timestamps.
 - Do not remove focus or pressed-state feedback.
+- The motion tokens drop to 0ms under `prefers-reduced-motion`, so a component that uses them needs no rule of its own. Keyframe animations still need one.
 
 ## Accessibility
 
@@ -766,13 +999,15 @@ Realis Aero must remain usable when glass, color, motion, and environmental imag
 
 ### Requirements
 
-- **Contrast**: Body text must meet WCAG 2.2 AA minimum contrast. Large text, icons, and controls must be tested on final glass backgrounds. From v0.3, every token pair of the tonal ladder should be asserted by an automated test that reads the live tokens, computes WCAG ratios (compositing translucent tokens over the surface they sit on) and fails the build when a pair drops below its target.
+- **Contrast**: Body text must meet WCAG 2.2 AA minimum contrast. Large text, icons, and controls must be tested on final glass backgrounds. Every token pair of the tonal ladder and the state system is measured by `npm run check:tokens`, and the text actually painted on the specimen by `npm run check:render` (see [Verification](#verification)).
 - **Non-text contrast**: Input and checkbox edges, focus rings and the active-navigation bar reach 3:1 against their surface (WCAG 1.4.11).
 - **Glass fallback**: Provide reduced-transparency surfaces for low vision, high contrast, battery saver, or unsupported backdrop blur.
 - **Keyboard**: All interactive components must be reachable, visible, and operable by keyboard.
 - **Focus**: Focus states must be at least 2px and not rely on glow alone.
 - **Screen readers**: Metrics must include value, unit, trend, timestamp, and state when meaningful.
-- **Color independence**: All charts and statuses need secondary encoding.
+- **Color independence**: All charts and statuses need secondary encoding. Every state has a mark and a text label (see [State System](#state-system)).
+- **Forced colors**: The interface stays fully usable when the system replaces colours: state edges are borders, marks take the text colour, filled buttons become outlined.
+- **Disabled controls**: Stay focusable and state their reason; never conveyed by opacity alone.
 - **Motion sensitivity**: Respect `prefers-reduced-motion`.
 - **Touch targets**: Minimum 44px by 44px on touch devices.
 - **Error recovery**: Form errors must explain what failed and how to correct it.
@@ -789,186 +1024,55 @@ Solar generation: 42 kilowatt-hours today, up 8 percent from yesterday. Last upd
 
 ### CSS Custom Properties
 
+The tokens are in [`tokens/realis-aero.tokens.css`](tokens/realis-aero.tokens.css). Copy or import that file; do not retype values from the tables above. Its structure:
+
 ```css
+/* 1. Primitives and non-colour constants */
 :root {
-  --equilibrium-white-000: #fffefa;
-  --equilibrium-white-050: #faf7f0;
-  --equilibrium-white-075: #f3ede1;
-  --equilibrium-white-100: #f2ebdd;
-  --equilibrium-white-200: #e3d9c7;
-  --equilibrium-white-300: #d9cdb6;
-  --mineral-500: #8f8574;
-
-  --aero-blue-950: #071d2b;
-  --aero-blue-900: #0d2f45;
   --aero-blue-800: #174a63;
-  --aero-blue-700: #235f7a;
-  --aero-blue-600: #2d6f8e;
-  --aero-blue-300: #9cc6d8;
-  --aero-blue-100: #d9eaf1;
-
-  --umber-900: #3a2a1e;
-  --umber-800: #4c3524;
-  --umber-700: #65462f;
-  --umber-600: #7d5a3b;
-  --umber-500: #8b6848;
-  --umber-300: #b79a78;
-  --umber-100: #efe3d2;
-
-  --solar-900: #5f3a02;
-  --solar-800: #7a4f05;
   --solar-700: #b87912;
-  --solar-600: #d79520;
-  --solar-500: #e3a72f;
-  --solar-300: #f3c766;
-  --solar-100: #fff0bf;
+  --radius-lg: 18px;
+  --motion-fast: 140ms;
+  /* … */
+}
 
-  --teal-system-800: #0d5c5a;
-  --teal-system-700: #1b817b;
-  --teal-system-500: #35bdb2;
-  --teal-system-300: #8fe1d8;
-  --teal-system-100: #d9f4f0;
-
-  --bio-green-800: #315a3c;
-  --bio-green-600: #5e8156;
-  --bio-green-400: #9cb58d;
-  --bio-green-100: #e4ecd8;
-
-  --signal-coral-800: #85402f;
-  --signal-coral-700: #9a4a3d;
-  --signal-coral-600: #b85f52;
-  --signal-coral-300: #e08a7b;
-
-  --graphite-950: #11181c;
-  --graphite-900: #172126;
-  --graphite-800: #263238;
-  --graphite-600: #58666b;
-  --graphite-550: #5f6c70;
-  --graphite-500: #6f7c80;
-  --graphite-400: #a9b4b5;
-  --graphite-100: #e0e6e5;
-
-  /* Tonal ladder: L0 rail → L1 canvas → L2 surface → L3 inset → L4 overlay */
+/* 2. Semantic tokens: light is the default */
+:root,
+[data-theme="light"] {
   --color-background: var(--equilibrium-white-075);
   --color-surface: var(--equilibrium-white-000);
-  --color-surface-hover: var(--equilibrium-white-050);
-  --color-surface-inset: var(--equilibrium-white-100);
-  --color-surface-raised: var(--equilibrium-white-100);
-  --color-surface-material: var(--umber-100);
-  --color-border-subtle: var(--equilibrium-white-100);
-  --color-border-card: var(--equilibrium-white-300);
-  --color-border-control: var(--mineral-500);
-  --color-scrim: rgba(7, 29, 43, 0.40);
-  --color-disabled-fill: var(--equilibrium-white-100);
-  --color-disabled-text: var(--graphite-600);
-  --color-text-primary: var(--graphite-950);
-  --color-text-secondary: var(--graphite-600);
-  --color-text-muted: var(--graphite-550);
-  --color-danger-text: var(--signal-coral-700);
-  --color-surface-selected: var(--aero-blue-100);
-  --color-text-muted-on-selected: var(--graphite-600);
-
-  --color-rail: var(--aero-blue-900);
-  --color-rail-text: var(--graphite-100);
-  --color-rail-text-strong: var(--equilibrium-white-000);
-  --color-rail-muted: var(--graphite-400);
-  --color-rail-hover: rgba(255, 254, 250, 0.06);
-  --color-rail-active: rgba(156, 198, 216, 0.18);
-  --color-rail-accent: var(--aero-blue-300);
-  --color-rail-divider: rgba(255, 254, 250, 0.10);
-  --color-rail-focus: var(--solar-300);
-  --color-action-primary: var(--aero-blue-800);
-  --color-action-primary-hover: var(--aero-blue-900);
-  --color-focus-ring: var(--solar-700);
-  --color-energy: var(--solar-600);
-  --color-material: var(--umber-700);
-  --color-success: var(--bio-green-600);
-  --color-warning: var(--solar-700);
-  --color-danger: var(--signal-coral-600);
-  --color-info: var(--aero-blue-600);
-  --color-live-data: var(--teal-system-500);
-
-  --font-sans: "Frutiger", "Aptos", "Segoe UI", "Inter", "SF Pro Text", system-ui, sans-serif;
-
-  --text-display-xl: 64px;
-  --text-display-lg: 48px;
-  --text-heading-xl: 36px;
-  --text-heading-lg: 28px;
-  --text-heading-md: 22px;
-  --text-body-lg: 18px;
-  --text-body-md: 16px;
-  --text-body-sm: 14px;
-  --text-metric-lg: 40px;
-  --text-metric-md: 28px;
-  --text-label-md: 13px;
-  --text-caption: 12px;
-
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-10: 40px;
-  --space-12: 48px;
-  --space-16: 64px;
-  --space-24: 96px;
-
-  --radius-xs: 4px;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
-  --radius-xl: 24px;
-  --radius-pill: 999px;
-
-  --blur-sm: 8px;
-  --blur-md: 14px;
-  --blur-lg: 24px;
-
-  --opacity-glass-clear: 0.72;
-  --opacity-glass-frosted: 0.82;
-  --opacity-disabled: 0.42;
-
-  --stroke-hairline: 0.5px;
-  --stroke-sm: 1px;
-  --stroke-md: 1.5px;
-  --stroke-lg: 2px;
-
-  --shadow-1: 0 1px 2px rgba(7, 29, 43, 0.08);
-  --shadow-2: 0 4px 12px rgba(7, 29, 43, 0.10);
-  --shadow-3: 0 10px 28px rgba(7, 29, 43, 0.14);
-  --shadow-4: 0 20px 54px rgba(7, 29, 43, 0.18);
-  --inner-highlight: inset 0 1px 0 rgba(255, 254, 250, 0.42);
-  --inner-depth: inset 0 -1px 0 rgba(7, 29, 43, 0.10);
-
-  --ease-engineered: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --ease-press: cubic-bezier(0.3, 0, 0.2, 1);
-  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+  --state-warning-mark: var(--solar-750);
+  --state-warning-text: var(--solar-800);
+  --chart-generation: var(--solar-700);
+  /* … */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-background: var(--aero-blue-950);
-    --color-surface: var(--aero-blue-900);
-    --color-surface-raised: var(--aero-blue-800);
-    --color-surface-material: var(--umber-900);
-    --color-text-primary: var(--equilibrium-white-000);
-    --color-text-secondary: var(--graphite-100);
-    --color-text-muted: var(--graphite-400);
-    --color-action-primary: var(--aero-blue-700);
-    --color-action-primary-hover: var(--aero-blue-600);
-    --color-focus-ring: var(--solar-300);
-    --color-energy: var(--solar-300);
-    --color-material: var(--umber-300);
-    --color-success: var(--bio-green-400);
-    --color-warning: var(--solar-300);
-    --color-danger: var(--signal-coral-300);
-    --color-info: var(--aero-blue-300);
-    --color-live-data: var(--teal-system-300);
-  }
+/* Dark: an explicit theme, or the system preference when no theme is set.
+   Screen only, so print falls back to light. */
+@media screen {
+  [data-theme="dark"] { --color-background: var(--aero-blue-950); /* … */ }
 }
+@media screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme]) { --color-background: var(--aero-blue-950); /* … */ }
+}
+
+[data-theme="outdoor"] { --color-text-primary: var(--graphite-975); /* … */ }
+
+/* 3. Derived and component tokens, on every themed element */
+:root,
+[data-theme] {
+  --shadow-2: 0 4px 12px rgb(var(--shadow-tint) / 0.10);
+  --c-button-primary-bg: var(--color-action-primary);
+  /* … */
+}
+
+/* Modes */
+@media (prefers-reduced-motion: reduce) { :root { --motion-fast: 0ms; /* … */ } }
+@media print { /* solid surfaces, no shadows */ }
+@media (forced-colors: active) { :root, [data-theme] { --color-surface: Canvas; /* … */ } }
 ```
+
+The dark values appear twice (explicit theme and system preference). `npm run check:tokens` fails if the two blocks differ.
 
 ### Reference Component CSS
 
@@ -977,18 +1081,13 @@ Solar generation: 42 kilowatt-hours today, up 8 percent from yesterday. Last upd
   position: relative;
   overflow: hidden;
   border-radius: var(--radius-lg);
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 254, 250, 0.76),
-      rgba(242, 235, 221, 0.60)
-    );
-  border: 1px solid rgba(255, 254, 250, 0.38);
-  box-shadow:
-    var(--shadow-3),
-    inset 0 1px 0 rgba(255, 254, 250, 0.44),
-    inset 0 -1px 0 rgba(7, 29, 43, 0.10);
-  backdrop-filter: blur(var(--blur-md)) saturate(1.12);
+  /* The glass tokens become solid in outdoor, print, forced colors and
+     reduced transparency, so this rule needs no fallback of its own. */
+  background: var(--glass-frosted-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-3), var(--inner-highlight), var(--inner-depth);
+  -webkit-backdrop-filter: var(--glass-blur-frosted);
+  backdrop-filter: var(--glass-blur-frosted);
 }
 
 .realis-button-primary {
@@ -1004,9 +1103,9 @@ Solar generation: 42 kilowatt-hours today, up 8 percent from yesterday. Last upd
   font-weight: 560;
   box-shadow: var(--shadow-2), inset 0 -1px 0 rgba(7, 29, 43, 0.22);
   transition:
-    transform 80ms var(--ease-press),
-    box-shadow 140ms var(--ease-engineered),
-    background-color 140ms var(--ease-engineered);
+    transform var(--motion-instant) var(--ease-press),
+    box-shadow var(--motion-fast) var(--ease-engineered),
+    background-color var(--motion-fast) var(--ease-engineered);
 }
 
 .realis-button-primary:hover {
@@ -1025,16 +1124,16 @@ Solar generation: 42 kilowatt-hours today, up 8 percent from yesterday. Last upd
   outline-offset: 2px;
 }
 
-html[data-reduced-transparency="true"] .realis-glass-panel {
-  background: var(--color-surface);
-  backdrop-filter: none;
+.realis-button-primary[aria-disabled="true"] {
+  background: var(--c-button-disabled-bg);
+  color: var(--c-button-disabled-fg);
+  border-color: var(--color-border-card);
+  box-shadow: none;
+  cursor: not-allowed;
 }
 
-@media (prefers-reduced-transparency: reduce) {
-  .realis-glass-panel {
-    background: var(--color-surface);
-    backdrop-filter: none;
-  }
+@media (forced-colors: active) {
+  .realis-button-primary { border: 3px solid ButtonText; }
 }
 ```
 
@@ -1090,7 +1189,7 @@ src/
 
 #### Token Strategy
 
-- **Keep tokens global**: Put primitive and semantic variables in `src/styles/tokens.css`.
+- **Keep tokens global**: `src/styles/tokens.css` is a copy of [`tokens/realis-aero.tokens.css`](tokens/realis-aero.tokens.css); change tokens there, not in components.
 - **Keep material recipes reusable**: Put glass, hardware, and alert material classes in `src/styles/materials.css`.
 - **Keep component specifics scoped**: Component layout and state styling should live inside each `.vue` file.
 - **Avoid hardcoded colors**: Vue components should reference semantic variables such as `--color-action-primary`, not raw hex values.
@@ -1216,15 +1315,24 @@ const accessibleLabel = computed(() => {
   font-size: 12px;
 }
 
-.realis-metric[data-state="degraded"],
+/* State edges are real borders, only on the states that have one. */
+.realis-metric[data-state="degraded"] {
+  border-inline-start: var(--stroke-state) solid var(--state-warning-mark);
+}
+
 .realis-metric[data-state="maintenance"] {
-  border-color: rgba(184, 121, 18, 0.52);
-  border-color: color-mix(in srgb, var(--color-warning) 52%, transparent);
+  border-inline-start: var(--stroke-state) solid var(--state-maintenance-mark);
+}
+
+.realis-metric[data-state="stale"] {
+  border-style: dashed;
+  border-color: var(--color-border-control);
 }
 
 .realis-metric[data-state="offline"] {
-  background: var(--color-surface);
+  background: var(--color-surface-inset);
   backdrop-filter: none;
+  box-shadow: none;
 }
 </style>
 ```
@@ -1363,6 +1471,23 @@ For tasks whose value is the text the user writes (work logs, reports, maintenan
 - **Avoid**: `The future is effortlessly sustainable.`
 - **Avoid**: `Unlimited clean energy at your fingertips.`
 
+## Verification
+
+The claims in the token, state and theme sections are measured by three scripts. `npm run check` runs them all, and the workflow in `.github/workflows/checks.yml` runs them on every change to the tokens, the specimen or the tools.
+
+| Check | Command | What it enforces |
+|---|---|---|
+| **Contrast** | `npm run check:tokens` | 144 token pairs in each of light, dark and outdoor: layers at least 1.12:1 from their neighbour; text at least 4.5:1 on every surface it can sit on; marks, control edges and focus rings at least 3:1; 7:1 and 4.5:1 in outdoor. Translucent tokens are composited over their surface. Also that the two dark blocks are identical. |
+| **Colour vision** | `npm run check:cvd` | The five family chart series stay at least 0.07 apart in OKLab under simulated protanopia, deuteranopia and tritanopia (Machado 2009), in every theme. |
+| **Rendering** | `npm run check:render` | In a real browser, on [`specimen/index.html`](specimen/index.html), in each theme: every state is drawn with a mark and a text label, and no two states share a mark; every run of painted text meets its target against the surface actually behind it; every control shows a focus ring of at least 2px and is at least 44px high; disabled controls are focusable, explained and not faded; a dark panel inside another theme resolves its own tokens; pausing changes mark and text. Then: glass is solid in outdoor and with reduced transparency; the system preference picks the theme when none is set; in forced colors, state edges are real borders, buttons are outlined and marks take the text colour; under reduced motion the live pulse stops and motion tokens are 0ms; a dark screen prints light with no shadows or glass; at 200% zoom nothing scrolls sideways or clips. |
+
+- **Lowest measured contrast at the time of writing**: text 4.58 (light), 4.50 (dark), 7.37 (outdoor); marks and edges 3.06 (light), 3.29 (dark), 4.69 (outdoor); layers 1.16 (light), 1.13 (dark), 1.18 (outdoor).
+- **Counts at the time of writing**: 433 contrast checks, 12 colour-vision checks, 833 render checks.
+- **The checks were tested against the defects they target**: re-introducing an overflowing field, a state edge drawn with `box-shadow`, a paler muted text or a component token declared on the root alone makes them fail.
+- **Review renders** are written to [`specimen/screenshots/`](specimen/screenshots/): each theme, grayscale, forced colors, print and 200% zoom. Grayscale is reviewed by eye.
+
+**What the checks cannot tell us.** Text on glass over imagery is skipped by the render check, because the surface behind it is not one colour. Real sunlight on a real screen, colour perception by people rather than a simulation, and the reference typeface (the specimen renders in the first installed face of the font stack) all still need people and devices.
+
 ## Acceptance Criteria
 
 A design qualifies as Realis Aero if it meets these standards:
@@ -1381,13 +1506,15 @@ A design qualifies as Realis Aero if it meets these standards:
 
 - **Light source**: Shadows and highlights are consistent.
 - **Glass**: Transparency supports meaning and does not reduce readability.
-- **Palette**: Accents are purposeful and not oversaturated.
+- **Palette**: Accents are purposeful and not oversaturated. Family accents are not used as text; charts use the series tokens.
 - **Depth**: Layering communicates hierarchy.
 - **Imperfections**: Wear, scratches, or condensation have a contextual reason.
 
 ### UX QA
 
-- **States**: Live, stale, offline, degraded, maintenance, success, and uncertainty states are defined.
+- **States**: Live, stale, offline, degraded, maintenance, success, and uncertainty states are defined, each with its mark, label and edge from the State System.
+- **Data quality**: Stale values show their age, uncertain values their reason, and a bad value is replaced, never shown as current.
+- **Unsaved and queued**: Marked with the ink dot, never solar.
 - **Metrics**: Units, timestamps, and confidence are shown where needed.
 - **Navigation**: Current location and system status are visible.
 - **Forms**: Errors are specific and recoverable.
@@ -1401,33 +1528,44 @@ A design qualifies as Realis Aero if it meets these standards:
 - **Screen reader**: Metrics and charts have meaningful alternatives.
 - **Reduced motion**: No essential information depends on animation.
 - **Reduced transparency**: Glass panels have solid-surface fallbacks.
+- **Grayscale and forced colors**: Every state can still be told apart; state edges are borders, not shadows.
+- **Themes**: The screen has been checked in light, dark and outdoor, and `npm run check` passes.
+- **Disabled**: Disabled controls are focusable and state their reason.
 - **Ruled Sheet**: Every part has a visible label tied to its field; focus shows as a bar, not colour alone; ruled lines never reduce text contrast.
 
 ## Visual Examples
 
-![Realis Aero Desktop Wallpaper](attachments/Generated Image.jpg)  
-*Early foundational wallpaper: integrated sustainable landscape with glass UI overlays.*
+These are renders of the working specimen, written by `npm run check:render`.
 
-![Mobile Sustainability Dashboard](attachments/Generated Image.jpg)  
-*Mobile dashboard concept: live metrics, glass cards, maintenance-aware data visualizations.*
+![Realis Aero specimen, light theme](specimen/screenshots/light.png)  
+*Light: product states, data quality, editing states, selection, chart series and the tonal ladder.*
 
-![Component Library Showcase](attachments/Generated Image.jpg)  
-*Atomic components: buttons, cards, gauges, icons, navigation, and system states.*
+![Realis Aero specimen, dark theme](specimen/screenshots/dark.png)  
+*Dark: the measured dark ladder, with the rail as the darkest layer.*
 
-## Recommended v0.4 Next Steps
+![Realis Aero specimen, outdoor theme](specimen/screenshots/outdoor.png)  
+*Outdoor: AAA contrast, strong edges, solid surfaces.*
+
+![Realis Aero specimen, forced colors](specimen/screenshots/forced-colors.png)  
+*Forced colors: every state carried by marks, borders and text.*
+
+## Recommended v0.5 Next Steps
 
 - **Done in v0.3**: tonal ladder, contrast validation of the light palette with an automated check, domain semantics.
 - **Done in v0.3.1**: the Ruled Sheet pattern and the Writing Workspace.
-- **Ruled Sheet in dark mode**: measure line and margin-rule tones on the dark ladder before shipping a dark theme.
-- **Dark mode ladder**: measure the dark-mode roles against the same layer and text targets before shipping a dark theme.
+- **Done in v0.4**: state system, live values and data quality, three-tier tokens, dark and outdoor themes, forced colors, print, specimen and checks.
+- **Density and tables**: comfortable, compact and touch densities as one token switch; a table specification with a keyboard model.
+- **Layered state and offline**: baseline, committed, queued and draft layers; Apply, Reset and Revert; visible sync conflicts.
+- **Typography**: a bundled open-licensed humanist face in place of the Frutiger-first stack, a mono face for codes, and Arabic with right-to-left layout.
+- **Ruled Sheet in the specimen**: add the sheet to the specimen in all three themes and to the render check.
+- **Glass on imagery**: validate glass panels on real photographic backgrounds; the render check skips them.
+- **Smaller sections**: internationalization, performance budgets (including `backdrop-filter`), settings, and how success is measured.
+- **Automation**: provenance on values, staged changes, and the rule that the product works with automation off.
 - **Component specs**: Produce Figma variants for every component listed in this document.
-- **Icon library**: Define a 24px icon grid with engineering-natural hybrid motifs.
-- **Motion prototypes**: Create reduced-motion and standard-motion examples for live updates.
-- **Glass on imagery**: Validate glass panels on real photographic backgrounds.
-- **Design examples**: Build one landing page, one dashboard, one mobile flow, and one maintenance flow.
-- **Token export**: Generate JSON tokens for Figma, CSS, Tailwind, and React Native.
+- **Icon library**: Extend the 16px state marks into a 24px icon grid with engineering-natural hybrid motifs.
+- **Token export**: Generate JSON tokens for Figma, Tailwind, and React Native from the token file.
 - **Content model**: Define standard data fields for metrics, timestamps, confidence, and source attribution.
 
 ---
 
-**Realis Aero v0.3 is a feasible-future system: optimistic because it is measurable, beautiful because it is honest, and calm because it is built to be maintained.**
+**Realis Aero v0.4 is a feasible-future system: optimistic because it is measurable, beautiful because it is honest, and calm because it is built to be maintained.**
