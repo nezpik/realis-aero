@@ -4,8 +4,8 @@
   var uid = 0;
   function g(id) { return id + (uid) ; }
   var C = {
-    evening: 'var(--rp-evening)', shade: 'var(--rp-shade)', overcast: 'var(--rp-overcast)', fog: 'var(--rp-fog)', mist: 'var(--rp-mist)',
-    paper: 'var(--rp-paper)', ash: 'var(--rp-ash)', lantern: 'var(--rp-lantern)', sky: 'var(--rp-skyline)', spark: 'var(--rp-spark)', after: 'var(--rp-afterglow)'
+    evening: 'var(--rp-evening)', sil: 'var(--rp-silhouette)', shade: 'var(--rp-shade)', overcast: 'var(--rp-overcast)', fog: 'var(--rp-fog)', mist: 'var(--rp-mist)',
+    paper: 'var(--rp-paper)', ash: 'var(--rp-ash)', lantern: 'var(--rp-lantern)', sky: 'var(--rp-skyline)', spark: 'var(--rp-spark)', skyTop: 'var(--rp-sky-top)', skyMid: 'var(--rp-sky-mid)', skyLow: 'var(--rp-sky-low)', skyGlow: 'var(--rp-sky-glow)'
   };
   // Glow is gentler at later hours and off in Last Light; a lit window stays visible because it keeps a floor.
   var GLOW = 'opacity:calc(0.35 + 0.65 * var(--rp-glow-k))';
@@ -16,16 +16,18 @@
     var stars = '';
     [[90, 40, 1.1], [180, 92, .8], [260, 30, 1], [340, 70, .9], [430, 28, 1.1], [520, 80, .8], [610, 44, 1], [700, 24, .9], [790, 74, 1],
      [880, 36, 1.1], [960, 90, .8], [1050, 30, 1], [1130, 66, .9], [60, 130, .8], [1170, 120, .8], [470, 130, .7]]
-      .forEach(function (p) { stars += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + p[2] + '" fill="' + C.paper + '" opacity=".38"/>'; });
+      .forEach(function (p) { stars += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + p[2] + '" fill="' + C.paper + '" style="opacity:var(--rp-stars)"/>'; });
     var skyline = '', wins = '';
     [[0, 300, 70, 90], [60, 270, 56, 120], [112, 305, 80, 85], [190, 285, 60, 105], [248, 310, 90, 80], [340, 296, 64, 94], [404, 276, 52, 114], [452, 306, 78, 84]]
-      .forEach(function (b) { skyline += '<rect x="' + b[0] + '" y="' + b[1] + '" width="' + b[2] + '" height="' + b[3] + '" fill="' + C.shade + '"/>'; });
+      .forEach(function (b) { skyline += '<rect x="' + b[0] + '" y="' + b[1] + '" width="' + b[2] + '" height="' + b[3] + '" fill="' + C.sil + '" opacity=".92"/>'; });
     [[84, 290], [130, 322], [210, 304], [372, 316], [420, 296], [476, 326]]
       .forEach(function (w) { wins += '<rect x="' + w[0] + '" y="' + w[1] + '" width="5" height="7" rx="1" fill="' + C.lantern + '" opacity=".7"/>'; });
     return '' +
     '<svg viewBox="0 0 1200 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="" preserveAspectRatio="xMidYMax slice">' +
     '<defs>' +
-      '<linearGradient id="' + s + 'sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:' + C.evening + '"/><stop offset=".72" style="stop-color:' + C.evening + '"/><stop offset="1" style="stop-color:' + C.after + '"/></linearGradient>' +
+      '<linearGradient id="' + s + 'sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:' + C.skyTop + '"/><stop offset=".42" style="stop-color:' + C.skyMid + '"/><stop offset=".78" style="stop-color:' + C.skyLow + '"/><stop offset="1" style="stop-color:' + C.skyGlow + '"/></linearGradient>' +
+      '<radialGradient id="' + s + 'sun" cx=".5" cy=".5" r=".5"><stop offset="0" style="stop-color:' + C.skyGlow + ';stop-opacity:.85"/><stop offset=".5" style="stop-color:' + C.skyLow + ';stop-opacity:.30"/><stop offset="1" style="stop-color:' + C.skyLow + ';stop-opacity:0"/></radialGradient>' +
+      '<filter id="' + s + 'cloud" x="-20%" y="-300%" width="140%" height="700%"><feGaussianBlur stdDeviation="7"/></filter>' +
       '<radialGradient id="' + s + 'lamp" cx=".5" cy=".5" r=".5"><stop offset="0" style="stop-color:' + C.lantern + ';stop-opacity:.34"/><stop offset=".45" style="stop-color:' + C.lantern + ';stop-opacity:.10"/><stop offset="1" style="stop-color:' + C.lantern + ';stop-opacity:0"/></radialGradient>' +
       '<radialGradient id="' + s + 'door" cx=".5" cy=".6" r=".5"><stop offset="0" style="stop-color:' + C.lantern + ';stop-opacity:.30"/><stop offset="1" style="stop-color:' + C.lantern + ';stop-opacity:0"/></radialGradient>' +
       '<radialGradient id="' + s + 'pool" cx=".5" cy=".5" r=".5"><stop offset="0" style="stop-color:' + C.lantern + ';stop-opacity:.20"/><stop offset="1" style="stop-color:' + C.lantern + ';stop-opacity:0"/></radialGradient>' +
@@ -33,21 +35,28 @@
     '</defs>' +
     '<rect width="1200" height="400" fill="url(#' + s + 'sky)"/>' +
     '<g>' + stars + '</g>' +
-    '<ellipse cx="600" cy="372" rx="760" ry="30" fill="' + C.after + '" filter="url(#' + s + 'blur)"/>' +
-    '<ellipse cx="520" cy="376" rx="520" ry="18" fill="' + C.lantern + '" opacity=".05" filter="url(#' + s + 'blur)"/>' +
+    /* the sun has just gone: a glow on the horizon, and thin cloud lit from below */
+    '<g style="opacity:calc(0.45 + 0.55 * var(--rp-glow-k))"><ellipse cx="660" cy="380" rx="760" ry="250" fill="url(#' + s + 'sun)"/></g>' +
+    '<g filter="url(#' + s + 'cloud)">' +
+      '<ellipse cx="250" cy="236" rx="260" ry="9" fill="' + C.skyMid + '" opacity=".9"/><ellipse cx="260" cy="246" rx="210" ry="5" fill="' + C.skyGlow + '" opacity=".55"/>' +
+      '<ellipse cx="760" cy="196" rx="300" ry="8" fill="' + C.skyMid + '" opacity=".85"/><ellipse cx="770" cy="205" rx="250" ry="4.5" fill="' + C.skyGlow + '" opacity=".6"/>' +
+      '<ellipse cx="1010" cy="276" rx="220" ry="8" fill="' + C.skyMid + '" opacity=".8"/><ellipse cx="1015" cy="285" rx="180" ry="4" fill="' + C.skyGlow + '" opacity=".6"/>' +
+      '<ellipse cx="470" cy="304" rx="260" ry="6" fill="' + C.skyMid + '" opacity=".7"/><ellipse cx="478" cy="311" rx="200" ry="3.5" fill="' + C.skyGlow + '" opacity=".55"/>' +
+    '</g>' +
     '<g>' + skyline + wins + '</g>' +
     /* library */
     '<g>' +
       '<rect x="740" y="190" width="400" height="190" fill="' + C.overcast + '"/>' +
       '<polygon points="720,192 940,128 1160,192" fill="' + C.fog + '"/>' +
+      '<path d="M720 192 L940 128 L1160 192" fill="none" stroke="' + C.skyGlow + '" stroke-width="2" opacity=".55"/>' +
       '<polygon points="756,190 940,140 1124,190" fill="' + C.overcast + '"/>' +
       '<rect x="740" y="190" width="400" height="6" fill="' + C.fog + '"/>' +
       [772, 842, 1010, 1080].map(function (x) { return '<rect x="' + x + '" y="214" width="26" height="166" fill="' + C.fog + '" opacity=".55"/>'; }).join('') +
-      [779, 849, 1017, 1087].map(function (x) { return '<rect x="' + x + '" y="236" width="12" height="46" rx="6" fill="' + C.evening + '"/>'; }).join('') +
+      [779, 849, 1017, 1087].map(function (x) { return '<rect x="' + x + '" y="236" width="12" height="46" rx="6" fill="' + C.sil + '"/>'; }).join('') +
       '<rect x="1024" y="240" width="12" height="46" rx="6" fill="' + C.lantern + '" opacity=".55"/>' +
       '<ellipse cx="940" cy="330" rx="150" ry="110" fill="url(#' + s + 'door)" style="' + GLOW + '"/>' +
       '<path d="M912 380 V318 a28 28 0 0 1 56 0 V380 Z" fill="' + C.lantern + '" opacity=".92"/>' +
-      '<path d="M934 380 V324 M946 380 V324" stroke="' + C.evening + '" stroke-width="2" opacity=".5"/>' +
+      '<path d="M934 380 V324 M946 380 V324" stroke="' + C.sil + '" stroke-width="2" opacity=".5"/>' +
     '</g>' +
     /* ground and steps */
     '<rect x="0" y="378" width="1200" height="142" fill="' + C.shade + '"/>' +
@@ -67,14 +76,14 @@
     /* the person, seen from behind, on the upper step, with a notebook in the lap */
     '<g style="' + GLOW + '"><ellipse cx="500" cy="432" rx="150" ry="34" fill="url(#' + s + 'pool)"/></g>' +
     '<g>' +
-      '<path d="M448 432 C448 404 458 392 474 390 L494 390 C510 392 520 404 520 432 Z" fill="' + C.evening + '"/>' +
+      '<path d="M448 432 C448 404 458 392 474 390 L494 390 C510 392 520 404 520 432 Z" fill="' + C.sil + '"/>' +
       '<path d="M449 430 C449 406 458 394 472 391" fill="none" stroke="' + C.lantern + '" stroke-width="2" stroke-linecap="round" opacity=".55"/>' +
-      '<circle cx="484" cy="372" r="16" fill="' + C.evening + '"/>' +
+      '<circle cx="484" cy="372" r="16" fill="' + C.sil + '"/>' +
       '<path d="M470 366 a14 14 0 0 1 8 -9" fill="none" stroke="' + C.lantern + '" stroke-width="2" stroke-linecap="round" opacity=".5"/>' +
-      '<path d="M452 430 l-14 6 l12 8 l22 -6 Z" fill="' + C.evening + '"/>' +
-      '<g transform="rotate(-6 505 438)"><rect x="484" y="430" width="44" height="26" rx="2" fill="' + C.lantern + '" opacity=".9"/><path d="M506 430 v26" stroke="' + C.evening + '" stroke-width="1.5" opacity=".4"/></g>' +
+      '<path d="M452 430 l-14 6 l12 8 l22 -6 Z" fill="' + C.sil + '"/>' +
+      '<g transform="rotate(-6 505 438)"><rect x="484" y="430" width="44" height="26" rx="2" fill="' + C.lantern + '" opacity=".9"/><path d="M506 430 v26" stroke="' + C.sil + '" stroke-width="1.5" opacity=".4"/></g>' +
     '</g>' +
-    '<path d="M0 520 V500 Q300 492 600 502 T1200 496 V520 Z" fill="' + C.evening + '" opacity=".55"/>' +
+    '<path d="M0 520 V500 Q300 492 600 502 T1200 496 V520 Z" fill="' + C.sil + '" opacity=".55"/>' +
     '</svg>';
   }
 
@@ -82,6 +91,8 @@
     uid++;
     return '' +
     '<svg viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="" fill="none" stroke="' + C.ash + '" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' +
+      '<defs><radialGradient id="bg' + uid + '" cx=".5" cy=".5" r=".5"><stop offset="0" style="stop-color:' + C.skyLow + ';stop-opacity:.55"/><stop offset="1" style="stop-color:' + C.skyLow + ';stop-opacity:0"/></radialGradient></defs>' +
+      '<ellipse cx="240" cy="236" rx="300" ry="90" fill="url(#bg' + uid + ')" stroke="none"/>' +
       '<path d="M20 232 H460" opacity=".6"/>' +
       '<path d="M330 232 L392 244 L460 252" stroke-dasharray="1 7" opacity=".7"/>' +
       '<path d="M80 188 H220 M84 160 H216 M92 188 V232 M208 188 V232 M88 160 V188 M212 160 V188" />' +
@@ -134,9 +145,13 @@
     '<defs>' +
       '<radialGradient id="' + s + 'l" cx=".5" cy=".5" r=".5"><stop offset="0" style="stop-color:' + C.lantern + ';stop-opacity:.30"/><stop offset="1" style="stop-color:' + C.lantern + ';stop-opacity:0"/></radialGradient>' +
       '<radialGradient id="' + s + 's" cx=".5" cy=".5" r=".5"><stop offset="0" style="stop-color:' + C.sky + ';stop-opacity:.28"/><stop offset="1" style="stop-color:' + C.sky + ';stop-opacity:0"/></radialGradient>' +
-      '<linearGradient id="' + s + 'f" x1="0" x2="1"><stop offset="0" style="stop-color:' + C.mist + ';stop-opacity:.9"/><stop offset="1" style="stop-color:' + C.mist + ';stop-opacity:.15"/></linearGradient>' +
+      '<linearGradient id="' + s + 'sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:' + C.skyTop + '"/><stop offset=".45" style="stop-color:' + C.skyMid + '"/><stop offset=".82" style="stop-color:' + C.skyLow + '"/><stop offset="1" style="stop-color:' + C.skyGlow + '"/></linearGradient>' +
+      '<radialGradient id="' + s + 'sun" cx=".5" cy=".5" r=".5"><stop offset="0" style="stop-color:' + C.skyGlow + ';stop-opacity:.8"/><stop offset="1" style="stop-color:' + C.skyLow + ';stop-opacity:0"/></radialGradient>' +
+      '<linearGradient id="' + s + 'f" x1="0" x2="1"><stop offset="0" style="stop-color:' + C.paper + ';stop-opacity:.8"/><stop offset="1" style="stop-color:' + C.paper + ';stop-opacity:.25"/></linearGradient>' +
     '</defs>' +
-    '<path d="M0 270 V232 Q200 214 420 236 T820 226 T1200 238 V270 Z" fill="' + C.shade + '"/>' +
+    '<rect width="1200" height="270" fill="url(#' + s + 'sky)"/>' +
+    '<g style="opacity:calc(0.45 + 0.55 * var(--rp-glow-k))"><ellipse cx="900" cy="236" rx="520" ry="120" fill="url(#' + s + 'sun)"/></g>' +
+    '<path d="M0 270 V232 Q200 214 420 236 T820 226 T1200 238 V270 Z" fill="' + C.sil + '" opacity=".9"/>' +
     '<path d="' + d(0, cur) + '" fill="none" stroke="' + C.lantern + '" stroke-width="2.5" stroke-linecap="round" opacity=".7"/>' +
     '<path d="' + d(cur, 56) + '" fill="none" stroke="url(#' + s + 'f)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="1 9"/>' +
     lamps +

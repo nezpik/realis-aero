@@ -1,6 +1,6 @@
 ---
 name: Realis Pale
-version: 0.2.1
+version: 0.2.2
 type: design-direction
 status: draft
 author: Naji Zouiti
@@ -13,19 +13,20 @@ summary: >-
 tags: [edtech, dusk-ui, design-system, brand-philosophy, realis]
 tokens:
   color:
-    evening: "#161B25"
-    shade: "#1D2431"
-    overcast: "#262E3D"
-    fog: "#313B4C"
-    mist: "#6C7992"
-    paper: "#E8E4DA"
-    ash: "#B9BDC6"
-    haze: "#A0A8B6"
-    lantern: "#E9C783"
-    skyline: "#9DBAD6"
-    lichen: "#A5BFA0"
-    rose: "#E0A3A0"
-    wisp: "#B9ACDC"
+    evening: "#1B2133"
+    shade: "#232A3E"
+    overcast: "#2C3550"
+    fog: "#374262"
+    mist: "#7380A0"
+    paper: "#E9DFCF"
+    heading: "#F3DFAE"
+    ash: "#C0BCD0"
+    haze: "#B3AECB"
+    lantern: "#EBC57E"
+    skyline: "#A3BEDA"
+    lichen: "#A9C3A3"
+    rose: "#E3A6A1"
+    wisp: "#BDB0E0"
     spark: "#F4DDA6"
   typography:
     display: "Source Sans 3"
@@ -151,8 +152,8 @@ them differently.
 | **Hour** | After midnight: 11:47 PM, 2 AM | Dusk into the small hours. Three hours of light, Dusk, Late and Deep, that dim as the night goes on, at the person's choice. |
 | **Place** | Park bench, diner booth, wet city street | Library steps, bus shelter, a balcony, a park path, a school wall. Quiet edges of a town, lit by one lamp. |
 | **Attitude** | Rogue, rebellious, off-map | Unobserved, unhurried, unpressured. Persistence, not rebellion. |
-| **Light** | Neon: cyan, magenta, violet, 6 accents, glows to 64px | Lamp and afterglow: pale amber and cool sky, 3 working accents plus 2 quiet ones, glow capped low |
-| **Surfaces** | Near-black night blue (`#070A12` and up) | A dim dusk blue-grey (`#161B25` and up): lighter, softer, never black |
+| **Light** | Neon: cyan, magenta, violet, 6 accents, glows to 64px | Lamp and sunset: pale amber, a rose-amber horizon and a violet sky, 3 working accents plus 2 quiet ones, glow capped low |
+| **Surfaces** | Near-black night blue (`#070A12` and up) | A visible dusk blue with violet in it (`#1B2133` and up): lighter, softer, never black, so the sunset stays in the picture |
 | **Hope** | Energy and ignition | A small steady flame: *Kindle*, not *ignite*. Ideas arrive as brief sparks. |
 | **Effort** | Ambition at midnight | Slow, honest effort: progress shown as what is lit, never as what is missing. Knowledge is a Field that may be a mess. |
 | **Motion** | Light sweeps, neon flicker | Slower and gentler: kindling, a slow breath, a path drawing itself |
@@ -291,33 +292,40 @@ to reread a paragraph under a lamp when no one would ever know if they gave up.
 
 ### 3.1 Surfaces: the dusk (about 60%)
 
-Never black. The sky after sunset is a deep blue-grey, and the surfaces keep
-that colour. Layers rise a little in lightness, the way ground rises toward the
-roofline. Realis Pale surfaces are slightly **lighter** than a night theme so
-that the screen feels dim, not dark: a low evening, not a cave.
+Never black. The sky just after sunset is a blue with violet in it, and the surfaces keep
+that colour: a visible twilight, not a cave. Layers rise a little in lightness, the way
+ground rises toward the roofline. Dusk surfaces are deliberately lighter and bluer than a
+night theme, so that the screen feels dim and the scenery is not swallowed by the dark.
 
 | Token | Hex | Role |
 |---|---|---|
-| `evening` | `#161B25` | App background, the sky |
-| `shade` | `#1D2431` | Base surface: cards, sheets, bars |
-| `overcast` | `#262E3D` | Raised surface: popovers, hover |
-| `fog` | `#313B4C` | Highest surface: pressed and selected |
-| `mist` | `#6C7992` | Borders, control edges, dividers |
+| `evening` | `#1B2133` | App background |
+| `shade` | `#232A3E` | Base surface: cards, sheets, bars |
+| `overcast` | `#2C3550` | Raised surface: popovers, hover |
+| `fog` | `#374262` | Highest surface: pressed and selected |
+| `mist` | `#7380A0` | Borders, control edges, dividers |
 
 ### 3.2 Text: what the lamp reaches (about 30%)
 
-Text is warm paper, not white. It is bright enough to read, and no brighter.
+Text is not one white. Four colours do four jobs, so that the page has a hierarchy of
+warmth and not only of size:
+
+- `paper` is **warm parchment** for reading text: cream, never white.
+- `heading` is **pale gold**, the colour of lamp light on a page, for headings and the
+  one thing a region is about.
+- `ash` is **dusk lilac**, for secondary text and captions.
+- `haze` is a quieter lilac for timestamps and placeholders.
 
 | Token | Hex | Role | on `evening` | on `shade` | on `overcast` | on `fog` |
 |---|---|---|---|---|---|---|
-| `paper` | `#E8E4DA` | Primary text | 13.58 | 12.26 | 10.74 | 8.89 |
-| `ash` | `#B9BDC6` | Secondary text, captions | 9.16 | 8.27 | 7.24 | 6.00 |
-| `haze` | `#A0A8B6` | Tertiary: timestamps, placeholders | 7.20 | 6.50 | 5.69 | 4.71 |
+| `paper` | `#E9DFCF` | Reading text | 12.14 | 10.81 | 9.19 | 7.52 |
+| `heading` | `#F3DFAE` | Headings | 12.18 | 10.85 | 9.22 | 7.54 |
+| `ash` | `#C0BCD0` | Secondary text, captions | 8.65 | 7.71 | 6.55 | 5.36 |
+| `haze` | `#B3AECB` | Tertiary: timestamps, placeholders | 7.50 | 6.68 | 5.68 | 4.64 |
 
-Every text colour reaches 4.5:1 on every surface, so no tier needs the
-restriction Ednocte had to put on its `dusk` colour. Contrast is a ratio
-computed from the hex values with the WCAG formula; it is not a statement about
-how the screen looks outdoors in the evening.
+Every text colour reaches 4.5:1 on every surface, so no tier needs a restriction.
+Contrast is a ratio computed from the hex values with the WCAG formula; it is not a
+statement about how the screen looks outdoors in the evening.
 
 ### 3.3 Light: the glow (about 10%)
 
@@ -325,22 +333,21 @@ The accents are lamps. Fewer than in Ednocte, and softer.
 
 | Token | Hex | Meaning | on `evening` | on `shade` | on `overcast` |
 |---|---|---|---|---|---|
-| `lantern` | `#E9C783` | Hope and the primary action: lamp light, pale amber | 10.65 | 9.61 | 8.41 |
-| `skyline` | `#9DBAD6` | Interactive and informational: the last of the sky | 8.56 | 7.73 | 6.77 |
-| `lichen` | `#A5BFA0` | Done, steady, calm success | 8.67 | 7.83 | 6.85 |
-| `rose` | `#E0A3A0` | Difficulty and errors: dusty, never alarm red | 8.14 | 7.35 | 6.44 |
-| `wisp` | `#B9ACDC` | Generative or assistive features | 8.21 | 7.41 | 6.49 |
+| `lantern` | `#EBC57E` | Hope and the primary action: lamp light, pale amber | 9.77 | 8.71 | 7.40 |
+| `skyline` | `#A3BEDA` | Interactive and informational: the last of the sky | 8.33 | 7.43 | 6.31 |
+| `lichen` | `#A9C3A3` | Done, steady, calm success | 8.40 | 7.49 | 6.36 |
+| `rose` | `#E3A6A1` | Difficulty and errors: dusty, never alarm red | 7.80 | 6.95 | 5.91 |
+| `wisp` | `#BDB0E0` | Generative or assistive features | 7.97 | 7.10 | 6.03 |
 
-- **Text on a filled accent**: `evening` on `lantern` is 10.65:1 and `evening`
-  on `skyline` is 8.56:1. A filled control uses the dark surface for its label,
+- **Text on a filled accent**: `evening` on `lantern` is 9.77:1 and `evening`
+  on `skyline` is 8.33:1. A filled control uses the dark surface for its label,
   never white.
-- **Edges and controls** use `mist`: 3.93:1 on `evening`, 3.55:1 on `shade` and
-  3.11:1 on `overcast`, above the 3:1 that non-text parts need. Borders on `fog`
-  are not specified; a pressed control carries a `lantern` or `skyline` edge.
-- **Surface steps are subtle on purpose**: `shade` over `evening` is 1.11:1,
-  `overcast` over `shade` is 1.14:1 and `fog` over `overcast` is 1.21:1. A layer
-  is told apart by its edge or its light, never by lightness alone, and that is
-  a known limit of dim palettes.
+- **Edges and controls** use `mist`: 4.06, 3.62, 3.07:1 on `evening`, `shade` and
+  `overcast`, above the 3:1 that non-text parts need. Borders on `fog` are not specified;
+  a pressed control carries a `lantern` or `skyline` edge.
+- **Surface steps are subtle on purpose**: `shade` over `evening` is 1.12:1, `overcast` over `shade`
+  is 1.18:1 and `fog` over `overcast` is 1.22:1. A layer is told apart by its edge or
+  its light, never by lightness alone, and that is a known limit of dim palettes.
 
 ### 3.4 Usage rules
 
@@ -358,27 +365,30 @@ The accents are lamps. Fewer than in Ednocte, and softer.
 ### 3.5 Last Light: the daytime variant
 
 A light variant exists for daylight, for print and for people who read better
-on pale. It is not a white classroom: it is warm paper at the end of the day.
-Same accents' roles, same soul.
+on pale. It is not a white classroom: it is warm paper at the end of the day, with
+the same sunset in the picture. Same accents' roles, same soul. Glow is off in Last
+Light, because a glow on pale paper adds nothing; edges and focus rings carry state.
 
-| Token | Hex | Role |
-|---|---|---|
-| `linen` | `#ECE8DF` | Background |
-| `parchment` | `#F5F2EA` | Base surface |
-| `stone` | `#DDD8CC` | Inset wells only |
-| `ink` | `#1D2432` | Primary text |
-| `ink-soft` | `#444E60` | Secondary text |
-| `ink-faint` | `#5B6577` | Tertiary text |
-| `amber` | `#7C5410` | Lantern text and marks |
-| `sky` | `#2C5780` | Interactive text and marks |
-| `moss` | `#3F6A3F` | Done |
-| `clay` | `#8A3F3B` | Difficulty and errors |
-| `wisp` | `#5B4B8A` | Generative or assistive features |
-| `edge` | `#767E90` | Borders and control edges |
+| Name | Token | Hex | Role |
+|---|---|---|---|
+| linen | `evening` | `#ECE8DF` | Background |
+| parchment | `shade` | `#F5F2EA` | Base surface |
+| stone | `overcast` | `#DDD8CC` | Inset wells only |
+| ink | `paper` | `#1D2432` | Reading text |
+| umber | `heading` | `#5A3B0B` | Headings |
+| ink-soft | `ash` | `#444E60` | Secondary text |
+| ink-faint | `haze` | `#5B6577` | Tertiary text |
+| amber | `lantern` | `#7C5410` | Lantern text and marks |
+| sky | `skyline` | `#2C5780` | Interactive text and marks |
+| moss | `lichen` | `#3F6A3F` | Done |
+| clay | `rose` | `#8A3F3B` | Difficulty and errors |
+| wisp | `wisp` | `#5B4B8A` | Generative or assistive features |
+| edge | `mist` | `#767E90` | Borders and control edges |
 
 | Pair | `linen` | `parchment` | `stone` |
 |---|---|---|---|
 | `ink` | 12.72 | 13.90 | 10.93 |
+| `umber` | 8.32 | 9.09 | 7.15 |
 | `ink-soft` | 6.86 | 7.50 | 5.90 |
 | `ink-faint` | 4.81 | 5.25 | 4.13 |
 | `amber` | 5.48 | 5.99 | 4.71 |
@@ -388,46 +398,48 @@ Same accents' roles, same soul.
 | `wisp` | 6.09 | 6.66 | 5.24 |
 | `edge` | 3.33 | 3.64 | 2.86 |
 
-- **Rules from the table**: `stone` carries only `ink`, `ink-soft`, `amber`,
-  `sky` and `clay`; `ink-faint` and `moss` sit on `linen` or `parchment`; edges
-  are drawn on `linen` or `parchment` only. `ink` on the `lantern` fill is
-  9.60:1.
+- **Rules from the table**: `stone` carries only `ink`, `ink-soft`, `umber`, `amber`, `sky`, `clay`
+  and `wisp`; `ink-faint` and `moss` sit on `linen` or `parchment`; edges are drawn on `linen` or
+  `parchment` only. `ink` on the `lantern` fill is 9.60:1.
 - Layers are 1.09:1 (`parchment` over `linen`) and 1.27:1 (`stone` over
   `parchment`), so edges and light, not lightness, separate them here too.
 
 ### 3.6 Dimming by the hour
 
-Dusk (sections 3.1 to 3.3) is the default. Two dimmer hours follow it. Each lowers
-the luminance of surfaces, text and light together, so the screen gets quieter as
-the night goes on, and each is held to the same contrast gates. They are values
-for the same token names; a component does not know which hour it is in.
+Dusk (sections 3.1 to 3.3) is the default. Two dimmer hours follow it. Each lowers the
+luminance of surfaces, text and light together, so the screen gets quieter as the night
+goes on, and each is held to the same contrast gates. They are values for the same token
+names; a component does not know which hour it is in. The sky (section 3.7) dims with
+them, and does not go out.
 
 | Token | Dusk | Late | Deep |
 |---|---|---|---|
-| `evening` | `#161B25` | `#12161F` | `#0E1219` |
-| `shade` | `#1D2431` | `#181E29` | `#131822` |
-| `overcast` | `#262E3D` | `#202735` | `#1A202C` |
-| `fog` | `#313B4C` | `#2A3341` | `#232B38` |
-| `mist` | `#6C7992` | `#677690` | `#65728C` |
-| `paper` | `#E8E4DA` | `#DDD9CF` | `#CBC7BE` |
-| `ash` | `#B9BDC6` | `#AEB3BE` | `#9EA3AE` |
-| `haze` | `#A0A8B6` | `#98A0AF` | `#8B93A2` |
-| `lantern` | `#E9C783` | `#E2BE79` | `#D2AE6A` |
-| `skyline` | `#9DBAD6` | `#93B0CB` | `#8AA6C0` |
-| `lichen` | `#A5BFA0` | `#9DB798` | `#93AD8F` |
-| `rose` | `#E0A3A0` | `#D69C99` | `#CC928F` |
-| `wisp` | `#B9ACDC` | `#B0A4D2` | `#A69BC7` |
+| `evening` | `#1B2133` | `#151A2B` | `#0F1320` |
+| `shade` | `#232A3E` | `#1C2236` | `#151A2A` |
+| `overcast` | `#2C3550` | `#242B44` | `#1C2236` |
+| `fog` | `#374262` | `#2E3752` | `#252D45` |
+| `mist` | `#7380A0` | `#6D7A99` | `#66728F` |
+| `paper` | `#E9DFCF` | `#DCD2C2` | `#CCC3B5` |
+| `heading` | `#F3DFAE` | `#E5D0A0` | `#D4C190` |
+| `ash` | `#C0BCD0` | `#B1AEC2` | `#A19EB3` |
+| `haze` | `#B3AECB` | `#A6A2BD` | `#9793AF` |
+| `lantern` | `#EBC57E` | `#E4BF78` | `#D4B06C` |
+| `skyline` | `#A3BEDA` | `#98B4D0` | `#8AA6C0` |
+| `lichen` | `#A9C3A3` | `#9FB99A` | `#93AD8F` |
+| `rose` | `#E3A6A1` | `#D9A09B` | `#CC928F` |
+| `wisp` | `#BDB0E0` | `#B3A6D6` | `#A69BC7` |
 
 Contrast, computed from these values (lowest in each group):
 
 | Pair | Dusk | Late | Deep |
 |---|---|---|---|
-| `paper` on `evening`, `shade`, `overcast`, `fog` | 8.89 | 9.04 | 8.45 |
-| `ash`, lowest on those four surfaces | 6.00 | 6.06 | 5.63 |
-| `haze`, lowest on those four surfaces | 4.71 | 4.84 | 4.61 |
-| `lantern`, `skyline`, `lichen`, `rose`, `wisp`, lowest on `evening`, `shade`, `overcast` | 6.44 | 6.47 | 6.28 |
-| `mist` on `evening`, `shade`, `overcast` (non-text, 3:1) | 3.93, 3.55, 3.11 | 3.94, 3.64, 3.26 | 3.88, 3.67, 3.37 |
-| `evening` on `lantern` (filled Lantern label) | 10.65 | 10.23 | 8.94 |
+| `paper` on `evening`, `shade`, `overcast`, `fog` | 7.52 | 7.87 | 7.82 |
+| `heading`, lowest on those four surfaces | 7.54 | 7.77 | 7.68 |
+| `ash`, lowest on those four surfaces | 5.36 | 5.44 | 5.23 |
+| `haze`, lowest on those four surfaces | 4.64 | 4.78 | 4.62 |
+| `lantern`, `skyline`, `lichen`, `rose`, `wisp`, lowest on `evening`, `shade`, `overcast` | 5.91 | 6.21 | 6.07 |
+| `mist` on `evening`, `shade`, `overcast` (non-text, 3:1) | 4.06, 3.62, 3.07 | 4.03, 3.68, 3.25 | 3.85, 3.60, 3.28 |
+| `evening` on `lantern` (filled Lantern label) | 9.77 | 9.90 | 9.02 |
 
 - **The light gets dimmer, the text stays readable.** Text never drops below 4.5:1
   at any hour; the figures above are the floor. Dimming is not allowed to buy
@@ -447,6 +459,32 @@ Contrast, computed from these values (lowest in each group):
 - **Hours are not a lock.** Any hour can be set at any time of day; a person who
   studies in a bright room at noon is not corrected.
 - **Last Light** (section 3.5) is the daytime variant, not an hour.
+
+### 3.7 The sky
+
+The scenery is part of the design. A dark theme must not minimise it, so the sky has its
+own tokens, used only by illustrations and atmosphere and never behind text: a zenith, the
+violet between, the low rose-amber, and the glow of a sun that has just gone.
+
+| Token | Dusk | Late | Deep | Last Light |
+|---|---|---|---|---|
+| `sky-top` | `#2A3558` | `#1A2140` | `#10152A` | `#EAD9C4` |
+| `sky-mid` | `#5B4A74` | `#35305A` | `#1B2040` | `#F0CFAF` |
+| `sky-low` | `#B8806A` | `#7A5560` | `#55404A` | `#F0B88C` |
+| `sky-glow` | `#E8B77A` | `#B88A6A` | `#7A5A5A` | `#F7D9A8` |
+
+- **Hours are stages of one sunset.** Dusk is the sunset itself: a visible band of rose and
+  amber over a violet sky. Late is twilight, the colour already draining. Deep is the
+  last warm trace along the horizon, with stars. It gets dimmer; it does not go out.
+- **A check holds it**: at Dusk the horizon is at least four times as bright as the surface;
+  the horizon is warm and the zenith cool at every hour; the sky brightens toward the
+  horizon and the sunset fades with the hour; and the same is measured in the painted
+  picture, not only in the tokens.
+- `--rp-stars` sets how many stars show (0.15, 0.3, 0.5 at the three hours).
+  `--rp-silhouette` is the dark of people, roofs and doors against the lit sky.
+- A faint warm glow rises from the bottom of the page and the Field's floor, in the sky's
+  low colour; it is decorative, removed under reduced transparency, and never behind text
+  that is not on a surface.
 
 ---
 
@@ -548,9 +586,10 @@ Three mechanisms, in order:
 A flat dark surface feels sterile. Realis Pale surfaces carry a little *air*, and
 only a little:
 
-- **Afterglow band**: a soft horizontal gradient at the top of hero screens, from
-  `#2B2D3A` fading to `evening` across about 160px, the pale band left on the
-  roofline. Decorative.
+- **The sky**: the sunset in the illustrations and, as a faint warm glow, along the bottom
+  of the page and the floor of the Field (section 3.7). It is the main atmosphere, not a
+  band that dims away: the dusk must stay visible. Decorative, and never behind text that
+  is not on a surface.
 - **Grain**: SVG noise, 2% opacity at most, `mix-blend-mode: overlay`, fixed.
 - **Vignette**: a radial darkening of the page edges by about 6%, one pool of
   lamp light.
@@ -901,95 +940,172 @@ Dim palettes fail accessibly by default. These rules are hard gates:
 
 ### CSS custom properties
 
+This is a copy of [`tokens/realis-pale.tokens.css`](tokens/realis-pale.tokens.css), the
+source of truth; `npm run check:pale` fails if the two differ.
+
 ```css
+/* Realis Pale tokens, v0.2 (draft).
+ * Dusk is the default. Late and Deep are dimmer hours of the same names, chosen by
+ * data-hour on the root. Last Light is the daytime variant, data-theme="last-light".
+ * Components use these names only, so they do not know which hour it is.
+ * Contrast of every pair is computed by tools/check-pale.mjs and published in
+ * realis-pale.md, section 3.6. */
+
+/* Registered so that a change of hour can cross-fade instead of jumping. */
+@property --rp-evening  { syntax: "<color>"; inherits: true; initial-value: #1B2133; }
+@property --rp-shade    { syntax: "<color>"; inherits: true; initial-value: #232A3E; }
+@property --rp-overcast { syntax: "<color>"; inherits: true; initial-value: #2C3550; }
+@property --rp-fog      { syntax: "<color>"; inherits: true; initial-value: #374262; }
+@property --rp-mist     { syntax: "<color>"; inherits: true; initial-value: #7380A0; }
+@property --rp-paper    { syntax: "<color>"; inherits: true; initial-value: #E9DFCF; }
+@property --rp-heading  { syntax: "<color>"; inherits: true; initial-value: #F3DFAE; }
+@property --rp-ash      { syntax: "<color>"; inherits: true; initial-value: #C0BCD0; }
+@property --rp-haze     { syntax: "<color>"; inherits: true; initial-value: #B3AECB; }
+@property --rp-lantern  { syntax: "<color>"; inherits: true; initial-value: #EBC57E; }
+@property --rp-skyline  { syntax: "<color>"; inherits: true; initial-value: #A3BEDA; }
+@property --rp-lichen   { syntax: "<color>"; inherits: true; initial-value: #A9C3A3; }
+@property --rp-rose     { syntax: "<color>"; inherits: true; initial-value: #E3A6A1; }
+@property --rp-wisp     { syntax: "<color>"; inherits: true; initial-value: #BDB0E0; }
+@property --rp-sky-top  { syntax: "<color>"; inherits: true; initial-value: #2A3558; }
+@property --rp-sky-mid  { syntax: "<color>"; inherits: true; initial-value: #5B4A74; }
+@property --rp-sky-low  { syntax: "<color>"; inherits: true; initial-value: #B8806A; }
+@property --rp-sky-glow { syntax: "<color>"; inherits: true; initial-value: #E8B77A; }
+
 :root {
-  /* surfaces */
-  --rp-evening: #161B25;
-  --rp-shade: #1D2431;
-  --rp-overcast: #262E3D;
-  --rp-fog: #313B4C;
-  --rp-mist: #6C7992;
-  /* text */
-  --rp-paper: #E8E4DA;
-  --rp-ash: #B9BDC6;
-  --rp-haze: #A0A8B6;
+  /* surfaces: a visible twilight, not black */
+  --rp-evening: #1B2133;
+  --rp-shade: #232A3E;
+  --rp-overcast: #2C3550;
+  --rp-fog: #374262;
+  --rp-mist: #7380A0;
+  /* text: warm paper for reading, pale gold for headings, dusk lilac for what is quieter */
+  --rp-paper: #E9DFCF;
+  --rp-heading: #F3DFAE;
+  --rp-ash: #C0BCD0;
+  --rp-haze: #B3AECB;
   /* light */
-  --rp-lantern: #E9C783;
-  --rp-skyline: #9DBAD6;
-  --rp-lichen: #A5BFA0;
-  --rp-rose: #E0A3A0;
-  --rp-wisp: #B9ACDC;
+  --rp-lantern: #EBC57E;
+  --rp-skyline: #A3BEDA;
+  --rp-lichen: #A9C3A3;
+  --rp-rose: #E3A6A1;
+  --rp-wisp: #BDB0E0;
   --rp-spark: #F4DDA6;
-  /* glow */
-  --rp-glow-1: 0 0 12px rgba(233, 199, 131, 0.14);
-  --rp-glow-2: 0 0 24px rgba(233, 199, 131, 0.20);
-  --rp-glow-3: 0 0 40px rgba(233, 199, 131, 0.26);
-  --rp-glow-sky: 0 0 12px rgba(157, 186, 214, 0.16);
-  --rp-glow-spark: 0 0 16px rgba(244, 221, 166, 0.30);
-  --rp-edge-light: inset 0 1px 0 rgba(232, 228, 218, 0.05);
+  /* the sky: decorative, never behind text. Zenith, the violet between, the low rose-amber, and the glow of a sun that has just gone */
+  --rp-sky-top: #2A3558;
+  --rp-sky-mid: #5B4A74;
+  --rp-sky-low: #B8806A;
+  --rp-sky-glow: #E8B77A;
+  --rp-stars: 0.15;
+  /* the dark shapes in the illustrations: people, roofs, doors against a lit sky */
+  --rp-silhouette: #141A2B;
+  /* the label on a filled Lantern and the fill itself, so Last Light can differ */
+  --rp-lantern-fill: #EBC57E;
+  --rp-on-lantern: #1B2133;
+
+  /* the hour scales glow and motion: 1, 0.8, 0.6 and 1, 1.25, 1.5 */
+  --rp-glow-k: 1;
+  --rp-time-k: 1;
+  /* a real change of hour takes 20 minutes; a demo can shorten it */
+  --rp-fade: 1200s;
+
+  /* glow: light, not shadow */
+  --rp-glow-1: 0 0 12px rgb(233 199 131 / calc(0.14 * var(--rp-glow-k)));
+  --rp-glow-2: 0 0 24px rgb(233 199 131 / calc(0.20 * var(--rp-glow-k)));
+  --rp-glow-3: 0 0 40px rgb(233 199 131 / calc(0.26 * var(--rp-glow-k)));
+  --rp-glow-sky: 0 0 12px rgb(157 186 214 / calc(0.16 * var(--rp-glow-k)));
+  --rp-glow-spark: 0 0 16px rgb(244 221 166 / 0.30);
+  --rp-edge-light: inset 0 1px 0 rgb(232 228 218 / 0.05);
+
   /* type */
   --rp-font-ui: "Source Sans 3", "Noto Sans Arabic", system-ui, sans-serif;
   --rp-font-reading: "Source Serif 4", Georgia, serif;
   --rp-font-mono: "Source Code Pro", ui-monospace, monospace;
+
   /* space and shape */
   --rp-space: 4px;
-  --rp-radius-sm: 8px;  --rp-radius-md: 12px;
-  --rp-radius-lg: 16px; --rp-radius-xl: 24px;
+  --rp-radius-sm: 8px;
+  --rp-radius-md: 12px;
+  --rp-radius-lg: 16px;
+  --rp-radius-xl: 24px;
+  --rp-target: 44px;
+
   /* motion */
   --rp-ease: cubic-bezier(0.25, 0.6, 0.3, 1);
-  --rp-fast: 200ms; --rp-base: 400ms; --rp-slow: 800ms; --rp-drift: 1400ms;
+  --rp-fast: calc(200ms * var(--rp-time-k));
+  --rp-base: calc(400ms * var(--rp-time-k));
+  --rp-slow: calc(800ms * var(--rp-time-k));
+  --rp-drift: calc(1400ms * var(--rp-time-k));
 }
 
-/* The hour: same names, dimmer values (section 3.6). Dusk is the default above. */
 :root[data-hour="late"] {
-  --rp-evening: #12161F; --rp-shade: #181E29; --rp-overcast: #202735; --rp-fog: #2A3341; --rp-mist: #677690;
-  --rp-paper: #DDD9CF; --rp-ash: #AEB3BE; --rp-haze: #98A0AF;
-  --rp-lantern: #E2BE79; --rp-skyline: #93B0CB; --rp-lichen: #9DB798; --rp-rose: #D69C99; --rp-wisp: #B0A4D2;
-  --rp-glow-1: 0 0 12px rgba(226, 190, 121, 0.11);
-  --rp-fast: 250ms; --rp-base: 500ms; --rp-slow: 1000ms; --rp-drift: 1750ms;
+  --rp-evening: #151A2B; --rp-shade: #1C2236; --rp-overcast: #242B44; --rp-fog: #2E3752; --rp-mist: #6D7A99;
+  --rp-paper: #DCD2C2; --rp-heading: #E5D0A0; --rp-ash: #B1AEC2; --rp-haze: #A6A2BD;
+  --rp-lantern: #E4BF78; --rp-skyline: #98B4D0; --rp-lichen: #9FB99A; --rp-rose: #D9A09B; --rp-wisp: #B3A6D6;
+  --rp-sky-top: #1A2140; --rp-sky-mid: #35305A; --rp-sky-low: #7A5560; --rp-sky-glow: #B88A6A; --rp-stars: 0.3; --rp-silhouette: #10152A;
+  --rp-lantern-fill: #E4BF78; --rp-on-lantern: #151A2B;
+  --rp-glow-k: 0.8; --rp-time-k: 1.25;
 }
 :root[data-hour="deep"] {
-  --rp-evening: #0E1219; --rp-shade: #131822; --rp-overcast: #1A202C; --rp-fog: #232B38; --rp-mist: #65728C;
-  --rp-paper: #CBC7BE; --rp-ash: #9EA3AE; --rp-haze: #8B93A2;
-  --rp-lantern: #D2AE6A; --rp-skyline: #8AA6C0; --rp-lichen: #93AD8F; --rp-rose: #CC928F; --rp-wisp: #A69BC7;
-  --rp-glow-1: 0 0 12px rgba(210, 174, 106, 0.08);
-  --rp-fast: 300ms; --rp-base: 600ms; --rp-slow: 1200ms; --rp-drift: 2100ms;
+  --rp-evening: #0F1320; --rp-shade: #151A2A; --rp-overcast: #1C2236; --rp-fog: #252D45; --rp-mist: #66728F;
+  --rp-paper: #CCC3B5; --rp-heading: #D4C190; --rp-ash: #A19EB3; --rp-haze: #9793AF;
+  --rp-lantern: #D4B06C; --rp-skyline: #8AA6C0; --rp-lichen: #93AD8F; --rp-rose: #CC928F; --rp-wisp: #A69BC7;
+  --rp-sky-top: #10152A; --rp-sky-mid: #1B2040; --rp-sky-low: #55404A; --rp-sky-glow: #7A5A5A; --rp-stars: 0.5; --rp-silhouette: #0A0D18;
+  --rp-lantern-fill: #D4B06C; --rp-on-lantern: #0F1320;
+  --rp-glow-k: 0.6; --rp-time-k: 1.5;
 }
 
+/* Last Light: warm paper at the end of the day. Same role names, new values.
+ * Glow is off because a glow on pale paper adds nothing; edges and focus rings carry state. */
 :root[data-theme="last-light"] {
-  --rp-evening: #ECE8DF;  /* linen */
-  --rp-shade: #F5F2EA;    /* parchment */
-  --rp-overcast: #DDD8CC; /* stone */
-  --rp-mist: #767E90;     /* edge */
-  --rp-paper: #1D2432;    /* ink */
-  --rp-ash: #444E60;      /* ink-soft */
-  --rp-haze: #5B6577;     /* ink-faint */
-  --rp-lantern: #7C5410;  /* amber */
-  --rp-skyline: #2C5780;  /* sky */
-  --rp-lichen: #3F6A3F;   /* moss */
-  --rp-rose: #8A3F3B;     /* clay */
+  --rp-evening: #ECE8DF;   /* linen */
+  --rp-shade: #F5F2EA;     /* parchment */
+  --rp-overcast: #DDD8CC;  /* stone */
+  --rp-fog: #DDD8CC;
+  --rp-mist: #767E90;      /* edge */
+  --rp-paper: #1D2432;     /* ink */
+  --rp-heading: #5A3B0B;   /* umber */
+  --rp-ash: #444E60;       /* ink-soft */
+  --rp-haze: #5B6577;      /* ink-faint */
+  --rp-lantern: #7C5410;   /* amber */
+  --rp-skyline: #2C5780;   /* sky */
+  --rp-lichen: #3F6A3F;    /* moss */
+  --rp-rose: #8A3F3B;      /* clay */
+  --rp-wisp: #5B4B8A;
+  --rp-sky-top: #EAD9C4; --rp-sky-mid: #F0CFAF; --rp-sky-low: #F0B88C; --rp-sky-glow: #F7D9A8; --rp-stars: 0; --rp-silhouette: #2A2F3D;
+  --rp-lantern-fill: #E9C783;
+  --rp-on-lantern: #1D2432;
+  --rp-glow-k: 0;
+  --rp-time-k: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root { --rp-fast: 100ms; --rp-base: 100ms; --rp-slow: 100ms; --rp-drift: 0ms; }
+  :root { --rp-time-k: 0.5; --rp-fade: 0.01s; }
+}
+
+/* More contrast: surfaces flatten, borders go to the text colour, glows become borders. */
+@media (prefers-contrast: more) {
+  :root { --rp-mist: var(--rp-paper); --rp-glow-k: 0; }
+}
+
+@media (forced-colors: active) {
+  :root { --rp-glow-k: 0; }
 }
 ```
 
-The other glow tokens are scaled the same way in a product's implementation: 0.8 at
-Late and 0.6 at Deep (`--rp-glow-1` is written out above as the example). In Last Light the role names stay and the values change, so a component written
-against `--rp-evening`, `--rp-paper` and `--rp-lantern` follows the theme. A
-filled Lantern in Last Light uses the pale amber fill `#E9C783` with the `ink`
-label (9.60:1), which is a component token and not one of the semantic ones
-above; a product that implements this needs a `--rp-lantern-fill` token for it.
+In Last Light and at the dimmer hours the role names stay and the values change, so a
+component written against `--rp-evening`, `--rp-paper`, `--rp-heading` and `--rp-lantern`
+follows the theme. The filled Lantern uses `--rp-lantern-fill` with `--rp-on-lantern`, a
+pair kept apart from `--rp-lantern` so that Last Light can darken the lantern's text and
+marks while keeping a pale amber fill.
 
 ### DTCG / W3C JSON (excerpt)
 
 ```json
 {
   "color": {
-    "surface": { "evening": { "$value": "#161B25", "$type": "color" }, "shade": { "$value": "#1D2431", "$type": "color" } },
-    "text": { "paper": { "$value": "#E8E4DA", "$type": "color" }, "ash": { "$value": "#B9BDC6", "$type": "color" } },
-    "light": { "lantern": { "$value": "#E9C783", "$type": "color" }, "skyline": { "$value": "#9DBAD6", "$type": "color" } }
+    "surface": { "evening": { "$value": "#1B2133", "$type": "color" }, "shade": { "$value": "#232A3E", "$type": "color" } },
+    "text": { "paper": { "$value": "#E9DFCF", "$type": "color" }, "heading": { "$value": "#F3DFAE", "$type": "color" }, "ash": { "$value": "#C0BCD0", "$type": "color" } },
+    "light": { "lantern": { "$value": "#EBC57E", "$type": "color" }, "skyline": { "$value": "#A3BEDA", "$type": "color" } }
   },
   "shadow": { "glow-1": { "$value": { "color": "rgba(233, 199, 131, 0.14)", "offsetX": "0px", "offsetY": "0px", "blur": "12px", "spread": "0px" }, "$type": "shadow" } }
 }
@@ -1014,7 +1130,7 @@ What was done:
   parts (Lantern, Pane, Wick, Glimmer, Path), the Bench, the Field with its Path and
   List views, the Spark, Tidy and Undo, and Still. Illustrations are drawn in code
   from the tokens ([`specimen/pale-art.html`](specimen/pale-art.html)).
-- **129 checks in a real browser** (`npm run check:pale`), described in section 20.
+- **163 checks in a real browser** (`npm run check:pale`), described in section 20.
   They were tested against defects: a text colour dimmed below 4.5:1, Sparks that
   stack, a second Lantern, a count written next to a link, and a removed focus ring
   each make them fail. The check also found a wrong figure in this document (6.48
@@ -1095,8 +1211,11 @@ evening* moves the light with the clock (use the demo clock to watch it). The
 illustrations are on [`specimen/pale-art.html`](specimen/pale-art.html). Everything a
 person types stays in the browser.
 
-`npm run check:pale` runs **129 checks**: the contrast of every token pair in every
-hour; that the figures printed in section 3.6 are the computed ones; 4.5:1 for every
+`npm run check:pale` runs **163 checks**: the contrast of every token pair in every
+hour; that the figures printed in section 3.6 are the computed ones and that the CSS
+block in section 17 is the token file; that the sky stays lit and warm at the horizon at
+every hour, in the tokens and in the painted picture; that text uses several colours and
+never pure white; 4.5:1 for every
 run of text against the colour painted behind it, in each hour and in Last Light; one
 Lantern; a focus ring of at least 2px on every kind of control; targets of at least
 44px; no horizontal scroll at a phone width; the hours and the cross-fade; Follow my

@@ -6,44 +6,55 @@
  * realis-pale.md, section 3.6. */
 
 /* Registered so that a change of hour can cross-fade instead of jumping. */
-@property --rp-evening  { syntax: "<color>"; inherits: true; initial-value: #161B25; }
-@property --rp-shade    { syntax: "<color>"; inherits: true; initial-value: #1D2431; }
-@property --rp-overcast { syntax: "<color>"; inherits: true; initial-value: #262E3D; }
-@property --rp-fog      { syntax: "<color>"; inherits: true; initial-value: #313B4C; }
-@property --rp-mist     { syntax: "<color>"; inherits: true; initial-value: #6C7992; }
-@property --rp-paper    { syntax: "<color>"; inherits: true; initial-value: #E8E4DA; }
-@property --rp-ash      { syntax: "<color>"; inherits: true; initial-value: #B9BDC6; }
-@property --rp-haze     { syntax: "<color>"; inherits: true; initial-value: #A0A8B6; }
-@property --rp-lantern  { syntax: "<color>"; inherits: true; initial-value: #E9C783; }
-@property --rp-skyline  { syntax: "<color>"; inherits: true; initial-value: #9DBAD6; }
-@property --rp-lichen   { syntax: "<color>"; inherits: true; initial-value: #A5BFA0; }
-@property --rp-rose     { syntax: "<color>"; inherits: true; initial-value: #E0A3A0; }
-@property --rp-wisp     { syntax: "<color>"; inherits: true; initial-value: #B9ACDC; }
-@property --rp-afterglow { syntax: "<color>"; inherits: true; initial-value: #2B2D3A; }
+@property --rp-evening  { syntax: "<color>"; inherits: true; initial-value: #1B2133; }
+@property --rp-shade    { syntax: "<color>"; inherits: true; initial-value: #232A3E; }
+@property --rp-overcast { syntax: "<color>"; inherits: true; initial-value: #2C3550; }
+@property --rp-fog      { syntax: "<color>"; inherits: true; initial-value: #374262; }
+@property --rp-mist     { syntax: "<color>"; inherits: true; initial-value: #7380A0; }
+@property --rp-paper    { syntax: "<color>"; inherits: true; initial-value: #E9DFCF; }
+@property --rp-heading  { syntax: "<color>"; inherits: true; initial-value: #F3DFAE; }
+@property --rp-ash      { syntax: "<color>"; inherits: true; initial-value: #C0BCD0; }
+@property --rp-haze     { syntax: "<color>"; inherits: true; initial-value: #B3AECB; }
+@property --rp-lantern  { syntax: "<color>"; inherits: true; initial-value: #EBC57E; }
+@property --rp-skyline  { syntax: "<color>"; inherits: true; initial-value: #A3BEDA; }
+@property --rp-lichen   { syntax: "<color>"; inherits: true; initial-value: #A9C3A3; }
+@property --rp-rose     { syntax: "<color>"; inherits: true; initial-value: #E3A6A1; }
+@property --rp-wisp     { syntax: "<color>"; inherits: true; initial-value: #BDB0E0; }
+@property --rp-sky-top  { syntax: "<color>"; inherits: true; initial-value: #2A3558; }
+@property --rp-sky-mid  { syntax: "<color>"; inherits: true; initial-value: #5B4A74; }
+@property --rp-sky-low  { syntax: "<color>"; inherits: true; initial-value: #B8806A; }
+@property --rp-sky-glow { syntax: "<color>"; inherits: true; initial-value: #E8B77A; }
 
 :root {
-  /* surfaces */
-  --rp-evening: #161B25;
-  --rp-shade: #1D2431;
-  --rp-overcast: #262E3D;
-  --rp-fog: #313B4C;
-  --rp-mist: #6C7992;
-  /* text */
-  --rp-paper: #E8E4DA;
-  --rp-ash: #B9BDC6;
-  --rp-haze: #A0A8B6;
+  /* surfaces: a visible twilight, not black */
+  --rp-evening: #1B2133;
+  --rp-shade: #232A3E;
+  --rp-overcast: #2C3550;
+  --rp-fog: #374262;
+  --rp-mist: #7380A0;
+  /* text: warm paper for reading, pale gold for headings, dusk lilac for what is quieter */
+  --rp-paper: #E9DFCF;
+  --rp-heading: #F3DFAE;
+  --rp-ash: #C0BCD0;
+  --rp-haze: #B3AECB;
   /* light */
-  --rp-lantern: #E9C783;
-  --rp-skyline: #9DBAD6;
-  --rp-lichen: #A5BFA0;
-  --rp-rose: #E0A3A0;
-  --rp-wisp: #B9ACDC;
+  --rp-lantern: #EBC57E;
+  --rp-skyline: #A3BEDA;
+  --rp-lichen: #A9C3A3;
+  --rp-rose: #E3A6A1;
+  --rp-wisp: #BDB0E0;
   --rp-spark: #F4DDA6;
-  /* decorative only: the pale band on the roofline */
-  --rp-afterglow: #2B2D3A;
+  /* the sky: decorative, never behind text. Zenith, the violet between, the low rose-amber, and the glow of a sun that has just gone */
+  --rp-sky-top: #2A3558;
+  --rp-sky-mid: #5B4A74;
+  --rp-sky-low: #B8806A;
+  --rp-sky-glow: #E8B77A;
+  --rp-stars: 0.15;
+  /* the dark shapes in the illustrations: people, roofs, doors against a lit sky */
+  --rp-silhouette: #141A2B;
   /* the label on a filled Lantern and the fill itself, so Last Light can differ */
-  --rp-lantern-fill: #E9C783;
-  --rp-on-lantern: #161B25;
+  --rp-lantern-fill: #EBC57E;
+  --rp-on-lantern: #1B2133;
 
   /* the hour scales glow and motion: 1, 0.8, 0.6 and 1, 1.25, 1.5 */
   --rp-glow-k: 1;
@@ -81,19 +92,19 @@
 }
 
 :root[data-hour="late"] {
-  --rp-evening: #12161F; --rp-shade: #181E29; --rp-overcast: #202735; --rp-fog: #2A3341; --rp-mist: #677690;
-  --rp-paper: #DDD9CF; --rp-ash: #AEB3BE; --rp-haze: #98A0AF;
-  --rp-lantern: #E2BE79; --rp-skyline: #93B0CB; --rp-lichen: #9DB798; --rp-rose: #D69C99; --rp-wisp: #B0A4D2;
-  --rp-afterglow: #232530;
-  --rp-lantern-fill: #E2BE79; --rp-on-lantern: #12161F;
+  --rp-evening: #151A2B; --rp-shade: #1C2236; --rp-overcast: #242B44; --rp-fog: #2E3752; --rp-mist: #6D7A99;
+  --rp-paper: #DCD2C2; --rp-heading: #E5D0A0; --rp-ash: #B1AEC2; --rp-haze: #A6A2BD;
+  --rp-lantern: #E4BF78; --rp-skyline: #98B4D0; --rp-lichen: #9FB99A; --rp-rose: #D9A09B; --rp-wisp: #B3A6D6;
+  --rp-sky-top: #1A2140; --rp-sky-mid: #35305A; --rp-sky-low: #7A5560; --rp-sky-glow: #B88A6A; --rp-stars: 0.3; --rp-silhouette: #10152A;
+  --rp-lantern-fill: #E4BF78; --rp-on-lantern: #151A2B;
   --rp-glow-k: 0.8; --rp-time-k: 1.25;
 }
 :root[data-hour="deep"] {
-  --rp-evening: #0E1219; --rp-shade: #131822; --rp-overcast: #1A202C; --rp-fog: #232B38; --rp-mist: #65728C;
-  --rp-paper: #CBC7BE; --rp-ash: #9EA3AE; --rp-haze: #8B93A2;
-  --rp-lantern: #D2AE6A; --rp-skyline: #8AA6C0; --rp-lichen: #93AD8F; --rp-rose: #CC928F; --rp-wisp: #A69BC7;
-  --rp-afterglow: #1B1D27;
-  --rp-lantern-fill: #D2AE6A; --rp-on-lantern: #0E1219;
+  --rp-evening: #0F1320; --rp-shade: #151A2A; --rp-overcast: #1C2236; --rp-fog: #252D45; --rp-mist: #66728F;
+  --rp-paper: #CCC3B5; --rp-heading: #D4C190; --rp-ash: #A19EB3; --rp-haze: #9793AF;
+  --rp-lantern: #D4B06C; --rp-skyline: #8AA6C0; --rp-lichen: #93AD8F; --rp-rose: #CC928F; --rp-wisp: #A69BC7;
+  --rp-sky-top: #10152A; --rp-sky-mid: #1B2040; --rp-sky-low: #55404A; --rp-sky-glow: #7A5A5A; --rp-stars: 0.5; --rp-silhouette: #0A0D18;
+  --rp-lantern-fill: #D4B06C; --rp-on-lantern: #0F1320;
   --rp-glow-k: 0.6; --rp-time-k: 1.5;
 }
 
@@ -106,6 +117,7 @@
   --rp-fog: #DDD8CC;
   --rp-mist: #767E90;      /* edge */
   --rp-paper: #1D2432;     /* ink */
+  --rp-heading: #5A3B0B;   /* umber */
   --rp-ash: #444E60;       /* ink-soft */
   --rp-haze: #5B6577;      /* ink-faint */
   --rp-lantern: #7C5410;   /* amber */
@@ -113,7 +125,7 @@
   --rp-lichen: #3F6A3F;    /* moss */
   --rp-rose: #8A3F3B;      /* clay */
   --rp-wisp: #5B4B8A;
-  --rp-afterglow: #E3D6BF;
+  --rp-sky-top: #EAD9C4; --rp-sky-mid: #F0CFAF; --rp-sky-low: #F0B88C; --rp-sky-glow: #F7D9A8; --rp-stars: 0; --rp-silhouette: #2A2F3D;
   --rp-lantern-fill: #E9C783;
   --rp-on-lantern: #1D2432;
   --rp-glow-k: 0;

@@ -40,8 +40,8 @@ const SURF = ['evening', 'shade', 'overcast', 'fog'], ACC = ['lantern', 'skyline
 
 for (const h of ['dusk', 'late', 'deep']) {
   const floor = (fg, on) => Math.min(...on.map(s => cr(h, fg, s)));
-  for (const fg of ['paper', 'ash', 'haze']) check(floor(fg, SURF) >= 4.5, `${h}: ${fg} reaches 4.5:1 on all four surfaces`, f2(floor(fg, SURF)));
-  check(floor('paper', SURF) >= 7 && floor('ash', SURF) >= 5.5, `${h}: primary text stays above 7:1 and secondary above 5.5:1`);
+  for (const fg of ['paper', 'heading', 'ash', 'haze']) check(floor(fg, SURF) >= 4.5, `${h}: ${fg} reaches 4.5:1 on all four surfaces`, f2(floor(fg, SURF)));
+  check(floor('paper', SURF) >= 7 && floor('heading', SURF) >= 7 && floor('ash', SURF) >= 5.2, `${h}: reading text and headings stay above 7:1 and secondary text above 5.2:1`);
   for (const a of ACC) check(floor(a, SURF.slice(0, 3)) >= 4.5, `${h}: ${a} reaches 4.5:1 on evening, shade and overcast`, f2(floor(a, SURF.slice(0, 3))));
   const edge = SURF.slice(0, 3).map(s => cr(h, 'mist', s));
   check(edge.every(v => v >= 3), `${h}: mist reaches 3:1 as an edge on evening, shade and overcast`, edge.map(f2).join(', '));
@@ -55,8 +55,27 @@ const lum = (t, n) => { const c = col(t, n); return 0.2126 * c[0] + 0.7152 * c[1
 check(['evening', 'shade', 'paper', 'lantern'].every(n => lum('dusk', n) > lum('late', n) && lum('late', n) > lum('deep', n)), 'each hour is dimmer than the one before, for surfaces, text and light');
 check(parseFloat(T.dusk['--rp-glow-k']) > parseFloat(T.late['--rp-glow-k']) && parseFloat(T.late['--rp-glow-k']) > parseFloat(T.deep['--rp-glow-k']) && T.late['--rp-time-k'] === '1.25' && T.deep['--rp-time-k'] === '1.5', 'glow falls (1, 0.8, 0.6) and motion slows (1, 1.25, 1.5) with the hour');
 
+// The sky is part of the design, not a casualty of the dark: it has to stay visibly lit, and warm at the horizon.
+const relLum = (t, n) => { const c = col(t, n).map(v => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+const floorLow = { dusk: 0.18, late: 0.08, deep: 0.03 }, floorGlow = { dusk: 0.35, late: 0.18, deep: 0.07 };
+for (const h of ['dusk', 'late', 'deep']) {
+  check(relLum(h, 'sky-low') >= floorLow[h] && relLum(h, 'sky-glow') >= floorGlow[h], `${h}: the horizon stays visibly lit (low sky luminance ${f2(relLum(h, 'sky-low'))}, glow ${f2(relLum(h, 'sky-glow'))})`);
+  const low = col(h, 'sky-low'), glow = col(h, 'sky-glow'), top = col(h, 'sky-top');
+  check(low[0] > low[2] && glow[0] > glow[2] && top[2] > top[0], `${h}: warm at the horizon, cool at the zenith`, `low ${low}, top ${top}`);
+  check(relLum(h, 'sky-glow') > relLum(h, 'sky-low') && relLum(h, 'sky-low') > relLum(h, 'sky-mid') && relLum(h, 'sky-mid') > relLum(h, 'sky-top'), `${h}: the sky brightens toward the horizon`);
+}
+check(relLum('dusk', 'sky-low') > relLum('late', 'sky-low') && relLum('late', 'sky-low') > relLum('deep', 'sky-low'), 'the sunset fades with the hour, and does not vanish');
+check(relLum('dusk', 'sky-low') >= 4 * relLum('dusk', 'evening'), 'at Dusk the horizon is at least four times as bright as the surface, so the scenery is not swallowed by the dark');
+// Text is not one white: headings, reading text and quieter text are three different colours at every hour.
+for (const h of ['dusk', 'late', 'deep', 'light']) {
+  const hue = n => { const [r, g, b] = col(h, n); return [r, g, b].join(); };
+  check(new Set(['paper', 'heading', 'ash', 'haze'].map(hue)).size === 4 && !['paper', 'heading', 'ash', 'haze'].some(n => hue(n) === '255,255,255'), `${h}: four distinct text colours, and none of them pure white`);
+  const hd = col(h, 'heading'), pp = col(h, 'paper');
+  check(Math.abs(hd[0] - hd[2]) > Math.abs(pp[0] - pp[2]) - 40 || h === 'light', `${h}: headings are warmer than reading text`, `${hd} vs ${pp}`);
+}
+
 const L = T.light, lc = (a, b) => cr('light', a, b);
-for (const [fg, on, min] of [['paper', 'evening', 7], ['paper', 'shade', 7], ['paper', 'overcast', 7], ['ash', 'evening', 4.5], ['ash', 'shade', 4.5], ['haze', 'evening', 4.5], ['haze', 'shade', 4.5], ['lantern', 'evening', 4.5], ['lantern', 'shade', 4.5], ['skyline', 'evening', 4.5], ['skyline', 'shade', 4.5], ['lichen', 'evening', 4.5], ['lichen', 'shade', 4.5], ['rose', 'evening', 4.5], ['rose', 'shade', 4.5], ['wisp', 'evening', 4.5], ['wisp', 'shade', 4.5], ['ash', 'overcast', 4.5], ['lantern', 'overcast', 4.5], ['skyline', 'overcast', 4.5], ['rose', 'overcast', 4.5]])
+for (const [fg, on, min] of [['heading', 'evening', 7], ['heading', 'shade', 7], ['heading', 'overcast', 7], ['paper', 'evening', 7], ['paper', 'shade', 7], ['paper', 'overcast', 7], ['ash', 'evening', 4.5], ['ash', 'shade', 4.5], ['haze', 'evening', 4.5], ['haze', 'shade', 4.5], ['lantern', 'evening', 4.5], ['lantern', 'shade', 4.5], ['skyline', 'evening', 4.5], ['skyline', 'shade', 4.5], ['lichen', 'evening', 4.5], ['lichen', 'shade', 4.5], ['rose', 'evening', 4.5], ['rose', 'shade', 4.5], ['wisp', 'evening', 4.5], ['wisp', 'shade', 4.5], ['ash', 'overcast', 4.5], ['lantern', 'overcast', 4.5], ['skyline', 'overcast', 4.5], ['rose', 'overcast', 4.5]])
   check(lc(fg, on) >= min, `last light: ${fg} on ${on} reaches ${min}:1`, f2(lc(fg, on)));
 check([lc('mist', 'evening'), lc('mist', 'shade')].every(v => v >= 3), 'last light: edges reach 3:1 on linen and parchment', [lc('mist', 'evening'), lc('mist', 'shade')].map(f2).join(', '));
 check(contrast(parseColor(L['--rp-on-lantern']), parseColor(L['--rp-lantern-fill'])) >= 7, 'last light: ink on the pale amber fill reaches 7:1');
@@ -64,11 +83,12 @@ check(contrast(parseColor(L['--rp-on-lantern']), parseColor(L['--rp-lantern-fill
 // The figures in the document are these figures.
 const printed = [];
 for (const h of ['dusk', 'late', 'deep']) {
-  printed.push(f2(Math.min(...SURF.map(s => cr(h, 'paper', s)))), f2(Math.min(...SURF.map(s => cr(h, 'ash', s)))), f2(Math.min(...SURF.map(s => cr(h, 'haze', s)))),
+  printed.push(f2(Math.min(...SURF.map(s => cr(h, 'paper', s)))), f2(Math.min(...SURF.map(s => cr(h, 'heading', s)))), f2(Math.min(...SURF.map(s => cr(h, 'ash', s)))), f2(Math.min(...SURF.map(s => cr(h, 'haze', s)))),
     f2(Math.min(...ACC.flatMap(a => SURF.slice(0, 3).map(s => cr(h, a, s))))), ...SURF.slice(0, 3).map(s => f2(cr(h, 'mist', s))), f2(cr(h, 'evening', 'lantern')));
 }
 for (const a of ['ink', 'ink-soft']) void a;
 const missing = printed.filter(v => !doc.includes(v));
+check(doc.includes(css.trim()), 'the CSS block in realis-pale.md (section 17) is the token file, exactly');
 check(missing.length === 0, 'every figure in the hours table of realis-pale.md (section 3.6) is what is computed from the token file', missing.join(', '));
 
 // ---- 2. The specimen in a browser
@@ -113,6 +133,15 @@ for (const [name, q] of [['dusk', '?hour=dusk'], ['late', '?hour=late'], ['deep'
     if (ratio < min) bad.push(`${r.t} ${f2(ratio)}`);
   }
   check(runs.length > 60 && bad.length === 0, `${name}: ${runs.length} runs of text reach 4.5:1 on the colour painted behind them (lowest ${f2(worst.r)}, "${worst.t}")`, bad.slice(0, 3).join(' | '));
+  const colours = new Set(runs.map(r => r.color));
+  check(colours.size >= 6 && ![...colours].includes('rgb(255, 255, 255)'), `${name}: the page's text uses ${colours.size} different colours, none of them pure white`, [...colours].join(' | '));
+  // The sky, in painted pixels: lit at the horizon, darker and cooler above, and not lost at any hour.
+  const png = await page.locator('#art-steps').screenshot();
+  const px = await page.evaluate(async ([b64]) => { const img = new Image(); img.src = 'data:image/png;base64,' + b64; await img.decode(); const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; const x = c.getContext('2d'); x.drawImage(img, 0, 0);
+    const at = (fx, fy) => [...x.getImageData(Math.round(fx * img.width), Math.round(fy * img.height), 1, 1).data].slice(0, 3); return { top: at(0.5, 0.12), horizon: at(0.5, 0.6) }; }, [png.toString('base64')]);
+  const lumOf = ([r, g, b]) => { const f = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
+  const minH = { dusk: 0.15, late: 0.06, deep: 0.02, 'last light': 0.5 }[name];
+  check(lumOf(px.horizon) >= minH && (name === 'last light' ? px.horizon[0] - px.horizon[2] > px.top[0] - px.top[2] : lumOf(px.horizon) > lumOf(px.top) && px.horizon[0] > px.horizon[2]), `${name}: in the painted picture the horizon is lit (${lumOf(px.horizon).toFixed(2)}) and warm; above it the sky is ${name === 'last light' ? 'less warm' : 'darker'} (${lumOf(px.top).toFixed(2)})`, JSON.stringify(px));
   check(page.errors.length === 0, `${name}: no script errors`, page.errors.join('; '));
   await page.ctx.close();
 }
@@ -148,16 +177,16 @@ for (const [name, q] of [['dusk', '?hour=dusk'], ['late', '?hour=late'], ['deep'
 {
   const page = await open(); const hour = () => page.evaluate(() => document.documentElement.dataset.hour);
   const val = n => page.evaluate(n => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), n);
-  check(await hour() === 'dusk' && (await page.evaluate(() => getComputedStyle(document.body).backgroundColor)) === 'rgb(22, 27, 37)', 'the page opens at Dusk with the Dusk surface');
+  check(await hour() === 'dusk' && (await page.evaluate(() => getComputedStyle(document.body).backgroundColor)) === 'rgb(27, 33, 51)', 'the page opens at Dusk with the Dusk surface');
   await page.click('[data-hour-btn="late"]'); await page.waitForTimeout(800);
-  check(await hour() === 'late' && (await page.evaluate(() => getComputedStyle(document.body).backgroundColor)) === 'rgb(18, 22, 31)', 'choosing Late changes the hour and the painted background to the Late surface');
+  check(await hour() === 'late' && (await page.evaluate(() => getComputedStyle(document.body).backgroundColor)) === 'rgb(21, 26, 43)', 'choosing Late changes the hour and the painted background to the Late surface');
   await page.click('[data-hour-btn="deep"]'); await page.waitForTimeout(800);
-  check(await hour() === 'deep' && (await page.evaluate(() => getComputedStyle(document.body).backgroundColor)) === 'rgb(14, 18, 25)', 'choosing Deep paints the Deep surface');
+  check(await hour() === 'deep' && (await page.evaluate(() => getComputedStyle(document.body).backgroundColor)) === 'rgb(15, 19, 32)', 'choosing Deep paints the Deep surface');
   await page.click('[data-hour-btn="dusk"]'); await page.waitForTimeout(800);
   // the change is a cross-fade, not a jump: sample partway through a slowed change
   await page.evaluate(() => document.documentElement.style.setProperty('--rp-fade', '2s')); await page.evaluate(() => { document.documentElement.dataset.hour = 'deep'; });
   await page.waitForTimeout(700); const mid = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  check(mid !== 'rgb(22, 27, 37)' && mid !== 'rgb(14, 18, 25)', 'a change of hour cross-fades through in-between colours instead of jumping', mid);
+  check(mid !== 'rgb(27, 33, 51)' && mid !== 'rgb(15, 19, 32)', 'a change of hour cross-fades through in-between colours instead of jumping', mid);
   await page.ctx.close();
 
   const clock = await browser.newContext({ viewport: { width: 1280, height: 900 } }); const p = await clock.newPage();
