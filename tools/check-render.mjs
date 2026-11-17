@@ -695,6 +695,409 @@ console.log('settings');
   await dctx.close();
 }
 
+// Ruled sheet: the pattern's geometry and behaviour, the workspace, drafts, reading and print.
+console.log('ruled sheet');
+{
+  const surl = q => pathToFileURL(root + 'specimen/sheet.html').href + q;
+  const openSheet = async (q = '', ctx = {}, media) => {
+    const c = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce', ...ctx });
+    const p = await c.newPage(); if (media) await p.emulateMedia({ media });
+    await p.goto(surl(q)); await p.evaluate(() => document.fonts.ready); await p.waitForTimeout(350);
+    return p;
+  };
+  const val = (p, sel) => p.evaluate(s => document.querySelector(s).value, sel);
+  const css = (p, sel, prop, pseudo) => p.evaluate(([s, pr, ps]) => getComputedStyle(document.querySelector(s), ps || null)[pr], [sel, prop, pseudo]);
+  const rect = (p, sel) => p.evaluate(s => { const r = document.querySelector(s).getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height, r: r.right, b: r.bottom }; }, sel);
+  const PARTS = ['objective', 'kind', 'findings', 'steps', 'parts', 'handover'];
+  const MEASURE_SHEET = async ({ b64, items }) => {
+    const img = new Image(); img.src = 'data:image/png;base64,' + b64; await img.decode();
+    const cv = document.createElement('canvas'); cv.width = img.width; cv.height = img.height; const c = cv.getContext('2d', { willReadFrequently: true }); c.drawImage(img, 0, 0);
+    const lin = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }, lum = (r, g, b) => 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+    return items.map(it => {
+      const x0 = Math.max(0, Math.floor(it.x)), y0 = Math.max(0, Math.floor(it.y)), w = Math.min(img.width - x0, Math.ceil(it.w)), h = Math.min(img.height - y0, Math.ceil(it.h));
+      if (w < 1 || h < 1) return { ...it, worst: 99 };
+      const d = c.getImageData(x0, y0, w, h).data, lt = lum(...it.color); let worst = 99;
+      for (let i = 0; i < d.length; i += 4) { const lb = lum(d[i], d[i + 1], d[i + 2]), r = (Math.max(lt, lb) + 0.05) / (Math.min(lt, lb) + 0.05); if (r < worst) worst = r; }
+      return { ...it, worst };
+    });
+  };
+  const fillParts = async p => { await p.fill('#sh-subject', 'Pump seal replacement'); await p.fill('#sh-objective', 'Replace the seal and confirm there is no leak at full pressure.'); await p.fill('#sh-findings', 'Seal worn. Slight scoring on the shaft sleeve.'); await p.fill('#sh-handover', 'Check for a leak again at the next start.'); };
+
+  // ---- Contrast on the pixels actually under the text: labels, typed text, placeholders, links and chips, ruled lines included.
+  for (const [name, q, min] of [['light', '?theme=light&open=1', 4.5], ['dark', '?theme=dark&open=1', 4.5], ['outdoor', '?theme=outdoor&open=1', 7]]) {
+    const p = await openSheet(q, { viewport: { width: 1440, height: 1500 } }); await fillParts(p);
+    await p.evaluate(() => document.activeElement.blur()); await p.waitForTimeout(250);   // nothing focused: a focus ring is not under the text
+    const items = await p.evaluate(() => {
+      const out = [], add = (el, kind, o = {}) => { const r = el.getBoundingClientRect(); if (!r.width) return; const m = (o.color || getComputedStyle(el).color).match(/[\d.]+/g).map(Number); out.push({ kind, x: r.left + (o.dx || 0), y: r.top + (o.dy || 0), w: r.width - (o.dw || 0), h: o.h ?? r.height, color: m.slice(0, 3) }); };
+      // A label: its first lines, without the margin rule beside it.
+      document.querySelectorAll('.part__label').forEach(l => add(l, 'label', { dw: 2, h: Math.min(l.getBoundingClientRect().height, l.closest('.part--highlight') ? 40 : 28) }));
+      // A placeholder: the line it sits on, down to (not including) the 1px ruled line at its foot, which is below the glyphs.
+      document.querySelectorAll('.ruled').forEach(t => { const empty = !t.value; add(t, empty ? 'placeholder' : 'typed', empty ? { h: 27, color: getComputedStyle(t, '::placeholder').color } : {}); });
+      const s = document.getElementById('sh-subject'); add(s, s.value ? 'typed' : 'placeholder', s.value ? { h: 38 } : { color: getComputedStyle(s, '::placeholder').color, h: 38 });
+      document.querySelectorAll('.pick').forEach(b => add(b, 'control', { dx: 12, dy: 6, dw: 24, h: b.getBoundingClientRect().height - 12 }));
+      document.querySelectorAll('.link-btn').forEach(b => { if (!b.closest('[hidden]')) add(b, 'control', { dy: 4, h: b.getBoundingClientRect().height - 8 }); });
+      return out;
+    });
+    const hide = await p.addStyleTag({ content: '*, *::before, *::after { color: transparent !important; text-shadow: none !important; caret-color: transparent !important; } ::placeholder { color: transparent !important; opacity: 1 !important; }' });
+    const buf = await p.locator('#sheet').screenshot({ animations: 'disabled' }); await hide.evaluate(e => e.remove());
+    const box = await rect(p, '#sheet');
+    const res = await p.evaluate(MEASURE_SHEET, { b64: buf.toString('base64'), items: items.map(i => ({ ...i, x: i.x - box.x, y: i.y - box.y })) });
+    const low = res.reduce((a, b) => (b.worst < a.worst ? b : a)); const kinds = [...new Set(res.map(r => r.kind))];
+    console.log(`  ${name.padEnd(8)} ${res.length} text areas of ${kinds.join(', ')} measured on real pixels, lowest ${low.worst.toFixed(2)} (${low.kind})`);
+    check(res.length >= 14 && kinds.length === 4, `${name}: labels, typed text, placeholders, links and chips were all measured`, JSON.stringify(kinds));
+    check(res.every(r => r.worst >= min), `${name}: every text area reaches ${min}:1 on the pixels under it, ruled lines and the highlighted part included`, res.filter(r => r.worst < min).map(r => `${r.worst.toFixed(2)} ${r.kind}`).join(' | '));
+    await p.context().close();
+  }
+
+  // ---- Geometry: the spec, measured.
+  {
+    const p = await openSheet('?theme=light&open=1');
+    const g = await p.evaluate(() => {
+      const cs = (e, pr, ps) => getComputedStyle(e, ps || null)[pr], sheet = document.getElementById('sheet'), sr = sheet.getBoundingClientRect(), main = document.getElementById('page').getBoundingClientRect();
+      const labels = [...sheet.querySelectorAll('.part__label')], lr = labels.map(l => l.getBoundingClientRect()), rt = [...sheet.querySelectorAll('.ruled')];
+      const gaps = lr.slice(1).map((r, i) => Math.round((r.top - lr[i].bottom) * 100) / 100);
+      return { sheetW: sr.width, leftSpace: sr.left - main.left, rightSpace: main.right - sr.right, bg: cs(sheet, 'backgroundColor'), border: cs(sheet, 'borderTopColor'), card: getComputedStyle(document.documentElement).getPropertyValue('--color-border-card'), radius: cs(sheet, 'borderTopLeftRadius'), shadow: cs(sheet, 'boxShadow') !== 'none',
+        labelW: lr[0].width + 0, cols: cs(sheet.querySelector('.part'), 'gridTemplateColumns'), lx: [...new Set(lr.map(r => Math.round(r.right)))], gaps, rule: labels.map(l => cs(l, 'borderInlineEndWidth') + ' ' + cs(l, 'borderInlineEndStyle')),
+        label: { size: cs(labels[1], 'fontSize'), weight: cs(labels[1], 'fontWeight'), tracking: cs(labels[1], 'letterSpacing'), transform: cs(labels[1], 'textTransform'), align: cs(labels[1], 'textAlign') },
+        ruled: rt.map(t => ({ font: cs(t, 'fontSize'), line: cs(t, 'lineHeight'), size: cs(t, 'backgroundSize'), attach: cs(t, 'backgroundAttachment'), image: cs(t, 'backgroundImage').includes('linear-gradient'), border: cs(t, 'borderTopWidth'), pad: cs(t, 'paddingTop'), overflow: cs(t, 'overflow'), h: Math.round(t.getBoundingClientRect().height) })),
+        head: { size: cs(document.getElementById('sh-subject'), 'fontSize'), weight: cs(document.getElementById('sh-subject'), 'fontWeight'), under: cs(document.getElementById('sh-subject'), 'borderBottomWidth') + ' ' + cs(document.getElementById('sh-subject'), 'borderBottomStyle'), box: cs(document.getElementById('sh-subject'), 'borderTopWidth') },
+        hl: [...sheet.querySelectorAll('.part--highlight')].map(h => { const b = h.querySelector('.part__body'); return { bg: cs(b, 'backgroundColor'), bar: cs(b, 'borderInlineStartWidth') + ' ' + cs(b, 'borderInlineStartStyle'), shadow: cs(b, 'boxShadow') }; }), inset: getComputedStyle(document.documentElement).getPropertyValue('--color-surface-inset') };
+    });
+    check(g.sheetW === 900 && Math.abs(g.leftSpace - g.rightSpace) < 1, 'sheet: 900px wide and centred', JSON.stringify([g.sheetW, g.leftSpace, g.rightSpace]));
+    check(g.bg === 'rgb(255, 254, 250)' && g.border === 'rgb(217, 205, 182)' && g.radius === '12px' && g.shadow, 'sheet: the white L2 surface with the card hairline, radius-md and a shadow', JSON.stringify([g.bg, g.border, g.radius, g.shadow]));
+    check(g.cols.startsWith('156px'), 'margin: 156px wide', g.cols);
+    check(g.lx.length === 1, 'margin rule: every part\'s label ends on the same line', JSON.stringify(g.lx));
+    check(g.gaps.every(x => Math.abs(x) < 0.6), 'margin rule: it runs through every part with no gap between them', JSON.stringify(g.gaps));
+    check(g.rule.every(r => r === '1px solid'), 'margin rule: 1px, in every part', JSON.stringify(g.rule));
+    check(g.label.size === '12px' && g.label.weight === '560' && g.label.transform === 'uppercase' && parseFloat(g.label.tracking) === 0.6 && g.label.align === 'end', 'margin labels: caption size, uppercase, 0.05em tracking, aligned to the rule', JSON.stringify(g.label));
+    check(g.ruled.every(r => r.font === '15px' && r.line === '28px' && r.size.endsWith('28px') && r.attach === 'local' && r.image && r.border === '0px' && r.pad === '0px'), 'writing text: 15px on a 28px line, no box, ruled lines behind it that scroll with it', JSON.stringify(g.ruled[0]));
+    check(JSON.stringify(g.ruled.map(r => r.h)) === JSON.stringify([84, 28, 112, 112, 84, 84]), 'minimum heights follow the expected length: 3 lines, 1 line, 4, 4, 3, 3', JSON.stringify(g.ruled.map(r => r.h)));
+    check(g.head.size === '18px' && g.head.weight === '520' && g.head.under === '1px solid' && g.head.box === '0px', 'heading line: 18px, weight 520, a single 1px underline and no box', JSON.stringify(g.head));
+    check(g.hl.length === 1 && g.hl[0].bar === '3px solid' && g.hl[0].shadow === 'none' && g.hl[0].bg === 'rgb(242, 235, 221)', 'highlighted part: exactly one, on the inset tone, with a 3px bar drawn as a real border', JSON.stringify(g.hl));
+    await p.context().close();
+  }
+
+  // ---- A part is as tall as its text, with no scrollbar of its own, and re-fits when the sheet narrows.
+  {
+    const p = await openSheet('?theme=light&open=1');
+    const fit = async () => p.evaluate(() => { const t = document.getElementById('sh-findings'); return { h: t.getBoundingClientRect().height, noBar: t.scrollHeight <= t.clientHeight + 1, overflow: getComputedStyle(t).overflow }; });
+    const empty = await fit();
+    await p.fill('#sh-findings', Array.from({ length: 10 }, (_, i) => 'Line ' + (i + 1)).join('\n'));
+    const ten = await fit(); check(ten.h === 280 && ten.noBar && ten.overflow === 'hidden', 'growth: ten lines make the part ten lines tall, with no inner scrollbar', JSON.stringify(ten));
+    await p.fill('#sh-findings', ''); check((await fit()).h === empty.h, 'growth: clearing the text returns the part to its minimum', JSON.stringify(await fit()));
+    await p.fill('#sh-findings', 'A long observation written without a single line break so that it has to wrap onto several lines of the page. '.repeat(6));
+    const wide = await fit();
+    await p.setViewportSize({ width: 800, height: 900 }); await p.waitForTimeout(250); const narrow = await fit();
+    check(narrow.h > wide.h && narrow.noBar && narrow.h % 28 === 0, 'growth: when the sheet narrows the part re-wraps and re-fits, still on whole lines', `${wide.h} -> ${narrow.h}`);
+    await p.setViewportSize({ width: 1440, height: 900 }); await p.waitForTimeout(250); check((await fit()).h === wide.h, 'growth: widening it again re-fits the part back', String((await fit()).h));
+    check(await p.evaluate(() => getComputedStyle(document.querySelector('.part')).gridTemplateColumns.startsWith('156px')), 'margin is back to 156px at full width');
+    await p.setViewportSize({ width: 1000, height: 900 }); await p.waitForTimeout(250);
+    check(await p.evaluate(() => getComputedStyle(document.querySelector('.part')).gridTemplateColumns.startsWith('120px')), 'margin: 120px below 1100px');
+    await p.context().close();
+  }
+
+  // ---- Lists continue.
+  {
+    const p = await openSheet('?theme=light&open=1');
+    const typeIn = async (id, steps) => { await p.focus('#' + id); for (const s of steps) { if (s === 'Enter' || s.startsWith('Arrow') || s.startsWith('Shift+') || s.startsWith('Control+')) await p.keyboard.press(s); else await p.keyboard.type(s); } return val(p, '#' + id); };
+    check(await typeIn('sh-steps', ['1. one', 'Enter']) === '1. one\n2. ', 'lists: Enter at the end of "1. one" starts "2. "');
+    check(await typeIn('sh-steps', ['two', 'Enter']) === '1. one\n2. two\n3. ', 'lists: and numbering follows on the next line');
+    check(await typeIn('sh-steps', ['Enter']) === '1. one\n2. two\n', 'lists: Enter on an empty item ends the list and removes the marker');
+    check(await typeIn('sh-steps', ['Enter', 'after']) === '1. one\n2. two\n\nafter', 'lists: after the list, Enter is a plain new line');
+    await p.fill('#sh-steps', ''); await typeIn('sh-steps', ['1. a', 'Enter', 'b', 'Enter', 'c', 'Enter', 'd', 'Enter', 'e', 'Enter', 'f', 'Enter', 'g']);
+    const seven = await p.evaluate(() => { const t = document.getElementById('sh-steps'); return { v: t.value.split('\n').length, h: Math.round(t.getBoundingClientRect().height), bar: t.scrollHeight <= t.clientHeight + 1 }; });
+    check(seven.v === 7 && seven.h === 196 && seven.bar, 'lists: seven items make the part seven lines tall, with no scrollbar', JSON.stringify(seven));
+    await p.fill('#sh-parts', ''); check(await typeIn('sh-parts', ['- bolt', 'Enter']) === '- bolt\n- ', 'lists: "-" continues with "-"');
+    await p.fill('#sh-findings', ''); check(await typeIn('sh-findings', ['1) first', 'Enter']) === '1) first\n2) ', 'lists: "1)" continues as "2)"');
+    await p.fill('#sh-objective', ''); check(await typeIn('sh-objective', ['1. abc', 'ArrowLeft', 'ArrowLeft', 'Enter']) === '1. a\nbc', 'lists: Enter in the middle of a line is a plain new line');
+    await p.fill('#sh-objective', ''); check(await typeIn('sh-objective', ['1. abc', 'Shift+Enter']) === '1. abc\n', 'lists: Shift+Enter is a plain new line');
+    await p.fill('#sh-objective', ''); check(await typeIn('sh-objective', ['plain text', 'Enter']) === 'plain text\n', 'lists: a line that is not a list item gets a plain new line');
+    check(await p.evaluate(() => { const t = document.getElementById('sh-steps'); return t.selectionStart === t.value.length; }), 'lists: the caret is at the end after continuing');
+    await p.context().close();
+  }
+
+  // ---- Quick picks.
+  {
+    const p = await openSheet('?theme=light&open=1');
+    const state = () => p.evaluate(() => ({ text: document.getElementById('sh-kind').value, on: [...document.querySelectorAll('.pick')].filter(b => b.getAttribute('aria-pressed') === 'true').map(b => b.dataset.pick) }));
+    await p.click('.pick[data-pick="Repair"]'); let s = await state(); check(s.text === 'Repair' && s.on.join() === 'Repair', 'quick picks: a chip adds its value and shows it pressed', JSON.stringify(s));
+    await p.click('.pick[data-pick="Inspection"]'); s = await state(); check(s.text === 'Repair, Inspection', 'quick picks: a second chip adds to the text', JSON.stringify(s));
+    await p.click('.pick[data-pick="Repair"]'); s = await state(); check(s.text === 'Inspection' && s.on.join() === 'Inspection', 'quick picks: pressing a pressed chip removes its value', JSON.stringify(s));
+    await p.fill('#sh-kind', 'Calibration, then a free note'); s = await state(); check(s.on.join() === 'Calibration' || s.on.length === 0, 'quick picks: the text stays free, and chips follow what is written', JSON.stringify(s));
+    await p.fill('#sh-kind', 'Review'); s = await state(); check(s.on.join() === 'Review', 'quick picks: typing a value presses its chip', JSON.stringify(s));
+    await p.context().close();
+  }
+
+  // ---- Focus: a 2px bar on the part's inner edge, drawn as a real border; the highlighted part gets the standard ring.
+  for (const [name, q] of [['light', '?theme=light&open=1'], ['dark', '?theme=dark&open=1'], ['outdoor', '?theme=outdoor&open=1']]) {
+    const p = await openSheet(q);
+    const probe = async key => { return p.evaluate(k => {
+      const t = document.getElementById('sh-' + k), part = t.closest('.part'), body = part.querySelector('.part__body'), label = part.querySelector('.part__label'), cs = e => getComputedStyle(e);
+      const before = t.getBoundingClientRect().left; t.focus(); const after = t.getBoundingClientRect().left;
+      const parse = c => c.match(/[\d.]+/g).map(Number), lin = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }, L = c => 0.2126 * lin(c[0]) + 0.7152 * lin(c[1]) + 0.0722 * lin(c[2]);
+      const ratio = (a, b) => (Math.max(L(a), L(b)) + 0.05) / (Math.min(L(a), L(b)) + 0.05), sheetBg = parse(cs(document.getElementById('sheet')).backgroundColor), insetBg = parse(cs(body).backgroundColor);
+      const bar = parse(cs(body).borderInlineStartColor);
+      const labelContrast = ratio(parse(cs(label).color), sheetBg);
+      return { labelContrast, moved: Math.abs(after - before), barW: cs(body).borderInlineStartWidth, barStyle: cs(body).borderInlineStartStyle, shadow: cs(body).boxShadow, label: cs(label).color, outline: cs(body).outlineWidth + ' ' + cs(body).outlineStyle, highlight: part.classList.contains('part--highlight'), contrast: ratio(bar, part.classList.contains('part--highlight') ? insetBg : sheetBg), info: getComputedStyle(document.documentElement).getPropertyValue('--state-info-text') };
+    }, key); };
+    const rows = {}; for (const k of PARTS) rows[k] = await probe(k);
+    const normal = PARTS.filter(k => k !== 'handover');
+    check(normal.every(k => rows[k].barW === '2px' && rows[k].barStyle === 'solid' && rows[k].shadow === 'none'), `${name}: focus draws a 2px solid bar as a border, not a shadow`, JSON.stringify(rows.findings));
+    check(normal.every(k => rows[k].moved < 0.5), `${name}: the text does not move when the bar appears`, normal.map(k => rows[k].moved).join(','));
+    check(Object.values(rows).every(r => r.contrast >= (name === 'outdoor' ? 4.5 : 3)), `${name}: the bar reaches ${name === 'outdoor' ? 4.5 : 3}:1 against what it sits on`, Object.values(rows).map(r => r.contrast.toFixed(2)).join(','));
+    check(Object.values(rows).every(r => r.labelContrast >= (name === 'outdoor' ? 7 : 4.5)), `${name}: the focused label's own colour reaches ${name === 'outdoor' ? 7 : 4.5}:1 on the sheet`, Object.values(rows).map(r => r.labelContrast.toFixed(2)).join(','));
+    check(rows.handover.barW === '3px' && rows.handover.outline === '2px solid' && rows.handover.shadow === 'none', `${name}: the highlighted part keeps its 3px bar and gets the standard 2px ring when focused`, JSON.stringify(rows.handover));
+    check(rows.findings.label !== (await p.evaluate(() => { document.getElementById('sh-subject').focus(); return getComputedStyle(document.querySelector('#sh-findings').closest('.part').querySelector('.part__label')).color; })), `${name}: the focused part's label changes colour too, so focus is shape and colour`);
+    await p.context().close();
+  }
+  {
+    const p = await openSheet('?theme=light&open=1', { forcedColors: 'active' });
+    const f = await p.evaluate(() => { const out = {}; for (const k of ['findings', 'handover', 'subject']) { const t = document.getElementById('sh-' + k), body = t.closest('.part').querySelector('.part__body'); t.focus(); const cs = getComputedStyle(body); out[k] = { bar: cs.borderInlineStartWidth + ' ' + cs.borderInlineStartStyle, outline: cs.outlineWidth + ' ' + cs.outlineStyle, color: cs.borderInlineStartColor }; } return out; });
+    check(f.findings.bar === '2px solid' && f.subject.bar === '2px solid', 'forced colors: the focus bar is a real border, so it is still drawn', JSON.stringify(f));
+    check(f.handover.bar === '3px solid' && f.handover.outline === '2px solid', 'forced colors: the highlighted part keeps its bar and its focus ring');
+    const hl = await p.evaluate(() => { const b = document.querySelector('.part--highlight .part__body'); return { bar: getComputedStyle(b).borderInlineStartWidth, style: getComputedStyle(b).borderInlineStartStyle }; });
+    check(hl.bar === '3px' && hl.style === 'solid', 'forced colors: the highlighted part is marked by its border when the tint is dropped', JSON.stringify(hl));
+    await p.context().close();
+  }
+
+  // ---- Secondary fields and validation.
+  {
+    const p = await openSheet('?theme=light&open=1');
+    await p.click('#reveal-title');
+    check(await p.evaluate(() => !document.getElementById('title-wrap').hidden && document.getElementById('reveal-title').hidden && document.activeElement.id === 'sh-title' && document.getElementById('panel').contains(document.activeElement)), 'secondary fields: the link reveals its field and focus moves into it, still inside the panel');
+    await p.click('#reveal-files');
+    check(await p.evaluate(() => !document.getElementById('files-wrap').hidden && document.activeElement.id === 'sh-files' && document.getElementById('panel').contains(document.activeElement)), 'secondary fields: attaching a file moves focus into the file field');
+    await p.click('#submit');
+    let v = await p.evaluate(() => ({ active: document.activeElement.id, bar: document.getElementById('bar-errors').textContent, sub: document.getElementById('err-subject').textContent, invalid: document.getElementById('sh-subject').getAttribute('aria-invalid'), described: document.getElementById('sh-subject').getAttribute('aria-describedby') }));
+    check(v.active === 'asset-btn' && v.bar === 'Choose an asset.' && v.sub === 'Give the entry a subject.', 'validation: submitting names every problem and moves focus to the first one in reading order (the setup bar)', JSON.stringify(v));
+    check(v.invalid === 'true' && v.described === 'err-subject', 'validation: an invalid field is aria-invalid and described by its error');
+    const err = await p.evaluate(() => { const e = document.getElementById('err-subject'), s = document.getElementById('sh-subject'); return { c: getComputedStyle(e).color, edge: getComputedStyle(s).borderBottomColor, danger: getComputedStyle(document.documentElement).getPropertyValue('--color-danger-text'), mark: getComputedStyle(document.documentElement).getPropertyValue('--state-error-mark') }; });
+    check(err.c === 'rgb(154, 74, 61)' && err.edge === 'rgb(184, 95, 82)', 'validation: the error is in danger text and the control edge turns coral', JSON.stringify(err));
+    await p.click('#asset-btn'); await p.click('#asset-menu .pill[data-id="inverter-2"]'); await p.click('#submit');
+    v = await p.evaluate(() => ({ active: document.activeElement.id, bar: document.getElementById('bar-errors').hidden }));
+    check(v.active === 'sh-subject' && v.bar, 'validation: with the setup fixed, focus goes to the first invalid field of the sheet', JSON.stringify(v));
+    await p.fill('#sh-subject', 'x'); check(await p.evaluate(() => document.getElementById('err-subject').hidden), 'validation: the error clears as soon as the field is fixed');
+    await p.fill('#hours', '30'); await p.click('#submit'); check(await p.evaluate(() => document.getElementById('bar-errors').textContent) === 'Hours must be a number up to 24.', 'validation: hours above 24 are refused with a reason');
+    await p.fill('#hours', '2,5x'); check(await val(p, '#hours') === '2.5', 'hours: a comma becomes a point and anything else is dropped');
+    await p.fill('#sh-subject', 'y'.repeat(70)); const c70 = await p.evaluate(() => ({ t: document.getElementById('cnt-subject').textContent, h: document.getElementById('cnt-subject').hidden }));
+    check(!c70.h && c70.t === '70/80', 'counter: appears near the limit, and only then', JSON.stringify(c70));
+    await p.fill('#sh-subject', 'y'.repeat(20)); check(await p.evaluate(() => document.getElementById('cnt-subject').hidden), 'counter: not shown far from the limit');
+    await p.fill('#sh-subject', 'y'.repeat(90)); await p.click('#submit'); check(await p.evaluate(() => document.getElementById('err-subject').textContent) === '80 characters at most.', 'validation: a subject over 80 characters is refused');
+    await p.fill('#sh-subject', 'ok'); await p.fill('#sh-findings', 'z'.repeat(1600)); await p.click('#submit');
+    check(await p.evaluate(() => document.getElementById('err-findings').textContent) === '1500 characters at most.' && await p.evaluate(() => document.activeElement.id) === 'sh-findings', 'validation: a part over 1500 characters is refused and takes focus');
+    await p.fill('#sh-findings', ''); const pr0 = await p.evaluate(() => document.getElementById('progress').textContent);
+    await p.fill('#sh-findings', '   '); const prWs = await p.evaluate(() => document.getElementById('progress').textContent);
+    await p.fill('#sh-findings', 'seen'); const pr1 = await p.evaluate(() => document.getElementById('progress').textContent);
+    check(pr0 === '0 of 6 parts filled, all optional' && prWs === pr0 && pr1 === '1 of 6 parts filled, all optional', 'progress: one line, counting only parts with writing in them, instead of "optional" on every part', JSON.stringify([pr0, prWs, pr1]));
+    await p.context().close();
+  }
+
+  // ---- The setup bar and its menus.
+  {
+    const p = await openSheet('?theme=light&open=1');
+    const tops = await p.evaluate(() => ['#asset-btn', '#crew', '#date-btn', '#hours-wrap'].map(s => Math.round(document.querySelector(s).getBoundingClientRect().top)));
+    check(new Set(tops).size === 1, 'setup bar: asset, crew, date and hours fit one row', tops.join(','));
+    await p.click('#asset-btn');
+    let m = await p.evaluate(() => ({ exp: document.getElementById('asset-btn').getAttribute('aria-expanded'), groups: [...document.querySelectorAll('#asset-menu [role="group"]')].map(g => g.getAttribute('aria-label')), search: !!document.getElementById('asset-search'), active: document.activeElement.id }));
+    check(m.exp === 'true' && m.groups.join() === 'Casablanca DC,Rabat lab,Tangier plant' && m.search && m.active === 'asset-search', 'asset menu: a list grouped by site, with a filter that takes focus because there are more than eight assets', JSON.stringify(m));
+    await p.keyboard.type('pump');
+    m = await p.evaluate(() => ({ groups: [...document.querySelectorAll('#asset-menu [role="group"]')].map(g => g.getAttribute('aria-label')), items: [...document.querySelectorAll('#asset-menu .pill')].map(b => b.textContent) }));
+    check(m.groups.join() === 'Rabat lab' && m.items.join() === 'Heat pump 1,Heat pump 2,Recovery pump', 'asset menu: the filter narrows the list and drops empty groups', JSON.stringify(m));
+    await p.keyboard.press('Enter');
+    check(await p.evaluate(() => document.getElementById('asset-text').textContent) === 'Heat pump 1' && await p.evaluate(() => document.getElementById('asset-menu').hidden), 'asset menu: Enter picks the first match and closes the menu');
+    await p.click('#asset-btn'); await p.keyboard.press('Escape');
+    const esc = await p.evaluate(() => ({ menu: document.getElementById('asset-menu').hidden, panel: !document.getElementById('backdrop').hidden, active: document.activeElement.id }));
+    check(esc.menu && esc.panel && esc.active === 'asset-btn', 'Escape closes the menu first: the panel stays open and focus returns to the button', JSON.stringify(esc));
+    await p.click('#date-btn');
+    const cal = await p.evaluate(() => ({ exp: document.getElementById('date-btn').getAttribute('aria-expanded'), title: document.querySelector('#date-menu strong').textContent, pressed: document.querySelector('#date-menu .cal__day[aria-pressed="true"]')?.dataset.ymd, active: document.activeElement.dataset.ymd, today: document.querySelector('#date-menu [data-today]')?.dataset.ymd }));
+    check(cal.exp === 'true' && cal.title === 'November 2026' && cal.pressed === '2026-11-17' && cal.active === '2026-11-17' && cal.today === '2026-11-17', 'date menu: opens on the month of the date, with the date selected and focused', JSON.stringify(cal));
+    await p.keyboard.press('ArrowRight'); await p.keyboard.press('ArrowDown');
+    check(await p.evaluate(() => document.activeElement.dataset.ymd) === '2026-11-25', 'date menu: arrow keys move by a day and by a week', await p.evaluate(() => document.activeElement.dataset.ymd));
+    await p.keyboard.press('ArrowDown'); await p.keyboard.press('ArrowDown');
+    check(await p.evaluate(() => document.activeElement.dataset.ymd) === '2026-12-09' && await p.evaluate(() => document.querySelector('#date-menu strong').textContent) === 'December 2026', 'date menu: moving past the end of the month turns the page');
+    await p.keyboard.press('Enter');
+    check(await p.evaluate(() => document.getElementById('date-text').textContent) === 'Wed 9 Dec' && await p.evaluate(() => document.getElementById('date-menu').hidden), 'date menu: Enter picks the day and closes the menu');
+    await p.click('#date-btn'); check(await p.evaluate(() => !document.getElementById('date-menu').hidden), 'date menu: reopens');
+    await p.mouse.click(700, 500);
+    check(await p.evaluate(() => document.getElementById('date-menu').hidden), 'a click outside the setup bar closes an open menu');
+    await p.click('#status button[data-v="partial"]'); await p.keyboard.press('ArrowRight');
+    check(await p.evaluate(() => [...document.querySelectorAll('#status button')].map(b => b.getAttribute('aria-checked')).join()) === 'false,false,true', 'status: a radio group; the arrow keys move through it');
+    await p.keyboard.press('ArrowRight'); check(await p.evaluate(() => document.querySelector('#status [aria-checked="true"]').dataset.v) === 'planned', 'status: and wrap around');
+    await p.context().close();
+  }
+  {
+    // The calendar marks days that already have entries for the chosen asset.
+    const p = await openSheet('?theme=light&open=1');
+    await p.click('#asset-btn'); await p.click('#asset-menu .pill[data-id="inverter-2"]'); await p.click('#date-btn');
+    const m = await p.evaluate(() => { const b = document.querySelector('#date-menu .cal__day[data-ymd="2026-11-17"]'), o = document.querySelector('#date-menu .cal__day[data-ymd="2026-11-18"]'); return { mark: b.hasAttribute('data-mark'), label: b.getAttribute('aria-label'), other: o.hasAttribute('data-mark') }; });
+    check(m.mark && m.label === 'Tuesday 17 November. 1 entry for this asset that day' && !m.other, 'date menu: a day that already has an entry for this asset is marked, and the mark is described in words', JSON.stringify(m));
+    await p.context().close();
+  }
+
+  // ---- The workspace: modality, focus, keys, saving.
+  {
+    const p = await openSheet('?theme=light');
+    await p.evaluate(() => { window.__keys = 0; document.addEventListener('keydown', () => { window.__keys++; }); });
+    check(await p.evaluate(() => document.getElementById('backdrop').hidden), 'workspace: closed to begin with');
+    await p.click('#new');
+    let w = await p.evaluate(() => { const pn = document.getElementById('panel'); return { open: !document.getElementById('backdrop').hidden, inert: document.getElementById('app').inert, active: document.activeElement.id, role: pn.getAttribute('role'), modal: pn.getAttribute('aria-modal'), labelled: document.getElementById(pn.getAttribute('aria-labelledby')).textContent, w: pn.getBoundingClientRect().width, right: innerWidth - pn.getBoundingClientRect().right }; });
+    check(w.open && w.inert && w.active === 'sh-subject' && w.role === 'dialog' && w.modal === 'true' && w.labelled === 'New entry', 'workspace: a labelled modal side panel; the screen behind it is inert and focus starts on the subject', JSON.stringify(w));
+    check(w.w === 1240 && w.right === 0, 'workspace: up to 1240px wide, against the inline end of the screen', JSON.stringify([w.w, w.right]));
+    // Tab stays inside.
+    const trap = await p.evaluate(() => { const panel = document.getElementById('panel'); const f = [...panel.querySelectorAll('a[href], button, input, textarea, select, [tabindex="0"]')].filter(e => !e.disabled && !e.closest('[hidden]') && e.tabIndex >= 0 && e.getClientRects().length); f[f.length - 1].focus(); return { first: f[0].id || f[0].textContent, last: f[f.length - 1].id }; });
+    await p.keyboard.press('Tab'); const afterTab = await p.evaluate(() => document.activeElement.id || document.activeElement.textContent);
+    check(afterTab === trap.first, 'workspace: Tab from the last control wraps to the first', JSON.stringify([trap, afterTab]));
+    await p.keyboard.press('Shift+Tab'); check(await p.evaluate(() => document.activeElement.id) === trap.last, 'workspace: Shift+Tab from the first wraps to the last');
+    // Keys typed inside do not reach the screen.
+    await p.focus('#sh-objective'); const k0 = await p.evaluate(() => window.__keys); await p.keyboard.type('n then more'); const k1 = await p.evaluate(() => window.__keys);
+    check(k1 === k0 && await p.evaluate(() => [...document.querySelectorAll('#panel')].length) === 1, 'workspace: keys typed in the panel never reach the screen, so the "n" shortcut does not open a second panel', `${k0} -> ${k1}`);
+    check(await p.evaluate(() => { const e = new KeyboardEvent('keydown', { key: 'p', ctrlKey: true, bubbles: true, cancelable: true }); document.getElementById('sh-objective').dispatchEvent(e); return e.defaultPrevented; }), 'workspace: Ctrl+P is held back, because printing the form itself would make no sense');
+    await p.fill('#sh-objective', '');
+    await p.keyboard.press('Escape');
+    const closed = await p.evaluate(() => ({ hidden: document.getElementById('backdrop').hidden, inert: document.getElementById('app').inert, active: document.activeElement.id, draft: localStorage.getItem('ra.sheet.draft.v1') }));
+    check(closed.hidden && !closed.inert && closed.active === 'new' && closed.draft === null, 'workspace: Escape closes a clean panel, returns focus to the button that opened it and keeps no draft', JSON.stringify(closed));
+    await p.keyboard.press('n'); check(await p.evaluate(() => !document.getElementById('backdrop').hidden && document.activeElement.id === 'sh-subject'), 'workspace: the "n" shortcut opens it from the screen');
+    await p.keyboard.press('Escape');
+    // Save with Ctrl+S.
+    await p.click('#new'); await p.click('#asset-btn'); await p.click('#asset-menu .pill[data-id="heat-pump-1"]'); await p.fill('#sh-subject', 'Bearing noise check'); await p.fill('#sh-findings', 'Quiet at idle, slight hum under load.'); await p.fill('#crew', 'Mechanical'); await p.fill('#hours', '1.5'); await p.click('#status button[data-v="done"]');
+    await p.focus('#sh-findings'); await p.keyboard.press('Control+s');
+    const saved = await p.evaluate(() => ({ hidden: document.getElementById('backdrop').hidden, say: document.getElementById('say').textContent, lines: [...document.querySelectorAll('.line')].length, active: document.activeElement.querySelector?.('.line__subject')?.textContent, selected: document.activeElement.getAttribute?.('aria-selected'), pane: document.querySelector('#pane h3')?.textContent, draft: localStorage.getItem('ra.sheet.draft.v1'), first: document.querySelector('.page-sheet .line .line__subject').textContent }));
+    check(saved.hidden && saved.say === 'Entry created.' && saved.lines === 6 && saved.active === 'Bearing noise check' && saved.selected === 'true' && saved.pane === 'Bearing noise check' && saved.draft === null, 'workspace: Ctrl+S creates the entry, announces it, closes the panel, selects the new line, focuses it and shows it in the pane', JSON.stringify(saved));
+    await p.context().close();
+  }
+
+  // ---- Drafts: kept on this device, offered back, and a confirmation before an edit is discarded.
+  {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+    const p = await ctx.newPage(); await p.goto(surl('?theme=light')); await p.evaluate(() => document.fonts.ready); await p.waitForTimeout(300);
+    await p.click('#new'); await p.fill('#sh-subject', 'Unfinished work'); await p.fill('#sh-steps', '1. Isolate the pump'); await p.waitForTimeout(450);
+    check(await p.evaluate(() => JSON.parse(localStorage.getItem('ra.sheet.draft.v1')).subject) === 'Unfinished work', 'drafts: an unfinished entry is written to the device while it is being written');
+    await p.keyboard.press('Escape');
+    check(await p.evaluate(() => document.getElementById('backdrop').hidden && document.getElementById('say').textContent === 'Draft kept on this device.'), 'drafts: closing a dirty new entry keeps the draft and says so, without asking');
+    await p.reload(); await p.evaluate(() => document.fonts.ready); await p.click('#new');
+    const back = await p.evaluate(() => ({ banner: !document.getElementById('restored').hidden, subject: document.getElementById('sh-subject').value, steps: document.getElementById('sh-steps').value, h: document.getElementById('sh-steps').getBoundingClientRect().height }));
+    check(back.banner && back.subject === 'Unfinished work' && back.steps === '1. Isolate the pump', 'drafts: reopening offers the draft back, with a banner', JSON.stringify(back));
+    await p.click('#restart');
+    const fresh = await p.evaluate(() => ({ banner: document.getElementById('restored').hidden, subject: document.getElementById('sh-subject').value, steps: document.getElementById('sh-steps').value, draft: localStorage.getItem('ra.sheet.draft.v1'), active: document.activeElement.id }));
+    check(fresh.banner && fresh.subject === '' && fresh.steps === '' && fresh.draft === null && fresh.active === 'sh-subject', 'drafts: "Start over" empties the sheet and the stored draft, and focus goes back to the subject', JSON.stringify(fresh));
+    await p.keyboard.press('Escape');
+    // Edit mode.
+    await p.click('.line[data-id="e1"]'); await p.click('#edit');
+    const ed = await p.evaluate(() => ({ title: document.getElementById('panel-title').textContent, subject: document.getElementById('sh-subject').value, asset: document.getElementById('asset-text').textContent, submit: document.getElementById('submit').textContent, handover: document.getElementById('sh-handover').value }));
+    check(ed.title === 'Edit entry' && ed.subject === 'Filter change and thermal check' && ed.asset === 'Inverter 2' && ed.submit === 'Save' && ed.handover.startsWith('Check the heat sink'), 'edit: the pane opens the same workspace with the entry in it', JSON.stringify(ed));
+    await p.keyboard.press('Escape'); check(await p.evaluate(() => document.getElementById('backdrop').hidden && document.getElementById('confirm-bd').hidden), 'edit: closing an unchanged entry asks nothing');
+    await p.click('#edit'); await p.fill('#sh-subject', 'Changed subject'); await p.keyboard.press('Escape');
+    let cf = await p.evaluate(() => ({ dlg: !document.getElementById('confirm-bd').hidden, active: document.activeElement.id, role: document.getElementById('confirm').getAttribute('role'), modal: document.getElementById('confirm').getAttribute('aria-modal'), title: document.getElementById('confirm-t').textContent }));
+    check(cf.dlg && cf.active === 'confirm-keep' && cf.role === 'alertdialog' && cf.modal === 'true', 'edit: leaving a changed entry asks first, in a dialog that starts on the safest answer', JSON.stringify(cf));
+    await p.keyboard.press('Tab'); check(await p.evaluate(() => document.activeElement.id) === 'confirm-discard', 'edit: Tab moves to the other answer');
+    await p.keyboard.press('Tab'); check(await p.evaluate(() => document.activeElement.id) === 'confirm-keep', 'edit: and wraps inside the dialog');
+    await p.keyboard.press('Escape');
+    check(await p.evaluate(() => document.getElementById('confirm-bd').hidden && !document.getElementById('backdrop').hidden && document.activeElement.id === 'sh-subject' && document.getElementById('sh-subject').value === 'Changed subject'), 'edit: Escape in the dialog means keep editing, with the changes intact');
+    await p.keyboard.press('Escape'); await p.click('#confirm-discard');
+    check(await p.evaluate(() => document.getElementById('backdrop').hidden && document.querySelector('.line[data-id="e1"] .line__subject').textContent === 'Filter change and thermal check'), 'edit: Discard closes the panel and the entry is unchanged');
+    await p.click('#edit'); await p.fill('#sh-subject', 'Filter change, thermal check and photo'); await p.keyboard.press('Control+s');
+    check(await p.evaluate(() => document.getElementById('say').textContent) === 'Entry saved.', 'edit: Ctrl+S saves the change and announces it');
+    check(await p.evaluate(() => document.querySelector('.line[data-id="e1"] .line__subject').textContent) === 'Filter change, thermal check and photo', 'edit: the line shows the new subject');
+    await ctx.close();
+  }
+
+  // ---- Reading: pages of fixed-height ruled lines, operable from the keyboard, with the full text in a pane.
+  {
+    const p = await openSheet('?theme=light');
+    const r = await p.evaluate(() => {
+      const lines = [...document.querySelectorAll('.line')], cs = (e, k) => getComputedStyle(e)[k], pages = [...document.querySelectorAll('.page-sheet')];
+      return { n: lines.length, heights: [...new Set(lines.map(l => Math.round(l.getBoundingClientRect().height)))], pages: pages.map(g => g.querySelector('h3').textContent), today: !!pages[0].querySelector('.chip--today'), role: document.getElementById('pages').getAttribute('role'), opts: lines.every(l => l.getAttribute('role') === 'option'), stops: lines.filter(l => l.tabIndex === 0).length, cols: cs(lines[0], 'gridTemplateColumns'), subj: { o: cs(lines[0].querySelector('.line__subject'), 'textOverflow'), w: cs(lines[0].querySelector('.line__subject'), 'whiteSpace') },
+        chips: lines.map(l => ({ text: l.querySelector('.chip').textContent.trim(), mark: !!l.querySelector('.chip .mark') })), margin: cs(lines[0].querySelector('.line__margin'), 'borderInlineEndWidth') };
+    });
+    check(r.n === 5 && r.heights.join() === '56', 'reading: five entries, every line exactly 56px tall', JSON.stringify([r.n, r.heights]));
+    check(r.pages.join() === 'Tuesday 17 November,Monday 16 November' && r.today, 'reading: one page per day, newest first, today marked', JSON.stringify(r.pages));
+    check(r.role === 'listbox' && r.opts && r.stops === 1, 'reading: a listbox of options with a single tab stop, so the lines are reachable and operable from the keyboard', JSON.stringify([r.role, r.opts, r.stops]));
+    check(r.cols.startsWith('150px') && r.margin === '1px', 'reading: the margin is 150px with its rule', JSON.stringify([r.cols, r.margin]));
+    check(r.subj.o === 'ellipsis' && r.subj.w === 'nowrap', 'reading: a long subject is cut with an ellipsis, never wrapped');
+    check(r.chips.every(c => c.text.length > 3) && r.chips.filter(c => c.mark).length === 4, 'reading: each line ends with its state as a text label, and a mark for Partial and Done', JSON.stringify(r.chips));
+    await p.focus('.line[tabindex="0"]'); await p.keyboard.press('ArrowDown'); await p.keyboard.press('ArrowDown');
+    check(await p.evaluate(() => document.activeElement.dataset.id) === 'e3' && await p.evaluate(() => document.querySelectorAll('.line[tabindex="0"]').length) === 1, 'reading: arrow keys move through the lines across pages and keep one tab stop');
+    await p.keyboard.press('ArrowDown'); check(await p.evaluate(() => document.activeElement.dataset.id) === 'e4', 'reading: the next page continues the list');
+    await p.keyboard.press('End'); check(await p.evaluate(() => document.activeElement.dataset.id) === 'e5', 'reading: End goes to the last line'); await p.keyboard.press('Home'); check(await p.evaluate(() => document.activeElement.dataset.id) === 'e1', 'reading: Home goes to the first');
+    const before = await p.evaluate(() => [...document.querySelectorAll('.line')].map(l => l.getBoundingClientRect().height));
+    await p.keyboard.press('Enter');
+    const after = await p.evaluate(() => ({ h: [...document.querySelectorAll('.line')].map(l => l.getBoundingClientRect().height), sel: [...document.querySelectorAll('.line[aria-selected="true"]')].map(l => l.dataset.id), bar: getComputedStyle(document.querySelector('.line[aria-selected="true"]')).borderInlineStartWidth, pane: document.querySelector('#pane h3').textContent, dts: [...document.querySelectorAll('#pane dt')].map(d => d.textContent), dd: document.querySelector('#pane dd').textContent, focus: document.activeElement.dataset.id }));
+    check(JSON.stringify(after.h) === JSON.stringify(before), 'reading: selecting a line never changes any line\'s height; the full text opens in the pane', `${before.join()} / ${after.h.join()}`);
+    check(after.sel.join() === 'e1' && after.bar === '3px' && after.pane === 'Filter change and thermal check' && after.focus === 'e1', 'reading: Enter selects one line, with the 3px bar, and keeps focus on it', JSON.stringify(after));
+    check(after.dts.join() === 'Objective,Type,Findings,Steps,Parts and tools,For the next shift', 'reading: the pane lists only the parts that were written, in order', JSON.stringify(after.dts));
+    await p.click('.line[data-id="e3"]'); const e3 = await p.evaluate(() => [...document.querySelectorAll('#pane dt')].map(d => d.textContent));
+    check(e3.join() === 'Objective,Type', 'reading: a sparse entry shows only what it has', JSON.stringify(e3));
+    await p.dblclick('.line[data-id="e2"]'); check(await p.evaluate(() => !document.getElementById('backdrop').hidden && document.getElementById('sh-subject').value === 'String 04 insulation test'), 'reading: a double click opens the entry for editing');
+    await p.context().close();
+  }
+
+  // ---- Print: the pages of a paper log, ready for a signature, with colour dropped.
+  for (const [name, q] of [['light', '?theme=light'], ['dark', '?theme=dark']]) {
+    const p = await openSheet(q, {}, 'print');
+    const pr = await p.evaluate(() => {
+      const sheet = document.getElementById('print-sheet'), all = [sheet, ...sheet.querySelectorAll('*')], cs = e => getComputedStyle(e);
+      const parse = c => c.match(/[\d.]+/g).map(Number), lin = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }, L = c => 0.2126 * lin(c[0]) + 0.7152 * lin(c[1]) + 0.0722 * lin(c[2]);
+      const bgs = all.map(e => cs(e).backgroundColor).filter(c => !/^rgba\(0, 0, 0, 0\)$/.test(c) && c !== 'rgb(255, 255, 255)'), darkText = all.filter(e => e.children.length === 0 && e.textContent.trim()).map(e => L(parse(cs(e).color))).filter(l => l > 0.2);
+      const visible = [...document.body.children].filter(c => cs(c).display !== 'none').map(c => c.id || c.tagName);
+      return { shown: cs(sheet).display, visible, bgs, lightText: darkText.length, shadows: all.filter(e => cs(e).boxShadow !== 'none').length, bodyBg: cs(document.body).backgroundColor, htmlBg: cs(document.documentElement).backgroundColor,
+        entries: sheet.querySelectorAll('.ps-entry').length, avoid: [...sheet.querySelectorAll('.ps-entry')].every(e => cs(e).breakInside === 'avoid'), days: [...sheet.querySelectorAll('.ps-date')].map(d => d.textContent), box: (() => { const b = sheet.querySelector('.ps-visa__box').getBoundingClientRect(); return { w: Math.round(b.width), h: Math.round(b.height), border: cs(sheet.querySelector('.ps-visa__box')).borderTopWidth }; })(), visa: sheet.querySelector('.ps-visa').textContent.trim(), head: sheet.querySelector('.ps-title').textContent };
+    });
+    check(pr.shown === 'block' && pr.visible.join() === 'print-sheet', `print (${name}): only the print sheet is shown; the screen is left out`, JSON.stringify(pr.visible));
+    check(pr.bgs.length === 0 && pr.lightText === 0 && pr.shadows === 0 && pr.bodyBg === 'rgb(255, 255, 255)' && pr.htmlBg === 'rgb(255, 255, 255)', `print (${name}): colour drops out: no tints, near-black text, no shadows, white paper, whatever the screen theme`, JSON.stringify([pr.bgs.slice(0, 3), pr.lightText, pr.shadows, pr.bodyBg]));
+    check(pr.entries === 5 && pr.avoid && pr.days.join() === 'Monday 16 November,Tuesday 17 November', `print (${name}): every entry, oldest day first, and each avoids a page break`, JSON.stringify([pr.entries, pr.avoid, pr.days]));
+    check(pr.visa === 'Approved by' && pr.box.w >= 262 && pr.box.w <= 266 && pr.box.h >= 90 && pr.box.border === '1px', `print (${name}): the sheet ends with a signature box about 70mm by 24mm`, JSON.stringify(pr.box));
+    await p.context().close();
+  }
+  {
+    const p = await openSheet('?theme=light');
+    check(await p.evaluate(() => getComputedStyle(document.getElementById('print-sheet')).display) === 'none', 'print: the print sheet is not on the screen');
+    await p.context().close();
+  }
+
+  // ---- Density: the page is a notebook line, the controls around it follow the density.
+  const dens = {};
+  for (const d of ['comfortable', 'compact', 'touch']) {
+    const p = await openSheet(`?theme=light&open=1&density=${d}`);
+    dens[d] = await p.evaluate(() => {
+      const els = [...document.querySelectorAll('#panel .segmented button, #panel .icon-btn, #panel .bar-btn, #panel .bar-field, #panel .bar-hours, #panel .pick, #panel .link-btn, #panel .btn')].filter(e => !e.closest('[hidden]') && e.getClientRects().length);
+      const t = document.getElementById('sh-findings'), cs = getComputedStyle(t);
+      return { min: Math.round(Math.min(...els.map(e => e.getBoundingClientRect().height))), n: els.length, line: cs.lineHeight, font: cs.fontSize, h: Math.round(t.getBoundingClientRect().height), pick: Math.round(document.querySelector('.pick').getBoundingClientRect().height), sideways: document.getElementById('page').scrollWidth - document.getElementById('page').clientWidth };
+    });
+    await p.context().close();
+  }
+  check(dens.comfortable.min >= 36 && dens.compact.min >= 28 && dens.touch.min >= 44, 'density: every control in the workspace is at least 36px (comfortable), 28px (compact) and 44px (touch)', JSON.stringify([dens.comfortable.min, dens.compact.min, dens.touch.min]));
+  check(dens.compact.min >= 24, 'density: compact never goes below the 24px minimum');
+  check(Object.values(dens).every(x => x.line === '28px' && x.font === '15px' && x.h === 112), 'density: the line pitch, text size and part height do not change with the density', JSON.stringify(Object.values(dens).map(x => [x.line, x.font, x.h])));
+  check(dens.comfortable.pick === 36 && dens.compact.pick === 28 && dens.touch.pick === 44, 'density: quick-pick chips follow the control height', JSON.stringify([dens.comfortable.pick, dens.compact.pick, dens.touch.pick]));
+
+  // ---- Direction and reflow.
+  {
+    const p = await openSheet('?theme=light&open=1&dir=rtl');
+    await p.fill('#sh-findings', 'ملاحظات'); await p.focus('#sh-findings');
+    const r = await p.evaluate(() => { const part = document.getElementById('sh-findings').closest('.part'), label = part.querySelector('.part__label'), body = part.querySelector('.part__body'), cs = e => getComputedStyle(e), panel = document.getElementById('panel').getBoundingClientRect(); const hl = document.querySelector('.part--highlight .part__body'); return { labelRight: label.getBoundingClientRect().left > body.getBoundingClientRect().left, rule: cs(label).borderLeftWidth + '/' + cs(label).borderRightWidth, bar: cs(body).borderRightWidth + '/' + cs(body).borderLeftWidth, hl: cs(hl).borderRightWidth + '/' + cs(hl).borderLeftWidth, panelLeft: Math.round(panel.left), sideways: document.documentElement.scrollWidth - document.documentElement.clientWidth, align: cs(label).textAlign, h: Math.round(document.getElementById('sh-findings').getBoundingClientRect().height) }; });
+    check(r.labelRight && r.rule === '1px/0px', 'right to left: the margin moves to the right with its rule on the inner side', JSON.stringify(r));
+    check(r.bar === '2px/0px' && r.hl === '3px/0px', 'right to left: the focus bar and the highlight bar move to the right edge', JSON.stringify([r.bar, r.hl]));
+    check(r.panelLeft === 0 && r.sideways <= 0, 'right to left: the panel opens from the left, the inline end, and nothing scrolls sideways', JSON.stringify([r.panelLeft, r.sideways]));
+    await p.close();
+    const q = await openSheet('?theme=light&dir=rtl'); await q.click('.line[data-id="e1"]');
+    const l = await q.evaluate(() => { const li = document.querySelector('.line[data-id="e1"]'), m = li.querySelector('.line__margin').getBoundingClientRect(), b = li.querySelector('.line__body').getBoundingClientRect(), cs = getComputedStyle(li); return { marginRight: m.left > b.left, bar: cs.borderRightWidth + '/' + cs.borderLeftWidth }; });
+    check(l.marginRight && l.bar === '3px/0px', 'right to left: a reading line puts its margin on the right and its selection bar on the right', JSON.stringify(l));
+    await q.context().close();
+  }
+  {
+    const p = await openSheet('?theme=light&open=1', { viewport: { width: 720, height: 900 } });
+    const z = await p.evaluate(() => ({ page: document.getElementById('page').scrollWidth - document.getElementById('page').clientWidth, doc: document.documentElement.scrollWidth - document.documentElement.clientWidth, cols: getComputedStyle(document.querySelector('.part')).gridTemplateColumns.split(' ')[0], clip: [...document.querySelectorAll('.part__label, .bar-btn, .btn, .segmented button')].filter(e => e.scrollWidth > e.clientWidth + 1).map(e => e.textContent.trim().slice(0, 20)) }));
+    check(z.page <= 0 && z.doc <= 0 && z.cols === '120px' && z.clip.length === 0, 'reflow: at 200% zoom the workspace has no sideways scrolling, a 120px margin and no clipped labels', JSON.stringify(z));
+    await shot(p, 'sheet-zoom-200'); await p.context().close();
+  }
+  for (const [file, q] of [['sheet-read', '?theme=light'], ['sheet-read-dark', '?theme=dark']]) { const p = await openSheet(q); await p.click('.line[data-id="e1"]'); await shot(p, file); await p.context().close(); }
+  {
+    const p = await openSheet('?theme=light&open=1'); await p.fill('#sh-subject', 'Pump seal replacement'); await p.fill('#sh-objective', 'Replace the seal and confirm there is no leak at full pressure.'); await p.click('.pick[data-pick="Repair"]'); await p.fill('#sh-steps', '1. Isolate the pump\n2. Drain the housing\n3. Replace the seal'); await p.fill('#sh-handover', 'Check for a leak again at the next start.'); await p.focus('#sh-findings');
+    await p.setViewportSize({ width: 1440, height: 1300 }); await p.waitForTimeout(200); await shot(p, 'sheet-write', false); await p.context().close();
+    for (const [f, q] of [['sheet-write-dark', '?theme=dark&open=1'], ['sheet-write-outdoor', '?theme=outdoor&open=1']]) { const d = await openSheet(q); await d.fill('#sh-subject', 'Pump seal replacement'); await d.fill('#sh-objective', 'Replace the seal and confirm there is no leak at full pressure.'); await d.fill('#sh-handover', 'Check for a leak again at the next start.'); await d.focus('#sh-findings'); await d.setViewportSize({ width: 1440, height: 1300 }); await d.waitForTimeout(200); await shot(d, f, false); await d.context().close(); }
+  }
+}
+
 // Glass: legibility measured on real rendered pixels, the layers, the states and every fallback.
 console.log('glass page');
 {

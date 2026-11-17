@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Realis Aero ruled sheet</title>
+<script>
+  // ?theme=light|dark|outdoor, ?density=compact|touch, ?dir=rtl, ?open=1 opens the workspace
+  (function () {
+    var q = new URLSearchParams(location.search), r = document.documentElement;
+    if (q.get('theme')) r.dataset.theme = q.get('theme');
+    if (q.get('density')) r.dataset.density = q.get('density');
+    if (q.get('dir')) r.dir = q.get('dir');
+  })();
+</script>
+<link rel="stylesheet" href="../fonts/realis-aero.fonts.css">
+<link rel="stylesheet" href="../tokens/realis-aero.tokens.css">
+<link rel="stylesheet" href="specimen.css">
+<link rel="stylesheet" href="sheet.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="m-live" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="2.6" fill="currentColor"/></symbol>
+    <symbol id="m-paused" viewBox="0 0 16 16"><rect x="3.5" y="3" width="3" height="10" rx="0.5" fill="currentColor"/><rect x="9.5" y="3" width="3" height="10" rx="0.5" fill="currentColor"/></symbol>
+    <symbol id="m-stale" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M8 4.6V8l2.4 1.6"/></g></symbol>
+    <symbol id="m-offline" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6"/><path d="M3.8 3.8l8.4 8.4"/></g></symbol>
+    <symbol id="m-degraded" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2a6 6 0 0 0 0 12z" fill="currentColor"/></symbol>
+    <symbol id="m-maintenance" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M8 1.6l5.5 3.2v6.4L8 14.4l-5.5-3.2V4.8z"/><circle cx="8" cy="8" r="2.2"/></g></symbol>
+    <symbol id="m-success" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M5.2 8.3l2 2 3.6-4.3"/></g></symbol>
+    <symbol id="m-uncertain" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6" stroke-dasharray="2 2.2"/><path d="M6.4 6.5a1.7 1.7 0 1 1 2.5 1.5c-.6.4-.9.7-.9 1.4"/></g><circle cx="8" cy="11.5" r="0.9" fill="currentColor"/></symbol>
+    <symbol id="m-error" viewBox="0 0 16 16"><path fill="currentColor" fill-rule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM7.2 4h1.6v5H7.2zM8 10.3a1.1 1.1 0 1 0 0 2.2 1.1 1.1 0 0 0 0-2.2z"/></symbol>
+    <symbol id="m-warning" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.2l6.3 11.3H1.7z"/><path d="M8 6.6v3.2"/></g><circle cx="8" cy="11.6" r="0.9" fill="currentColor"/></symbol>
+    <symbol id="m-info" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6"/><path d="M8 7.4v3.8"/></g><circle cx="8" cy="5" r="0.9" fill="currentColor"/></symbol>
+    <symbol id="m-dirty" viewBox="0 0 16 16"><circle cx="8" cy="8" r="3.2" fill="currentColor"/></symbol>
+    <symbol id="m-queued" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 11V3.4M4.8 6.4L8 3.2l3.2 3.2M3.5 13.5h9"/></g></symbol>
+  </defs>
+</svg>
+<div class="app" id="app">
+  <nav class="rail" aria-label="Sections">
+    <div class="rail__brand">Realis Aero</div>
+    <div class="rail__section">Specimen</div>
+    <a href="index.html">States and tables</a>
+    <a href="settings.html">Settings</a>
+    <a href="glass.html">Glass</a>
+    <a href="sheet.html" aria-current="page">Ruled sheet</a>
+  </nav>
+  <main class="canvas" id="main">
+    <div class="topbar">
+      <div>
+        <h1>Ruled sheet</h1>
+        <p class="secondary small">A page for writing and reading long text: a margin, ruled lines and an order of parts.</p>
+      </div>
+      <div class="actions"><button class="btn btn--primary" id="new" type="button">New entry</button></div>
+      <nav class="themes" aria-label="Theme"><a href="?">System</a><a href="?theme=light">Light</a><a href="?theme=dark">Dark</a><a href="?theme=outdoor">Outdoor</a><a href="?dir=rtl">Right to left</a></nav>
+    </div>
+
+    <section class="section" aria-labelledby="h-read">
+      <header><h2 id="h-read">Reading</h2><p class="muted small">One page per day. Each entry is one fixed-height ruled line: the asset in the margin, the subject on the line, its state at the end. Select a line to read it in the pane; a line never grows in place.</p></header>
+      <div class="read-grid">
+        <div class="pages" id="pages" role="listbox" aria-label="Entries"></div>
+        <aside class="pane" id="pane" role="region" aria-label="Entry"></aside>
+      </div>
+      <div class="actions"><button class="btn btn--secondary" id="print-btn" type="button">Print the week</button><span class="caption muted">Press <span class="kbd">N</span> for a new entry.</span></div>
+    </section>
+
+    <section class="section" aria-labelledby="h-write">
+      <header><h2 id="h-write">Writing</h2><p class="muted small">New entry opens the workspace: a side panel over a scrim with the setup in one bar, the ruled sheet as the page, and one filled action in the footer. Changes stay on this device as a draft until the entry is created.</p></header>
+    </section>
+  </main>
+</div>
+
+<div class="composer-backdrop" id="backdrop" hidden>
+  <aside class="composer" id="panel" role="dialog" aria-modal="true" aria-labelledby="panel-title" tabindex="-1">
+    <header class="composer__head">
+      <div class="composer__heading"><h2 id="panel-title"></h2><p class="composer__sub" id="panel-sub"></p></div>
+      <span class="segmented" role="radiogroup" aria-label="Status" id="status"></span>
+      <button class="icon-btn" id="close" type="button" aria-label="Close">Close</button>
+    </header>
+    <div class="lc-bar" id="bar">
+      <div class="bar-item">
+        <button type="button" class="bar-btn bar-btn--empty" id="asset-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="asset-menu"><span id="asset-text">Asset</span></button>
+        <div class="menu" id="asset-menu" role="listbox" aria-label="Asset" hidden></div>
+      </div>
+      <div class="bar-item"><input class="bar-field" id="crew" list="crews" placeholder="Crew" aria-label="Crew" autocomplete="off"><datalist id="crews"><option value="Electrical"><option value="Mechanical"><option value="Controls"><option value="Civil"></datalist></div>
+      <div class="bar-item">
+        <button type="button" class="bar-btn" id="date-btn" aria-haspopup="dialog" aria-expanded="false" aria-controls="date-menu"><span id="date-text">Date</span></button>
+        <div class="menu menu--date" id="date-menu" role="dialog" aria-label="Date" hidden></div>
+      </div>
+      <label class="bar-item bar-hours" id="hours-wrap"><input id="hours" inputmode="decimal" placeholder="Hours" aria-label="Hours"><span id="hours-unit" hidden>h</span></label>
+      <p class="bar-errors" id="bar-errors" role="alert" hidden></p>
+    </div>
+    <div class="composer__banner" id="restored" hidden>Unfinished draft restored. <button class="btn btn--secondary" id="restart" type="button">Start over</button></div>
+    <div class="composer__banner composer__banner--error" id="failure" role="alert" hidden></div>
+    <form class="lc-page" id="page" novalidate><div class="sheet" id="sheet"></div></form>
+    <footer class="composer__foot">
+      <span class="composer__keys"><span class="kbd">Ctrl</span> + <span class="kbd">S</span> save &middot; <span class="kbd">Esc</span> close &middot; <span id="progress"></span></span>
+      <button class="btn btn--secondary" id="cancel" type="button">Cancel</button>
+      <button class="btn btn--primary" id="submit" type="button">Create entry</button>
+    </footer>
+  </aside>
+</div>
+
+<div class="confirm-backdrop" id="confirm-bd" hidden>
+  <div class="confirm" id="confirm" role="alertdialog" aria-modal="true" aria-labelledby="confirm-t" aria-describedby="confirm-d">
+    <h2 id="confirm-t">Discard your changes?</h2>
+    <p id="confirm-d">The changes you made to this entry will not be saved.</p>
+    <div class="actions"><button class="btn btn--secondary" id="confirm-keep" type="button">Keep editing</button><button class="btn btn--danger" id="confirm-discard" type="button">Discard</button></div>
+  </div>
+</div>
+
+<p class="toast" id="say" role="status"></p>
+<article class="print-sheet" id="print-sheet" aria-hidden="true"></article>
+<script src="sheet.js"></script>
+</body>
+</html>

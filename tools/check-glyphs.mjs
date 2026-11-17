@@ -21,7 +21,7 @@ const faces = {
 
 const browser = await chromium.launch();
 let failed = 0, checked = 0;
-const PAGES = [['index.html', '?theme=light'], ['index.html', '?theme=dark'], ['index.html', '?theme=outdoor'], ['settings.html', ''], ['glass.html', '?theme=light']];
+const PAGES = [['index.html', '?theme=light'], ['index.html', '?theme=dark'], ['index.html', '?theme=outdoor'], ['settings.html', ''], ['glass.html', '?theme=light'], ['sheet.html', '?theme=light&open=1']];
 for (const [file, query] of PAGES) {
   const theme = file + query;
   const page = await browser.newPage();

@@ -15,6 +15,7 @@ v0.5 adds the mechanics that dense and long-running products need. As in v0.4, e
 - **Typography as engineering**: bundled open-licensed faces (Source Sans 3, Source Code Pro, Noto Sans Arabic), tabular digits and real weights proven by checks, and a check that every character drawn is covered by a bundled face. See [Font Stack](#font-stack).
 - **Right to left**: the layout mirrors through logical properties, and numbers and dates are isolated. See [Internationalization and Right to Left](#internationalization-and-right-to-left).
 - **The table model, completed**: range selection, copy and paste with a preview, column visibility, order and width with a keyboard alternative for every pointer action, middle truncation of paths, and a virtualized table of 12,408 rows with a measured budget. See [Tables & Data Grids](#tables--data-grids).
+- **The Ruled Sheet and the Writing Workspace, built and measured**: the sheet, the workspace and the reading pages are in a specimen, and 141 checks hold the document's claims to the browser. They found that the pattern could not ship in dark as specified. See [Ruled Sheet](#ruled-sheet-writing--reading).
 - **Glass, specified and measured**: bare glass carries no text, text sits on reading plates, and the plate's legibility is measured on real rendered pixels. All four variants are now tokens, and the internal data layer, glass states and wear are built. See [Glass](#glass).
 - **A settings screen**: staged until Apply, an inert preview, locked settings with their owner, reordering without a pointer, find and stated scope. See [Settings and Personalization](#settings-and-personalization).
 - **Smaller sections**: [Performance](#performance), [Measuring Success](#measuring-success), and zoom in [Accessibility](#accessibility).
@@ -26,6 +27,12 @@ Building the checks found defects, corrected here:
 - **The 44px input height** made every desktop form and table taller than the work needs. 44px is now the touch density; comfortable is 36px and compact 28px.
 - **Frutiger is a commercial face** that was first in the stack, so a device without it silently drew something else. The stack now leads with a bundled face.
 - **The reason an action was unavailable was a message after a click**, not something a screen reader could find first. Every unavailable action now carries its reason as its description, and still announces it when activated.
+- **The Ruled Sheet could not ship in dark.** Its focus label, focus bar and highlight bar used the primitives `aero-blue-800` and `aero-blue-600`, which measure 1.45:1, 2.50:1 and 2.86:1 in dark (the bars need 3:1, the label 4.5:1). The semantic tokens `state-info-text` and `selected-edge` give 7.61:1 to 8.70:1. Components use semantic tokens only, and this was the clearest case of why.
+- **In forced colors the sheet had no focus indicator at all.** The focus bar and the highlight bar were `box-shadow`, which forced colors removes, and the writing field had `outline: none`. Both bars are now real borders, taken out of the padding so the text does not move.
+- **The reading lines could not be reached from a keyboard** in the first implementation: clickable list items with no role and no tab stop. They are now options in a listbox with one tab stop, arrow keys, Home, End and Enter.
+- **Quick-pick chips were about 26px tall,** under the 36px, 28px and 44px control heights the density system promises. They follow the density now.
+- **The side panel was `aria-modal` but did not trap focus or make the screen inert.** It does both now.
+- **Selecting a reading line rebuilt the list,** which destroyed the element before a double click could land on it: the same defect as the column-resize handle. Selection now updates the lines in place.
 - **Frosted glass was legible only over near-white.** Measured, light frosted glass kept every text role at 4.5:1 only over backdrops brighter than gray 230, and dark frosted glass only below gray 138. Over a mid-gray photograph its muted and state text failed, so the glass could not carry text over the imagery it was specified for. Text now sits on a plate that holds over every backdrop.
 - **The glass tokens contradicted the material table.** `opacity-glass-clear` was 0.72 (table: 0.58) and `opacity-glass-frosted` 0.82 (table: 0.72), nothing used them, and dense hardware glass and the alert blur were not tokens at all. A check now fails if a tint's alpha differs from its token.
 - **Dense hardware glass broke outdoor's AAA promise.** It is a dark subtree, so inside an outdoor page it escaped the outdoor theme and its muted text measured 6.28:1 against the 7:1 target. In outdoor it now stays in the outdoor theme.
@@ -926,7 +933,7 @@ In dark, higher layers are lighter, the inset is recessed darker, and the rail i
 - **Control edge** `#6F93A6`: 4.24:1 on a card, 4.85:1 on an inset.
 - **Focus ring** solar-300: 6.00:1 or more on every surface.
 - **Lowest text pair**: muted text on the raised surface, 4.50:1. It passes with no margin; do not lighten `surface-raised` or darken `text-muted` in dark without re-running the check.
-- **The Ruled Sheet in dark** uses the same ladder: sheet on `surface`, ruled lines in `border-subtle`, margin rule in `border-card`. It is not yet in the specimen.
+- **The Ruled Sheet in dark** uses the same ladder: sheet on `surface`, ruled lines in `border-subtle`, margin rule in `border-card`, focus and highlight bars in `selected-edge`. It is in the specimen and measured: its text reaches 6.55:1 or better on real pixels (see [Ruled Sheet](#ruled-sheet-writing--reading)).
 
 ### Outdoor
 
@@ -1172,39 +1179,41 @@ Forms should feel precise and serviceable.
 
 ### Ruled Sheet (Writing & Reading)
 
-A working notebook is one of the most feasible, repairable tools there is: a margin, ruled lines and an agreed order of parts let anyone write quickly and anyone else read it later. The Ruled Sheet takes that *structure*, which is what makes notebooks work, and leaves out the nostalgia. It is Feasibility Is Beauty applied to writing: the form gives way to a page that invites the amount of text the task needs.
+A working notebook is one of the most feasible, repairable tools there is: a margin, ruled lines and an agreed order of parts let anyone write quickly and anyone else read it later. The Ruled Sheet takes that *structure*, which is what makes notebooks work, and leaves out the nostalgia. It is Feasibility Is Beauty applied to writing: the form gives way to a page that invites the amount of text the task needs. The specimen is [`specimen/sheet.html`](specimen/sheet.html), drawn by [`specimen/sheet.css`](specimen/sheet.css) and [`specimen/sheet.js`](specimen/sheet.js). It is a work log for equipment, not a school product; the pattern is the same for any long text written in parts.
 
-**Use it for**: long free text written in parts: work logs, observations, reports, maintenance and incident notes, handovers. Use the same sheet to read what was written.  
+**Use it for**: long free text written in parts: work logs, observations, reports, maintenance and incident notes, handovers. Use the same sheet to read what was written.
 **Do not use it for**: short structured input (names, numbers, dates, choices). Those belong in controls, and in a writing task they go in the setup bar above the sheet.
 
 #### Anatomy
 
 | Element | Specification |
 |---|---|
-| **Sheet** | L2 surface (white) on the L1 canvas; card hairline, `radius-md`, `shadow-2`; max width about 900px (≈ 75 characters at 15px), centred |
-| **Margin** | A label column (156px; 120px below 1100px) holding each part's name: caption size, uppercase, 0.05em tracking, muted text, right-aligned |
-| **Margin rule** | 1px in the card border tone, running down the whole sheet through every part |
+| **Sheet** | L2 surface (white) on the L1 canvas; card hairline, `radius-md`, `shadow-2`; 900px wide at most (about 75 characters at 15px), centred |
+| **Margin** | A label column (156px; 120px below 1100px) holding each part's name: caption size, uppercase, 0.05em tracking, muted text, aligned to the rule |
+| **Margin rule** | 1px in the card border tone, running down the whole sheet through every part with no gap between parts |
 | **Ruled lines** | 1px `border-subtle` at the foot of each 28px line, drawn *behind* the text and scrolling with it |
 | **Writing text** | 15px on a 28px line (the line pitch), primary text colour, no box, no inner border |
-| **Heading line** | The sheet's main field (the title or subject of the entry): body-lg, weight 520, a single control-tone underline instead of a box |
-| **Highlighted part** | At most one per sheet, for the part its audience reads first: inset tone with a 3px aerospace-blue bar |
-| **Secondary fields** | Offered on demand as a link line ("+ Add a public title", "Attach a file") that reveals the field |
+| **Heading line** | The sheet's main field (the title or subject of the entry): body-lg, weight 520, a single 1px control-tone underline instead of a box |
+| **Highlighted part** | At most one per sheet, for the part its audience reads first: inset tone with a 3px `selected-edge` bar drawn as a real border |
+| **Secondary fields** | Offered on demand as a link line ("+ Add a public title", "+ Attach a file") that reveals the field and moves focus into it |
+
+The line pitch and the text size are those of a notebook, so they **do not change with the density**; the controls around the sheet do (see [Density](#density)).
 
 #### Behaviour
 
-- **Grows with the text**: parts have no inner scrollbar; the page scrolls. Each part re-fits as it is written, when the sheet's width changes (window resized or snapped) and once fonts load. Minimum height follows the expected length: 1 line for short parts, 3 for typical, 4 for long ones.
-- **Lists continue**: Enter at the end of a line starting `1.`, `1)` or `-` starts the next item (`2. `, `- `); Enter on an empty item ends the list. Anywhere else Enter is a plain new line.
-- **Quick picks**: frequent values sit as small chips above a part (for an activity type: Inspection, Repair, Calibration, Review). A chip adds or removes its value; the text stays free.
+- **Grows with the text**: parts have no inner scrollbar; the page scrolls. Each part re-fits as it is written, when the sheet's width changes (window resized or snapped) and once fonts load, always on whole lines. Minimum height follows the expected length: 1 line for short parts, 3 for typical, 4 for long ones.
+- **Lists continue**: Enter at the end of a line starting `1.`, `1)`, `-`, `*` or `•` starts the next item (`2. `, `2) `, `- `); Enter on an empty item ends the list and removes its marker. Anywhere else (the middle of a line, Shift+Enter, a line that is not a list item) Enter is a plain new line. The caret ends at the end of the new marker.
+- **Quick picks**: frequent values sit as chips above a part (for an activity type: Inspection, Repair, Calibration, Review). A chip adds its value to the text, or removes it if it is already there; the text stays free, and typing a value presses its chip. Chips are as tall as the density's control height (36px, 28px or 44px).
 - **Placeholders are questions or instructions, in italics**: "What should be true when this work is finished?", "start with “1.”". Never example content that could read as already written.
-- **Focus**: the focused part's margin label turns aerospace blue and a 2px blue bar marks the part's inner edge, so focus is shown by shape as well as colour.
-- **Progress without pressure**: a single line ("3 of 6 parts filled, all optional") instead of "optional" on every part; a character counter only appears near a limit.
-- **Validation**: inline, under the part, in danger text; the control edge turns coral. Submitting moves focus to the first invalid field.
+- **Focus** is a 2px bar on the part's inner edge, in `selected-edge`, drawn as a **real border taken out of the part's padding**, so the text does not move and forced colors keeps it. The part's margin label turns `state-info-text` at the same time, so focus is shown by shape as well as colour. The **highlighted part** already has its 3px bar, so focus there is the standard 2px solar ring, inset. The writing field has no outline of its own: the bar and the ring are its focus indicator.
+- **Progress without pressure**: a single line ("3 of 6 parts filled, all optional") instead of "optional" on every part, counting only parts with writing in them; a character counter appears from 80% of a limit.
+- **Validation**: inline, under the part, in danger text; the control edge turns coral; the field is `aria-invalid` and described by its error. Submitting names every problem and moves focus to the first one in reading order: the setup bar first, then the sheet.
 
 #### Variants
 
 - **Writing**: as above, inside the [Writing Workspace](#writing-workspace).
-- **Reading (pages)**: the same sheet, one page per day or group. Each item is one fixed-height ruled line: who and where in the margin, the content on the line, its state at the end. The full text opens in a side pane; lines never expand in place.
-- **Print**: colour drops out (black text, hairline rules); each item avoids page breaks; the sheet ends with a signature or approval box. A printed sheet must photocopy and take a signature.
+- **Reading (pages)**: the same sheet, one page per day or group. Each item is one **fixed-height ruled line** (56px): who and where in the margin (150px, with its rule), the subject on the line, its state at the end as a text label with a mark. The full text opens in a side pane; lines never expand in place, and selecting one never changes any line's height. The pages are a listbox: one tab stop, arrow keys across pages, Home and End, Enter or a click to select, a double click to edit. The selected line has the 3px bar and a selected tone.
+- **Print**: colour drops out (black text, hairline rules, white paper, whatever the screen theme); each item avoids page breaks; the sheet ends with a signature or approval box about 70mm by 24mm. A printed sheet must photocopy and take a signature.
 
 #### Do / Don't
 
@@ -1216,14 +1225,19 @@ A working notebook is one of the most feasible, repairable tools there is: a mar
 | Let parts grow and the page scroll | Fixed-height boxes with their own scrollbars |
 | Keep setup (who, when) out of the page | Mix pickers and calendars into the writing column |
 | Highlight one part at most | Colour every part differently |
+| Draw focus and highlight bars as borders | Draw them as `box-shadow`: forced colors removes them |
+| Use semantic tokens for the label, the bars and the links | Use `aero-blue-*` primitives: they are 1.45:1 in dark |
 
 #### Accessibility
 
 - Every part has a real `<label for>` (the margin label), so it is named without its placeholder.
-- Ruled lines and the margin rule are decoration, not information; they sit behind the text and never lower its contrast (text keeps ≥ 4.5:1 on the sheet and on the highlighted part).
-- Placeholders use the muted token (≥ 4.5:1); italics are a second cue that they are not content.
+- Ruled lines and the margin rule are decoration, not information; they sit behind the text and never lower its contrast. The rule is 1px at the foot of a 28px line, below the descenders of a 15px face.
+- Placeholders use the muted token (4.5:1 or better); italics are a second cue that they are not content.
+- The focus indicator is a border or an outline, never a shadow, so it survives forced colors, and its colour reaches 3:1 (4.5:1 in outdoor) against what it sits on.
 - Tab moves between parts; list continuation never traps Enter (a second Enter on an empty item leaves the list).
-- Revealing a secondary field moves focus into it, or keeps it in the panel, so keyboard shortcuts keep working.
+- Revealing a secondary field moves focus into it, so keyboard shortcuts keep working.
+- The reading pages are a listbox of options, so they are operable from the keyboard and not only the pointer.
+- The writing field ignores Enter while an input method is composing text.
 
 #### Reference CSS
 
@@ -1231,17 +1245,41 @@ A working notebook is one of the most feasible, repairable tools there is: a mar
 .sheet { max-width: 900px; margin: 0 auto; background: var(--color-surface);
   border: 1px solid var(--color-border-card); border-radius: var(--radius-md); box-shadow: var(--shadow-2); }
 .part { --line: 28px; display: grid; grid-template-columns: 156px minmax(0, 1fr); }
-.part__label { border-right: 1px solid var(--color-border-card); text-align: right;
+.part__label { border-inline-end: 1px solid var(--color-border-card); text-align: end;
   font: 560 var(--text-caption) / var(--line) var(--font-sans); letter-spacing: 0.05em;
   text-transform: uppercase; color: var(--color-text-muted); }
-.part:focus-within .part__label { color: var(--aero-blue-800); }
-.part:focus-within .part__body { box-shadow: inset 2px 0 0 var(--aero-blue-600); }
+.part__body { padding-inline: var(--space-5) var(--space-8); }
+
+/* Focus: a real border taken out of the padding, so the text does not move
+   and forced colors keeps it. Semantic tokens only: the primitives fail in dark. */
+.part:focus-within .part__label { color: var(--state-info-text); }
+.part:focus-within .part__body { border-inline-start: 2px solid var(--color-selected-edge);
+  padding-inline-start: calc(var(--space-5) - 2px); }
+
 .ruled { width: 100%; border: none; outline: none; resize: none; overflow: hidden; padding: 0;
   font: 400 15px / var(--line) var(--font-sans); color: var(--color-text-primary); background-color: transparent;
   background-image: linear-gradient(to bottom, transparent calc(var(--line) - 1px), var(--color-border-subtle) calc(var(--line) - 1px));
   background-size: 100% var(--line); background-attachment: local; }
 .ruled::placeholder { font-style: italic; color: var(--color-text-muted); }
+
+/* The one highlighted part: a real border for the bar, and the standard ring for focus. */
+.part--highlight .part__body { background: var(--color-surface-inset); border-radius: var(--radius-sm);
+  border-inline-start: 3px solid var(--color-selected-edge); }
+.part--highlight:focus-within .part__body { outline: 2px solid var(--color-focus-ring); outline-offset: -2px; }
 ```
+
+#### Measured
+
+`npm run check:render` holds the pattern to the browser, on [`specimen/sheet.html`](specimen/sheet.html):
+
+- **Contrast on real pixels.** The sheet is rendered with its text hidden and the contrast of each text colour is measured against the pixels under it: 21 areas (labels, typed text, placeholders, links and chips), with the ruled lines and the highlighted tone included. The lowest is **5.38:1 in light, 6.55:1 in dark and 9.48:1 in outdoor**, against targets of 4.5 and 7. Nothing is focused during the measurement.
+- **Geometry**: 900px and centred; 156px margin, 120px below 1100px; a continuous 1px margin rule; labels at 12px, 560, uppercase, 0.6px tracking; text at 15px on 28px; minimum heights 84, 28, 112, 112, 84 and 84px; heading line at 18px, 520, one underline, no box; exactly one highlighted part.
+- **Growth**: ten lines make a 280px part with no inner scrollbar; clearing returns it to its minimum; narrowing the window re-wraps and re-fits it on whole lines; the margin changes to 120px below 1100px.
+- **Lists and picks**: `1.`, `1)` and `-` continue; an empty item ends a list; Enter mid-line, Shift+Enter and plain lines are plain new lines; seven items make a 196px part; a chip adds, removes and follows the text.
+- **Focus** in each theme: a 2px solid border with no shadow, text that does not move, a bar at 3:1 (4.5:1 in outdoor), a label colour at 4.5:1 (7:1 in outdoor); the highlighted part keeps its 3px bar and takes the 2px ring; in forced colors every bar is still a border.
+- **Validation, secondary fields, the setup bar, the workspace, drafts, reading, print, density, right to left and 200% zoom**, as described in [Writing Workspace](#writing-workspace) and above.
+
+**Not measured**: how screen readers announce the sheet and the pages; text composed with an input method (Enter is guarded, not tested); a real printer or photocopier (print is emulated); a phone's on-screen keyboard; and file attachment, which the specimen only reveals (it uploads nothing).
 
 ### Toggles, Sliders & Controls
 
@@ -1913,13 +1951,15 @@ createApp(App).mount("#app");
 
 ### Writing Workspace
 
-For tasks whose value is the text the user writes (work logs, reports, maintenance notes):
+For tasks whose value is the text the user writes (work logs, reports, maintenance notes). The specimen's panel opens from [`specimen/sheet.html`](specimen/sheet.html).
 
-- **Side panel, not a modal**: wide (up to about 1240px), over the current screen; the canvas shows around the sheet.
-- **Setup bar**: everything that is a choice (who, what, when, how long) fits one row of compact controls above the sheet. Pickers open as menus (a grouped list, the month grid); Escape closes a menu before the panel. Status or state stays in the header.
+- **A side panel over a scrim**: wide (up to about 1240px) against the inline end of the screen, over the current screen; the canvas shows around the sheet. It is a modal in the accessibility sense (`role="dialog"`, `aria-modal`, named by its title): the screen behind it is inert, Tab wraps inside it, Shift+Tab wraps the other way, and focus starts on the subject.
+- **Setup bar**: everything that is a choice (who, what, when, how long) fits one row of compact controls above the sheet. Pickers open as menus. The **asset menu** is a list grouped by site, with a filter that takes focus when there are more than eight; Enter picks the first match. The **date menu** is a month grid that opens on the date's month with the date focused; the arrow keys move a day or a week and turn the month at its edges; a day that already holds an entry for the chosen asset is marked, and the mark is described in words. **Escape closes a menu before the panel**, and focus returns to the button; a click outside closes it. Status stays in the header as a radio group that the arrow keys move through.
 - **The page**: a [Ruled Sheet](#ruled-sheet-writing--reading) takes the rest of the height and scrolls.
 - **Footer**: one filled action (Create / Save), Cancel, the keyboard shortcuts and the progress line.
-- **Drafts**: unfinished new entries are kept locally and offered back; leaving an edited entry asks before discarding.
+- **Keys**: Ctrl+S or Ctrl+Enter saves; Escape closes; Ctrl+P is held back, because printing the form itself would make no sense. **Keys typed in the panel never reach the screen below**: the screen's "n" shortcut opens a new entry, and typing an "n" in the panel does not.
+- **Drafts**: an unfinished new entry is written to the device as it is written (after 300ms) and offered back with a banner and a "Start over" that empties the sheet and the stored draft. Closing a dirty new entry keeps its draft and says so, without asking. Closing a **changed existing entry** asks first, in a dialog that starts on the safest answer ("Keep editing"), where Tab wraps and Escape means keep editing; closing an unchanged one asks nothing.
+- **After saving**, focus goes to the line that was written, which is selected and shown in the pane, and the result is announced ("Entry created.", "Entry saved.").
 
 ### Hardware / Kiosk UI
 
@@ -1961,16 +2001,16 @@ The claims in the token, state, theme, table, layer and type sections are measur
 |---|---|---|
 | **Contrast** | `npm run check:tokens` | **Glass:** every tint's alpha is its token; over pure black and pure white every text role reaches 4.5:1 and every state mark 3:1 on a plate, for every variant in light and dark; every fallback (outdoor, reduced transparency, print, forced colors, no backdrop-filter) makes glass solid; and the envelope of bare glass is printed. **Tokens:** 144 token pairs in each of light, dark and outdoor: layers at least 1.12:1 from their neighbour; text at least 4.5:1 on every surface it can sit on; marks, control edges and focus rings at least 3:1; 7:1 and 4.5:1 in outdoor. Translucent tokens are composited over their surface. Also that the two dark blocks are identical. |
 | **Colour vision** | `npm run check:cvd` | The five family chart series stay at least 0.07 apart in OKLab under simulated protanopia, deuteranopia and tritanopia (Machado 2009), in every theme. |
-| **Rendering** | `npm run check:render` | In a real browser, on [`specimen/index.html`](specimen/index.html). **In each theme:** every state is drawn with a mark and a text label, and no two states share a mark; every run of painted text meets its target against the surface actually behind it; every control shows a focus ring of at least 2px and meets the density's height; disabled controls are focusable, explained and not faded; a dark panel inside another theme resolves its own tokens; pausing changes mark and text. **Density:** the three densities measure 36/28/44px controls and 40/32/48px rows, compact never drops below 24px, type size and rows are identical in all three, rows keep one height, a coarse pointer gets touch. **Table:** the keyboard model key by key (single tab stop, arrows, Home and End, Ctrl+Home and End, paging, header reach, sort, row selection, edit, cancel, commit, Tab while editing, unsaved marks and counts, restoring a value, leaving the grid, frozen key column). **Table, continued:** range selection, copy to the clipboard, paste preview with its skips and cancel, discard; columns (show, hide, reorder within a group, widths, drag and double click, the protected key column, persistence, reset); truncation (the start is cut, the tail stays, no decision value clips, the full text is reachable). **Large table:** 12,408 rows with about twenty in the page, true `aria-rowindex`, Ctrl+End to the last row, selection across scrolling, and the performance budget. **Layers:** every action, enabled and disabled, with the status it announces; offline queueing, partial sync, a conflict and its resolution. **Glass:** the glass page rendered with its text hidden, and the contrast of every plate text colour measured against the real pixels behind it, in light, dark, outdoor and reduced transparency (79 plate runs each) and over eight scroll positions of a moving list; the stress backdrops must make bare glass fail (15 of 32 bare runs in light, 19 in dark); no glass inside glass, no text on bare glass outside the stress samples; streams within 10% to 28% and 1px to 2px, eight categories with eight line styles, hidden from assistive technology; each layer switch removes its layer; a fresh reading pulses once on its own line and not under reduced motion; live, stale, offline and maintenance panels behave as specified; reduced transparency, outdoor, forced colors and print make every panel solid; and the page reflows and mirrors. **Settings:** staged until Apply, an inert preview, Reset, Apply and persistence, Revert to defaults, a locked setting with its owner, reordering with announcements, Find, scope, painted contrast and target sizes. **Type:** the bundled faces load, digits are tabular, the four weights differ. **Right to left:** edges, bar, frozen column, alignment, minus sign and date order, and chart text kept inside its frame. **Modes:** glass is solid in outdoor and with reduced transparency; the system preference picks the theme; forced-colors edges, buttons and marks; reduced motion; print is light, leaves out the large table and its controls, and stays under 20,000px tall; at 200% zoom nothing clips. |
-| **Glyphs** | `npm run check:glyphs` | Every character the specimen, the settings page and the glass page draw, in each theme and in French and Arabic, is covered by the bundled face that draws it, read from the WOFF2 character maps. Nothing depends on a system font. |
+| **Rendering** | `npm run check:render` | In a real browser, on [`specimen/index.html`](specimen/index.html). **In each theme:** every state is drawn with a mark and a text label, and no two states share a mark; every run of painted text meets its target against the surface actually behind it; every control shows a focus ring of at least 2px and meets the density's height; disabled controls are focusable, explained and not faded; a dark panel inside another theme resolves its own tokens; pausing changes mark and text. **Density:** the three densities measure 36/28/44px controls and 40/32/48px rows, compact never drops below 24px, type size and rows are identical in all three, rows keep one height, a coarse pointer gets touch. **Table:** the keyboard model key by key (single tab stop, arrows, Home and End, Ctrl+Home and End, paging, header reach, sort, row selection, edit, cancel, commit, Tab while editing, unsaved marks and counts, restoring a value, leaving the grid, frozen key column). **Table, continued:** range selection, copy to the clipboard, paste preview with its skips and cancel, discard; columns (show, hide, reorder within a group, widths, drag and double click, the protected key column, persistence, reset); truncation (the start is cut, the tail stays, no decision value clips, the full text is reachable). **Large table:** 12,408 rows with about twenty in the page, true `aria-rowindex`, Ctrl+End to the last row, selection across scrolling, and the performance budget. **Layers:** every action, enabled and disabled, with the status it announces; offline queueing, partial sync, a conflict and its resolution. **Ruled sheet:** 21 areas of text measured on real pixels in light, dark and outdoor (lowest 5.38, 6.55 and 9.48:1); the geometry of the spec; growth, re-fit and the 120px margin; list continuation, quick picks and focus (a real border, no shadow, text that does not move, bar and label contrast, forced colors); validation and counters; the setup bar and both menus; the modal workspace, its focus trap and keys; drafts and the discard dialog; reading lines (56px, one tab stop, selection never changes a height); print (colour drops out, a signature box); density, right to left and 200% zoom. **Glass:** the glass page rendered with its text hidden, and the contrast of every plate text colour measured against the real pixels behind it, in light, dark, outdoor and reduced transparency (79 plate runs each) and over eight scroll positions of a moving list; the stress backdrops must make bare glass fail (15 of 32 bare runs in light, 19 in dark); no glass inside glass, no text on bare glass outside the stress samples; streams within 10% to 28% and 1px to 2px, eight categories with eight line styles, hidden from assistive technology; each layer switch removes its layer; a fresh reading pulses once on its own line and not under reduced motion; live, stale, offline and maintenance panels behave as specified; reduced transparency, outdoor, forced colors and print make every panel solid; and the page reflows and mirrors. **Settings:** staged until Apply, an inert preview, Reset, Apply and persistence, Revert to defaults, a locked setting with its owner, reordering with announcements, Find, scope, painted contrast and target sizes. **Type:** the bundled faces load, digits are tabular, the four weights differ. **Right to left:** edges, bar, frozen column, alignment, minus sign and date order, and chart text kept inside its frame. **Modes:** glass is solid in outdoor and with reduced transparency; the system preference picks the theme; forced-colors edges, buttons and marks; reduced motion; print is light, leaves out the large table and its controls, and stays under 20,000px tall; at 200% zoom nothing clips. |
+| **Glyphs** | `npm run check:glyphs` | Every character the specimen, the settings page, the glass page and the ruled sheet draw, in each theme and in French and Arabic, is covered by the bundled face that draws it, read from the WOFF2 character maps. Nothing depends on a system font. |
 
 - **Lowest measured contrast at the time of writing**: text 4.58 (light), 4.50 (dark), 7.37 (outdoor); marks and edges 3.06 (light), 3.29 (dark), 4.69 (outdoor); layers 1.16 (light), 1.13 (dark), 1.18 (outdoor).
-- **Counts at the time of writing**: 464 contrast checks, 12 colour-vision checks, 2,032 render checks, 555 characters checked for coverage.
+- **Counts at the time of writing**: 464 contrast checks, 12 colour-vision checks, 2,195 render checks, 621 characters checked for coverage.
 - **The render check can reproduce another machine's rendering**: `RA_CHROMIUM_ARGS=--font-render-hinting=full npm run check:render` gives the pixel-snapped glyph widths of the CI runner. The suite passes in both modes.
-- **The checks were tested against the defects they target**: a plate thinned to 45% or a stray text run on bare glass fails the glass checks, and re-introducing an overflowing field, a state edge drawn with `box-shadow`, a paler muted text, a component token declared on the root alone, or a character missing from the bundled face makes them fail.
+- **The checks were tested against the defects they target**: a plate thinned to 45% or a stray text run on bare glass fails the glass checks, a focus bar drawn as `box-shadow`, the primitive `aero-blue-800` for the focus label, a list that rebuilds on selection, a 26px chip or a panel that stops trapping focus fails the sheet checks, and re-introducing an overflowing field, a state edge drawn with `box-shadow`, a paler muted text, a component token declared on the root alone, or a character missing from the bundled face makes them fail.
 - **Review renders** are written to [`specimen/screenshots/`](specimen/screenshots/): each theme, grayscale, forced colors, print and 200% zoom. Grayscale is reviewed by eye.
 
-**What the checks cannot tell us.** Text on glass is now measured on real pixels, but only over procedural stress backdrops, not photographs, video or maps. Real sunlight on a real screen, colour perception by people rather than a simulation, how screen readers actually announce the grid and the status lines (the checks read the attributes, not the speech), whether Arabic readers find the mirrored layout right, performance on large tables and low-end devices, and a real sync conflict, and a real clipboard (paste is tested with a dispatched paste event carrying text) all need people and devices. The keyboard model is tested in Chromium only.
+**What the checks cannot tell us.** Text on glass is now measured on real pixels, but only over procedural stress backdrops, not photographs, video or maps. Real sunlight on a real screen, colour perception by people rather than a simulation, how screen readers actually announce the grid and the status lines (the checks read the attributes, not the speech), whether Arabic readers find the mirrored layout right, performance on large tables and low-end devices, and a real sync conflict, the Ruled Sheet with a screen reader, an input method or a printer, and a real clipboard (paste is tested with a dispatched paste event carrying text) all need people and devices. The keyboard model is tested in Chromium only.
 
 ## Acceptance Criteria
 
@@ -2057,6 +2097,15 @@ These are renders of the working specimen, written by `npm run check:render`.
 ![Realis Aero glass, outdoor](specimen/screenshots/glass-outdoor.png)  
 *Glass in outdoor: every panel solid.*
 
+![Realis Aero ruled sheet, writing](specimen/screenshots/sheet-write.png)
+*The Writing Workspace: setup in one bar, the ruled sheet as the page, focus on Findings, one highlighted part, one filled action.*
+
+![Realis Aero ruled sheet, writing in dark](specimen/screenshots/sheet-write-dark.png)
+*The sheet in dark, where the original focus colours measured 1.45:1.*
+
+![Realis Aero ruled sheet, reading](specimen/screenshots/sheet-read.png)
+*Reading: one page per day, fixed-height ruled lines, the full entry in the pane.*
+
 ![Realis Aero settings](specimen/screenshots/settings.png)  
 *Settings: staged until Apply, an inert preview, and a locked setting with its owner.*
 
@@ -2067,8 +2116,8 @@ These are renders of the working specimen, written by `npm run check:render`.
 
 - **Done in v0.3 and v0.3.1**: tonal ladder, domain semantics, the Ruled Sheet and Writing Workspace.
 - **Done in v0.4**: state system, live values and data quality, three-tier tokens, dark and outdoor themes, forced colors, print, specimen and checks.
-- **Done in v0.5**: density, the table model (keyboard, range, copy and paste, columns, truncation, large tables), layered state and offline, bundled typography, right to left, settings, performance budgets, and the smaller sections.
-- **Ruled Sheet in the specimen**: add the sheet to the specimen in all three themes and densities, and to the render check.
+- **Done in v0.5**: density, the table model (keyboard, range, copy and paste, columns, truncation, large tables), layered state and offline, bundled typography, right to left, settings, performance budgets, glass, the Ruled Sheet and Writing Workspace, and the smaller sections.
+- **Ruled Sheet, continued**: file attachment with upload and quota (the specimen only reveals the field), a screen-reader pass over the sheet and the reading pages, input-method composition, and a real print and photocopy test.
 - **Tables, continued**: multi-column sort, row grouping, filters inside a column, export (the large table points to it), and bringing table edits into the named-change Undo of the layers model.
 - **Measure on a device**: run the large-table budget on a low-end phone and a low-end laptop, and add frames per second while scrolling, which the check cannot see.
 - **Pseudo-localization**: a test build that expands every string by 40% and marks missing translations, to test the expansion rule.
