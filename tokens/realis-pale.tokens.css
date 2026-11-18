@@ -1,0 +1,146 @@
+/* Realis Pale tokens, v0.2 (draft).
+ * Dusk is the default. Late and Deep are dimmer hours of the same names, chosen by
+ * data-hour on the root. Last Light is the daytime variant, data-theme="last-light".
+ * Components use these names only, so they do not know which hour it is.
+ * Contrast of every pair is computed by tools/check-pale.mjs and published in
+ * realis-pale.md, section 3.6. */
+
+/* Registered so that a change of hour can cross-fade instead of jumping. */
+@property --rp-evening  { syntax: "<color>"; inherits: true; initial-value: #1B2133; }
+@property --rp-shade    { syntax: "<color>"; inherits: true; initial-value: #232A3E; }
+@property --rp-overcast { syntax: "<color>"; inherits: true; initial-value: #2C3550; }
+@property --rp-fog      { syntax: "<color>"; inherits: true; initial-value: #374262; }
+@property --rp-mist     { syntax: "<color>"; inherits: true; initial-value: #7380A0; }
+@property --rp-paper    { syntax: "<color>"; inherits: true; initial-value: #E9DFCF; }
+@property --rp-heading  { syntax: "<color>"; inherits: true; initial-value: #F3DFAE; }
+@property --rp-ash      { syntax: "<color>"; inherits: true; initial-value: #C0BCD0; }
+@property --rp-haze     { syntax: "<color>"; inherits: true; initial-value: #B3AECB; }
+@property --rp-lantern  { syntax: "<color>"; inherits: true; initial-value: #EBC57E; }
+@property --rp-skyline  { syntax: "<color>"; inherits: true; initial-value: #A3BEDA; }
+@property --rp-lichen   { syntax: "<color>"; inherits: true; initial-value: #A9C3A3; }
+@property --rp-rose     { syntax: "<color>"; inherits: true; initial-value: #E3A6A1; }
+@property --rp-wisp     { syntax: "<color>"; inherits: true; initial-value: #BDB0E0; }
+@property --rp-sky-top  { syntax: "<color>"; inherits: true; initial-value: #2A3558; }
+@property --rp-sky-mid  { syntax: "<color>"; inherits: true; initial-value: #5B4A74; }
+@property --rp-sky-low  { syntax: "<color>"; inherits: true; initial-value: #B8806A; }
+@property --rp-sky-glow { syntax: "<color>"; inherits: true; initial-value: #E8B77A; }
+
+:root {
+  /* surfaces: a visible twilight, not black */
+  --rp-evening: #1B2133;
+  --rp-shade: #232A3E;
+  --rp-overcast: #2C3550;
+  --rp-fog: #374262;
+  --rp-mist: #7380A0;
+  /* text: warm paper for reading, pale gold for headings, dusk lilac for what is quieter */
+  --rp-paper: #E9DFCF;
+  --rp-heading: #F3DFAE;
+  --rp-ash: #C0BCD0;
+  --rp-haze: #B3AECB;
+  /* light */
+  --rp-lantern: #EBC57E;
+  --rp-skyline: #A3BEDA;
+  --rp-lichen: #A9C3A3;
+  --rp-rose: #E3A6A1;
+  --rp-wisp: #BDB0E0;
+  --rp-spark: #F4DDA6;
+  /* the sky: decorative, never behind text. Zenith, the violet between, the low rose-amber, and the glow of a sun that has just gone */
+  --rp-sky-top: #2A3558;
+  --rp-sky-mid: #5B4A74;
+  --rp-sky-low: #B8806A;
+  --rp-sky-glow: #E8B77A;
+  --rp-stars: 0.15;
+  /* the dark shapes in the illustrations: people, roofs, doors against a lit sky */
+  --rp-silhouette: #141A2B;
+  /* the label on a filled Lantern and the fill itself, so Last Light can differ */
+  --rp-lantern-fill: #EBC57E;
+  --rp-on-lantern: #1B2133;
+
+  /* the hour scales glow and motion: 1, 0.8, 0.6 and 1, 1.25, 1.5 */
+  --rp-glow-k: 1;
+  --rp-time-k: 1;
+  /* a real change of hour takes 20 minutes; a demo can shorten it */
+  --rp-fade: 1200s;
+
+  /* glow: light, not shadow */
+  --rp-glow-1: 0 0 12px rgb(233 199 131 / calc(0.14 * var(--rp-glow-k)));
+  --rp-glow-2: 0 0 24px rgb(233 199 131 / calc(0.20 * var(--rp-glow-k)));
+  --rp-glow-3: 0 0 40px rgb(233 199 131 / calc(0.26 * var(--rp-glow-k)));
+  --rp-glow-sky: 0 0 12px rgb(157 186 214 / calc(0.16 * var(--rp-glow-k)));
+  --rp-glow-spark: 0 0 16px rgb(244 221 166 / 0.30);
+  --rp-edge-light: inset 0 1px 0 rgb(232 228 218 / 0.05);
+
+  /* type */
+  --rp-font-ui: "Source Sans 3", "Noto Sans Arabic", system-ui, sans-serif;
+  --rp-font-reading: "Source Serif 4", Georgia, serif;
+  --rp-font-mono: "Source Code Pro", ui-monospace, monospace;
+
+  /* space and shape */
+  --rp-space: 4px;
+  --rp-radius-sm: 8px;
+  --rp-radius-md: 12px;
+  --rp-radius-lg: 16px;
+  --rp-radius-xl: 24px;
+  --rp-target: 44px;
+
+  /* motion */
+  --rp-ease: cubic-bezier(0.25, 0.6, 0.3, 1);
+  --rp-fast: calc(200ms * var(--rp-time-k));
+  --rp-base: calc(400ms * var(--rp-time-k));
+  --rp-slow: calc(800ms * var(--rp-time-k));
+  --rp-drift: calc(1400ms * var(--rp-time-k));
+}
+
+:root[data-hour="late"] {
+  --rp-evening: #151A2B; --rp-shade: #1C2236; --rp-overcast: #242B44; --rp-fog: #2E3752; --rp-mist: #6D7A99;
+  --rp-paper: #DCD2C2; --rp-heading: #E5D0A0; --rp-ash: #B1AEC2; --rp-haze: #A6A2BD;
+  --rp-lantern: #E4BF78; --rp-skyline: #98B4D0; --rp-lichen: #9FB99A; --rp-rose: #D9A09B; --rp-wisp: #B3A6D6;
+  --rp-sky-top: #1A2140; --rp-sky-mid: #35305A; --rp-sky-low: #7A5560; --rp-sky-glow: #B88A6A; --rp-stars: 0.3; --rp-silhouette: #10152A;
+  --rp-lantern-fill: #E4BF78; --rp-on-lantern: #151A2B;
+  --rp-glow-k: 0.8; --rp-time-k: 1.25;
+}
+:root[data-hour="deep"] {
+  --rp-evening: #0F1320; --rp-shade: #151A2A; --rp-overcast: #1C2236; --rp-fog: #252D45; --rp-mist: #66728F;
+  --rp-paper: #CCC3B5; --rp-heading: #D4C190; --rp-ash: #A19EB3; --rp-haze: #9793AF;
+  --rp-lantern: #D4B06C; --rp-skyline: #8AA6C0; --rp-lichen: #93AD8F; --rp-rose: #CC928F; --rp-wisp: #A69BC7;
+  --rp-sky-top: #10152A; --rp-sky-mid: #1B2040; --rp-sky-low: #55404A; --rp-sky-glow: #7A5A5A; --rp-stars: 0.5; --rp-silhouette: #0A0D18;
+  --rp-lantern-fill: #D4B06C; --rp-on-lantern: #0F1320;
+  --rp-glow-k: 0.6; --rp-time-k: 1.5;
+}
+
+/* Last Light: warm paper at the end of the day. Same role names, new values.
+ * Glow is off because a glow on pale paper adds nothing; edges and focus rings carry state. */
+:root[data-theme="last-light"] {
+  --rp-evening: #ECE8DF;   /* linen */
+  --rp-shade: #F5F2EA;     /* parchment */
+  --rp-overcast: #DDD8CC;  /* stone */
+  --rp-fog: #DDD8CC;
+  --rp-mist: #767E90;      /* edge */
+  --rp-paper: #1D2432;     /* ink */
+  --rp-heading: #5A3B0B;   /* umber */
+  --rp-ash: #444E60;       /* ink-soft */
+  --rp-haze: #5B6577;      /* ink-faint */
+  --rp-lantern: #7C5410;   /* amber */
+  --rp-skyline: #2C5780;   /* sky */
+  --rp-lichen: #3F6A3F;    /* moss */
+  --rp-rose: #8A3F3B;      /* clay */
+  --rp-wisp: #5B4B8A;
+  --rp-sky-top: #EAD9C4; --rp-sky-mid: #F0CFAF; --rp-sky-low: #F0B88C; --rp-sky-glow: #F7D9A8; --rp-stars: 0; --rp-silhouette: #2A2F3D;
+  --rp-lantern-fill: #E9C783;
+  --rp-on-lantern: #1D2432;
+  --rp-glow-k: 0;
+  --rp-time-k: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --rp-time-k: 0.5; --rp-fade: 0.01s; }
+}
+
+/* More contrast: surfaces flatten, borders go to the text colour, glows become borders. */
+@media (prefers-contrast: more) {
+  :root { --rp-mist: var(--rp-paper); --rp-glow-k: 0; }
+}
+
+@media (forced-colors: active) {
+  :root { --rp-glow-k: 0; }
+}

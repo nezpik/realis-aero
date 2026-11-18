@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en" dir="ltr" data-hour="dusk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Realis Pale specimen</title>
+<script>
+  // ?hour=dusk|late|deep, ?theme=last-light. The saved choice is read in pale.js; these are for review renders.
+  (function () {
+    var q = new URLSearchParams(location.search), r = document.documentElement;
+    if (q.get('hour')) r.dataset.hour = q.get('hour');
+    if (q.get('theme')) r.dataset.theme = q.get('theme');
+  })();
+</script>
+<link rel="stylesheet" href="../fonts/realis-aero.fonts.css">
+<link rel="stylesheet" href="../fonts/realis-pale.fonts.css">
+<link rel="stylesheet" href="../tokens/realis-pale.tokens.css">
+<link rel="stylesheet" href="pale/pale.css">
+</head>
+<body>
+<a class="skip" href="#notebook">Skip to the Notebook</a>
+<header class="bar" id="bar">
+  <div class="bar__title"><span class="bar__mark" aria-hidden="true"></span><strong>Realis Pale</strong> <span class="bar__ver">specimen v0.3</span></div>
+  <div class="bar__controls">
+    <div class="seg" role="group" aria-label="Hour of light" id="hours">
+      <button type="button" class="seg__b" data-hour-btn="dusk" aria-pressed="true">Dusk</button>
+      <button type="button" class="seg__b" data-hour-btn="late" aria-pressed="false">Late</button>
+      <button type="button" class="seg__b" data-hour-btn="deep" aria-pressed="false">Deep</button>
+    </div>
+    <button type="button" class="btn btn--quiet" id="theme" aria-pressed="false">Last Light</button>
+    <label class="check"><input type="checkbox" id="follow"> <span>Follow my evening</span></label>
+    <label class="check check--demo"><span>Clock</span>
+      <select id="clock" aria-label="Clock used by Follow my evening">
+        <option value="real">this device</option><option value="18:30">18:30 (demo)</option><option value="21:30">21:30 (demo)</option><option value="23:45">23:45 (demo)</option>
+      </select></label>
+  </div>
+</header>
+
+<main>
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero__art" id="art-steps" role="img" aria-label="Someone sits on the steps outside a library at dusk, writing in a notebook by a lamp, with the last pale band of light on the roofline."></div>
+  <div class="hero__text">
+    <p class="eyebrow">Design direction, v0.3</p>
+    <h1 id="hero-title">Realis Pale</h1>
+    <p class="hero__lede">Notebooks, bookmarks, wikis and graphs of your own thinking. A small light, kept on.</p>
+    <p class="hero__act"><button type="button" class="lantern" id="continue">Open the page you were on</button>
+      <a class="link" href="#keeps">or add something you found</a></p>
+  </div>
+</section>
+
+<section class="sec" aria-labelledby="h-parts">
+  <h2 id="h-parts">The parts</h2>
+  <div class="grid">
+    <article class="pane pane--lit" aria-labelledby="p1">
+      <h3 id="p1">A page you were writing</h3>
+      <p class="muted" id="p1-text">Entropy. Four lines, last touched yesterday evening.</p>
+      <p><button type="button" class="btn" id="p1-open">Open the page</button></p>
+    </article>
+    <article class="pane" aria-labelledby="p2">
+      <h3 id="p2">Coming back</h3>
+      <div class="wick" role="img" aria-label="The Wick, last seven evenings. You came back on Monday, Tuesday, Thursday and Saturday."></div>
+      <p class="muted">Still here. Nothing was lost while you were away.</p>
+    </article>
+    <article class="pane" aria-labelledby="p3">
+      <h3 id="p3">Glimmers</h3>
+      <label class="check"><input type="checkbox" id="glimmers"> <span>Allow a Glimmer in my hours</span></label>
+      <p class="muted" id="glimmer-note">Off. Nothing will appear in your hours unless you ask.</p>
+      <p class="glimmer" id="glimmer" hidden><span class="glimmer__dot" aria-hidden="true"></span> A page you kept is waiting where you left it.</p>
+    </article>
+    <article class="pane" aria-labelledby="p4">
+      <h3 id="p4">No threads yet</h3>
+      <p><span class="mark mark--rose" aria-hidden="true"></span><strong>Not linked.</strong> This page stands on its own. That is fine.</p>
+      <p><button type="button" class="btn" id="p4-link">Find a page to link</button></p>
+    </article>
+  </div>
+  <figure class="wide"><div id="art-path" role="img" aria-label="The Trail: the pages walked through this evening, lit as far as the person has been, dotted and dark beyond."></div>
+    <figcaption>The Trail is the pages you have walked through, lit as far as you have been. The dark beyond is the rest of what you have, not a gap.</figcaption></figure>
+</section>
+
+<section class="sec" id="notebook" aria-labelledby="h-notebook">
+  <h2 id="h-notebook">Notebook</h2>
+  <p class="muted">Pages in your own words. Write <code>[[Another page]]</code> and a thread is made. Everything stays in this browser.</p>
+  <div class="nb">
+    <nav class="nb__list" aria-label="Pages"><ul id="pages"></ul><p><button type="button" class="btn" id="new-page">New page</button></p></nav>
+    <article class="nb__page" id="page" aria-labelledby="page-title-label">
+      <label for="page-title" class="sr" id="page-title-label">Page title</label>
+      <input type="text" id="page-title" class="nb__title" maxlength="60" autocomplete="off">
+      <div class="seg" role="group" aria-label="Edit or read"><button type="button" class="seg__b" data-mode-btn="edit" aria-pressed="true">Write</button><button type="button" class="seg__b" data-mode-btn="read" aria-pressed="false">Read</button></div>
+      <label for="page-body" class="sr">Page text</label>
+      <textarea id="page-body" rows="9" placeholder="Blank is fine."></textarea>
+      <div id="page-read" class="nb__read" hidden></div>
+      <p class="muted small" id="page-status">Saved on this device.</p>
+      <div class="nb__links">
+        <div><h3>Linked from</h3><ul class="plain" id="backlinks"></ul></div>
+        <div><h3>Kept for this page</h3><ul class="plain" id="page-keeps"></ul></div>
+      </div>
+      <div class="tags"><label class="stack"><span>Link this page to&hellip;</span> <select id="link-to"></select></label>
+        <button type="button" class="btn" id="link-do">Link</button></div>
+      <div class="tags"><label class="stack"><span>How is it, in your own words?</span> <input type="text" id="tag" maxlength="24" autocomplete="off"></label>
+        <button type="button" class="btn" id="tag-add">Add</button>
+        <ul class="chips" id="chips" aria-label="Your words"></ul></div>
+      <p><button type="button" class="btn" id="ask" aria-expanded="false" aria-controls="questions">Ask me something</button></p>
+      <ul class="questions" id="questions" hidden><li>What stayed with you?</li><li>What still doesn't fit?</li><li>What are you carrying tonight?</li></ul>
+    </article>
+  </div>
+</section>
+
+<section class="sec" id="keeps" aria-labelledby="h-keeps">
+  <h2 id="h-keeps">Keeps</h2>
+  <p class="muted">Things you found and want to find again, with a line of your own about why. Nothing is fetched: a Keep is the address and your words.</p>
+  <form class="keepform" id="keepform" autocomplete="off">
+    <label class="stack"><span>Address</span> <input type="text" id="keep-url" placeholder="https://example.org/an-article" inputmode="url"></label>
+    <label class="stack"><span>Name</span> <input type="text" id="keep-title" maxlength="80"></label>
+    <label class="stack keepform__note"><span>Why you kept it</span> <input type="text" id="keep-note" maxlength="140"></label>
+    <button type="submit" class="btn" id="keep-add">Keep it</button>
+  </form>
+  <ul class="keeps" id="keeplist"></ul>
+</section>
+
+<section class="sec" id="field" aria-labelledby="h-field">
+  <h2 id="h-field">Graph</h2>
+  <p class="muted">Your pages and the threads between them, laid out however you like. Dark is a page you have not opened in a while, and it is not a gap. Nothing is arranged for you.</p>
+  <div class="toolbar">
+    <div class="seg" role="group" aria-label="View of your pages">
+      <button type="button" class="seg__b" data-view-btn="field" aria-pressed="true">Graph</button>
+      <button type="button" class="seg__b" data-view-btn="path" aria-pressed="false">Trail</button>
+      <button type="button" class="seg__b" data-view-btn="list" aria-pressed="false">List</button>
+    </div>
+    <button type="button" class="btn" id="tidy">Tidy</button>
+    <button type="button" class="btn" id="untidy" disabled>Undo tidy</button>
+  </div>
+  <div class="views">
+    <div class="view view--field" id="view-field" data-view="field">
+      <div class="field" id="plane" role="group" aria-label="Graph. Arrow keys move the focused page; Enter opens it.">
+        <svg class="links" id="links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+      </div>
+    </div>
+    <div class="view" id="view-path" data-view="path" hidden><ol class="pathlist" id="pathlist"></ol></div>
+    <div class="view" id="view-list" data-view="list" hidden><ul class="list" id="list"></ul></div>
+  </div>
+  <p class="sr" id="announce" role="status" aria-live="polite"></p>
+</section>
+
+<section class="sec" id="sketch" aria-labelledby="h-sketch">
+  <h2 id="h-sketch">Sketch</h2>
+  <p class="muted">An idea diagram: boxes and arrows with no order imposed. A solid arrow leads to; a dashed one might relate.</p>
+  <div class="toolbar">
+    <label class="stack inline"><span>New box</span> <input type="text" id="box-text" maxlength="40" autocomplete="off"></label>
+    <button type="button" class="btn" id="box-add">Add box</button>
+    <label class="stack inline"><span>From</span> <select id="arrow-from"></select></label>
+    <label class="stack inline"><span>To</span> <select id="arrow-to"></select></label>
+    <label class="stack inline"><span>Kind</span> <select id="arrow-kind"><option value="leads">leads to</option><option value="relates">might relate</option></select></label>
+    <button type="button" class="btn" id="arrow-add">Draw arrow</button>
+  </div>
+  <div class="field sketch" id="sketchplane" role="group" aria-label="Sketch. Arrow keys move the focused box.">
+    <svg class="links" id="arrows" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <defs><marker id="head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" class="arrowhead"/></marker></defs>
+    </svg>
+  </div>
+  <ul class="plain small" id="arrow-list" aria-label="Arrows in this sketch"></ul>
+</section>
+
+<section class="sec" id="bench" aria-labelledby="h-bench">
+  <h2 id="h-bench">Bench</h2>
+  <p class="muted bench-chrome">Reading mode for a page: the lamp over the door and nothing else. The exit is always visible.</p>
+  <p class="bench-chrome"><button type="button" class="btn" id="bench-enter" aria-pressed="false">Sit at the Bench</button></p>
+  <article class="reading" id="reading" aria-label="Reading">
+    <h3>What the dark is for</h3>
+    <p>It is easy to think of a light as something that arrives at the end: the room is dark, then it is lit, and the work is finished. Most evenings are not like that. The light is low from the start, and it stays low, and you read by it anyway.</p>
+    <p>There is a particular kind of attention that only comes when nothing is being asked of you. No one is waiting for the answer. A paragraph can be read three times, and the third time it is a different paragraph. Nothing is lost by going slowly.</p>
+    <p><em>Entropy</em> is a word that stays vague until the evening you try to explain it to yourself without the book. It is a measure of how many ways a thing can be arranged without anyone being able to tell. You are not behind. You are somewhere in the middle of it.</p>
+    <p class="reading__exit"><button type="button" class="btn" id="bench-exit" hidden>Leave the Bench</button></p>
+  </article>
+</section>
+</main>
+<footer class="foot"><p>Realis Pale specimen v0.3: a draft for review. The hours, the Notebook, Keeps, the Graph and the Sketch are real and keyboard-driven; none of it has been tested with people. Everything you type stays in this browser.</p></footer>
+
+<script src="pale/art.js"></script>
+<script src="pale/pale.js"></script>
+</body>
+</html>

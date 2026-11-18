@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en" data-hour="dusk">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Realis Pale illustrations</title>
+<script>(function () { var q = new URLSearchParams(location.search), r = document.documentElement; if (q.get('hour')) r.dataset.hour = q.get('hour'); if (q.get('theme')) r.dataset.theme = q.get('theme'); })();</script>
+<link rel="stylesheet" href="../fonts/realis-aero.fonts.css"><link rel="stylesheet" href="../fonts/realis-pale.fonts.css"><link rel="stylesheet" href="../tokens/realis-pale.tokens.css">
+<style>
+  body { margin: 0; background: var(--rp-evening); color: var(--rp-paper); font: 400 16px/1.5 var(--rp-font-ui); padding: 32px; }
+  h1 { font-weight: 500; font-size: 28px; margin: 0 0 4px; } p.sub { color: var(--rp-ash); margin: 0 0 24px; max-width: 70ch; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; } figure { margin: 0; } figcaption { color: var(--rp-ash); font-size: 14px; margin-top: 8px; }
+  .card { background: var(--rp-shade); border: 1px solid var(--rp-mist); border-radius: 16px; overflow: hidden; } .card svg { display: block; width: 100%; height: auto; }
+  .pad { padding: 16px; }
+</style>
+</head>
+<body>
+<h1>Realis Pale: illustrations</h1>
+<p class="sub">Drawn in code from the tokens, so each one follows the hour and the theme. One lit thing in each; the dark is part of the picture.</p>
+<figure class="card" style="margin-bottom:24px"><div id="a1"></div></figure>
+<div class="row">
+  <figure><div class="card pad" id="a2"></div><figcaption>An empty state: a bench under a lamp, and a path that goes on past the edge.</figcaption></figure>
+  <figure><div class="card pad" id="a3"></div><figcaption>The Spark: two ideas meet, one brief point of light, and the link stays.</figcaption></figure>
+</div>
+<figure class="card"><div id="a4"></div></figure>
+<script src="pale/art.js"></script>
+<script>
+  document.getElementById('a1').innerHTML = RealisPaleArt.steps(); document.getElementById('a2').innerHTML = RealisPaleArt.bench();
+  document.getElementById('a3').innerHTML = RealisPaleArt.spark(); document.getElementById('a4').innerHTML = RealisPaleArt.path();
+  document.querySelectorAll('svg').forEach(function (s) { s.setAttribute('aria-hidden', 'true'); s.removeAttribute('role'); s.removeAttribute('aria-label'); });
+</script>
+</body></html>
